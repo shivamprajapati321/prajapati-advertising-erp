@@ -1,8 +1,23 @@
 const AUTH = {
-  SUPABASE_URL: 'https://shafygjbffffjhwhmcgo.supabase.co',
-  SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM5MTE1NzMsImV4cCI6MjAyOTQ4NzU3M30.M8-p_PgqNaV_k-J5L6D3V8ZJZPfxQW0X0Y1Z2A3B4C5D',
-  WATI_URL: 'https://live-mt-server.wati.io/1077226',
-  WATI_JWT: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiMTA3NzIyNiIsImh0dHBzOi8vd2F0aS5pbyI6eyJhY2NvdW50X2lkIjoiMTA3NzIyNiIsInNlbmRlciI6dHJ1ZSwiYWNjZXNzX2xldmVsIjoiQUNDT1VOVF9BRE1JTiIsInVzZXJfaWQiOiJ1c2VyLTEwNzcyMjYtYWRtaW4ifX0.jH-0SHK-_5KZ-6L-7M-8N-9O-0P-1Q-2R-3S-4T-5U',
+  
+  async getSupabase() {
+    if (window.supabase && window.supabase.from) {
+      return window.supabase;
+    }
+    
+    const { createClient } = window.supabase;
+    if (!createClient) {
+      throw new Error('Supabase library not loaded');
+    }
+
+    window.supabase = createClient(
+      CONFIG.SUPABASE_URL,
+      CONFIG.SUPABASE_ANON_KEY
+    );
+    
+    console.log('✅ Supabase client created');
+    return window.supabase;
+  },
 
   requireLogin() {
     const session = localStorage.getItem('prajapati_session');
@@ -31,65 +46,50 @@ const AUTH = {
       sessionStorage.setItem('pending_otp', otp);
       console.log('💾 Step 4: Stored OTP in session');
 
-      // Try Wati API
-      console.log('📤 Step 5: Calling Wati API...');
-      console.log('  URL:', this.WATI_URL + '/api/v1/sendTemplateMessage');
-      
-      const watiPayload = {
-        waNumber: fullPhone,
-        templateName: 'login_otp',
-        placeholders: [otp],
-        broadcast_name: 'Prajapati ERP Login'
-      };
-      console.log('  Payload:', JSON.stringify(watiPayload, null, 2));
+      // Try Wati API (optional - may fail, but continue)
+      try {
+        console.log('📤 Step 5: Calling Wati API...');
+        
+        const watiPayload = {
+          waNumber: fullPhone,
+          templateName: 'login_otp',
+          placeholders: [otp],
+          broadcast_name: 'Prajapati ERP Login'
+        };
 
-      const watiResponse = await fetch(this.WATI_URL + '/api/v1/sendTemplateMessage', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': this.WATI_JWT
-        },
-        body: JSON.stringify(watiPayload)
-      });
+        const watiResponse = await fetch(CONFIG.WATI_URL + '/api/v1/sendTemplateMessage', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': CONFIG.WATI_JWT
+          },
+          body: JSON.stringify(watiPayload)
+        });
 
-      console.log('📡 Step 6: Wati response status:', watiResponse.status);
-      
-      // Get response as TEXT first (not JSON)
-      const responseText = await watiResponse.text();
-      console.log('📦 Step 7: Response text:', responseText);
+        console.log('📡 Wati response status:', watiResponse.status);
+        
+        const responseText = await watiResponse.text();
+        console.log('📦 Wati response:', responseText);
 
-      // Try to parse as JSON if not empty
-      let responseData = {};
-      if (responseText) {
-        try {
-          responseData = JSON.parse(responseText);
-          console.log('✅ Step 8: Parsed JSON:', responseData);
-        } catch (e) {
-          console.log('⚠️  Step 8: Not JSON, treating as text:', responseText);
-          responseData = { message: responseText };
+        if (watiResponse.ok) {
+          console.log('✅ Wati API succeeded');
+        } else {
+          console.log('⚠️  Wati API failed (non-blocking)');
         }
+      } catch (watiError) {
+        console.log('⚠️  Wati error (non-blocking):', watiError.message);
       }
 
-      if (!watiResponse.ok) {
-        console.log('❌ Wati API failed:', watiResponse.status);
-        // Continue anyway - OTP is in sessionStorage
-        console.log('💡 Continuing with local OTP fallback');
-      } else {
-        console.log('✅ Wati API succeeded');
-      }
-
-      // FALLBACK: Show OTP in alert for testing
-      alert(`✅ OTP SENT!\n\n🔐 Your OTP: ${otp}\n\n(For testing - in production sent via WhatsApp)`);
+      // Fallback: Show OTP in alert
+      alert(`✅ OTP GENERATED!\n\n🔐 Your OTP: ${otp}\n\n(In production sent via WhatsApp)`);
       
-      console.log('✅ LOGIN READY: OTP stored locally');
+      console.log('✅ OTP ready for verification');
       return true;
 
     } catch (error) {
       console.error('❌ CRITICAL ERROR:', error);
-      console.error('  Error message:', error.message);
-      console.error('  Error stack:', error.stack);
       
-      // FALLBACK: Create OTP locally
+      // Emergency fallback
       const otp = String(Math.floor(100000 + Math.random() * 900000));
       const cleanPhone = phone.replace(/[^\d]/g, '').slice(-10);
       const fullPhone = '+91' + cleanPhone;
@@ -97,8 +97,7 @@ const AUTH = {
       sessionStorage.setItem('pending_phone', fullPhone);
       sessionStorage.setItem('pending_otp', otp);
       
-      alert(`⚠️ WHATSAPP NOT AVAILABLE\n\n🔐 Your test OTP: ${otp}\n\nUse this to login.`);
-      console.log('✅ Using local OTP fallback');
+      alert(`⚠️ USING TEST OTP\n\n🔐 Your OTP: ${otp}`);
       return true;
     }
   },
@@ -123,76 +122,78 @@ const AUTH = {
       }
       console.log('✅ OTP verified');
 
-      // Initialize Supabase if needed
-      if (!window.supabase || !window.supabase.from) {
-        console.log('🔄 Initializing Supabase...');
-        const { createClient } = window.supabase;
-        window.supabase = createClient(this.SUPABASE_URL, this.SUPABASE_KEY);
+      // Get Supabase client
+      console.log('🔄 Initializing Supabase...');
+      const supabase = await this.getSupabase();
+      
+      if (!supabase || !supabase.from) {
+        throw new Error('Supabase client not available');
       }
 
       // Query user
-      console.log('🔍 Looking up user...');
-      const { data: staff, error: queryError } = await window.supabase
+      console.log('🔍 Looking up user with phone:', cleanPhone);
+      const { data: staff, error: queryError } = await supabase
         .from('prajapati_staff')
-        .select('*')
+        .select('id, phone, name, role, status')
         .eq('phone', cleanPhone)
-        .single();
+        .limit(1);
 
-      if (queryError && queryError.code !== 'PGRST116') {
+      console.log('  Query error:', queryError);
+      console.log('  Query data:', staff);
+
+      if (queryError) {
         throw new Error('Database error: ' + queryError.message);
       }
 
-      if (!staff) {
+      let user = staff && staff.length > 0 ? staff[0] : null;
+
+      if (!user) {
         // New user - create
         console.log('👤 Creating new user...');
-        const { data: newUser, error: createError } = await window.supabase
+        const { data: newUser, error: createError } = await supabase
           .from('prajapati_staff')
           .insert([{
             phone: cleanPhone,
             name: 'User ' + cleanPhone.slice(-4),
             role: 'staff',
-            status: 'active',
-            created_at: new Date().toISOString()
+            status: 'active'
           }])
           .select()
-          .single();
+          .limit(1);
 
-        if (createError) throw new Error('Create user failed: ' + createError.message);
-        
-        const session = {
-          phone: newUser.phone,
-          name: newUser.name,
-          role: newUser.role,
-          id: newUser.id,
-          loginTime: new Date().toISOString()
-        };
-        
-        localStorage.setItem('prajapati_session', JSON.stringify(session));
-        sessionStorage.removeItem('pending_otp');
-        sessionStorage.removeItem('pending_phone');
-        console.log('✅ New user created:', newUser.name);
-        return session;
+        console.log('  Create error:', createError);
+        console.log('  Created user:', newUser);
+
+        if (createError) {
+          throw new Error('Create user failed: ' + createError.message);
+        }
+
+        user = newUser && newUser.length > 0 ? newUser[0] : null;
+        if (!user) {
+          throw new Error('User creation returned empty');
+        }
       }
 
-      // Existing user
-      console.log('✅ User found:', staff.name, '(' + staff.role + ')');
+      console.log('✅ User verified:', user.name, '(' + user.role + ')');
       
       const session = {
-        phone: staff.phone,
-        name: staff.name,
-        role: staff.role,
-        id: staff.id,
+        phone: user.phone,
+        name: user.name,
+        role: user.role,
+        id: user.id,
         loginTime: new Date().toISOString()
       };
 
       localStorage.setItem('prajapati_session', JSON.stringify(session));
       sessionStorage.removeItem('pending_otp');
       sessionStorage.removeItem('pending_phone');
+      
       console.log('✅ Login successful');
       return session;
 
     } catch (error) {
       console.error('❌ Verify Error:', error.message);
+      console.error('   Stack:', error.stack);
       throw error;
     }
   },
@@ -205,11 +206,4 @@ const AUTH = {
   }
 };
 
-// Initialize Supabase on page load
-if (typeof window !== 'undefined' && window.location.pathname.includes('login')) {
-  const { createClient } = window.supabase || {};
-  if (createClient) {
-    window.supabase = createClient(AUTH.SUPABASE_URL, AUTH.SUPABASE_KEY);
-    console.log('✅ Supabase initialized for login');
-  }
-}
+console.log('✅ AUTH module loaded');
