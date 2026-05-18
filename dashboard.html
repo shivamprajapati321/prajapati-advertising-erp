@@ -6,44 +6,476 @@
   <title>Dashboard · Prajapati ERP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="theme.css">
   <style>
-    body { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #f5f5f5; }
-    .app-layout { display: flex; min-height: 100vh; }
-    .sidebar { width: 240px; background: var(--nav, #1e40af); color: white; padding: 20px; overflow-y: auto; }
-    .main { flex: 1; display: flex; flex-direction: column; }
-    .topbar { background: white; padding: 16px 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
-    .page { flex: 1; padding: 24px; overflow-y: auto; }
-    
-    .hero { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); border-radius: 16px; padding: 24px 28px; color: white; margin-bottom: 18px; position: relative; overflow: hidden; }
-    .hero::before { content: ''; position: absolute; top: -50%; right: -20%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(245,184,0,0.15) 0%, transparent 70%); }
-    .hero-greeting { font-size: 13px; font-weight: 700; opacity: 0.7; letter-spacing: 0.05em; text-transform: uppercase; }
-    .hero-name { font-size: 28px; font-weight: 800; margin: 4px 0 6px; position: relative; z-index: 1; }
-    .hero-meta { font-size: 13px; opacity: 0.8; font-weight: 600; position: relative; z-index: 1; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
-    .stat-block { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; }
-    .stat-block .lbl { font-size: 11px; font-weight: 800; color: #6b7280; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
-    .stat-block .val { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 800; color: #1f2937; }
-    .stat-block .sub { font-size: 11px; font-weight: 700; color: #6b7280; margin-top: 4px; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafb;
+      color: #1f2937;
+    }
 
-    .section { background: white; border: 1px solid #e5e7eb; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
-    .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb; }
-    .section-head h3 { font-size: 14px; font-weight: 800; color: #1e40af; letter-spacing: 0.04em; text-transform: uppercase; margin: 0; }
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
 
-    .module-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .mod-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; text-decoration: none; color: inherit; transition: all 0.15s; display: block; }
-    .mod-card:hover { transform: translateY(-3px); border-color: #f59e0b; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .mod-card .mc-icon { font-size: 28px; margin-bottom: 8px; display: block; }
-    .mod-card .mc-label { font-size: 12px; font-weight: 800; color: #1f2937; display: block; margin-bottom: 4px; }
-    .mod-card .mc-sub { font-size: 11px; color: #9ca3af; }
+    .sidebar {
+      width: 240px;
+      background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+      color: white;
+      padding: 20px;
+      overflow-y: auto;
+      position: fixed;
+      height: 100vh;
+      left: 0;
+      top: 0;
+      z-index: 100;
+    }
 
-    .empty { padding: 40px 20px; text-align: center; color: #9ca3af; font-weight: 600; font-size: 13px; }
+    .main {
+      flex: 1;
+      margin-left: 240px;
+      display: flex;
+      flex-direction: column;
+    }
 
-    @media (max-width: 900px) {
-      .stats-grid, .module-grid { grid-template-columns: repeat(2, 1fr); }
-      .sidebar { width: 200px; }
+    .topbar {
+      background: white;
+      padding: 16px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-left {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .topbar-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .page {
+      flex: 1;
+      padding: 28px 32px;
+      overflow-y: auto;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #0f172a 100%);
+      border-radius: 18px;
+      padding: 32px;
+      color: white;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(30, 64, 175, 0.15);
+      animation: slideUp 0.5s ease-out;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(245, 158, 0, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hero-left {
+      flex: 1;
+    }
+
+    .hero-greeting {
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0.85;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .hero-name {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.1;
+    }
+
+    .hero-meta {
+      font-size: 13px;
+      opacity: 0.9;
+      font-weight: 600;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-icon {
+      font-size: 64px;
+      opacity: 0.3;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+      animation: slideUp 0.6s ease-out 0.1s both;
+    }
+
+    .stat-block {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-block::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #1e40af, #f59e0b);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease-out;
+    }
+
+    .stat-block:hover {
+      border-color: #1e40af;
+      box-shadow: 0 8px 24px rgba(30, 64, 175, 0.12);
+      transform: translateY(-4px);
+    }
+
+    .stat-block:hover::before {
+      transform: scaleX(1);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #9ca3af;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 32px;
+      font-weight: 800;
+      color: #1f2937;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    .section {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      animation: slideUp 0.6s ease-out 0.2s both;
+      transition: box-shadow 0.3s ease-out;
+    }
+
+    .section:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid #f3f4f6;
+    }
+
+    .section-head h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #1e40af;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .section-head-sub {
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .mod-card {
+      background: linear-gradient(135deg, #f8fafb 0%, #f3f4f6 100%);
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      animation: scaleIn 0.4s ease-out;
+    }
+
+    .mod-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(30, 64, 175, 0.05) 0%, rgba(245, 158, 0, 0.05) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease-out;
+    }
+
+    .mod-card:hover {
+      transform: translateY(-6px);
+      border-color: #1e40af;
+      box-shadow: 0 12px 28px rgba(30, 64, 175, 0.15);
+    }
+
+    .mod-card:hover::before {
+      opacity: 1;
+    }
+
+    .mod-card:nth-child(2):hover {
+      border-color: #f59e0b;
+      box-shadow: 0 12px 28px rgba(245, 158, 0, 0.15);
+    }
+
+    .mod-card:nth-child(3):hover {
+      border-color: #10b981;
+      box-shadow: 0 12px 28px rgba(16, 185, 129, 0.15);
+    }
+
+    .mod-card:nth-child(4):hover {
+      border-color: #ef4444;
+      box-shadow: 0 12px 28px rgba(239, 68, 68, 0.15);
+    }
+
+    .mc-icon {
+      font-size: 32px;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .mod-card:hover .mc-icon {
+      animation: none;
+      transform: scale(1.1);
+    }
+
+    .mc-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1f2937;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mc-sub {
+      font-size: 11px;
+      color: #9ca3af;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .stats-grid,
+      .module-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 60px;
+        padding: 12px;
+      }
+
+      .main {
+        margin-left: 60px;
+      }
+
+      .page {
+        padding: 16px;
+      }
+
+      .hero {
+        padding: 20px;
+      }
+
+      .hero-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+      }
+
+      .hero-name {
+        font-size: 24px;
+      }
+
+      .stats-grid,
+      .module-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+
+    /* Loading animation */
+    .loading {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #1e40af;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* Smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Hide scrollbar but keep functionality */
+    .page::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .page::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .page::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 3px;
+    }
+
+    .page::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
     }
   </style>
 </head>
@@ -54,7 +486,10 @@
   <main class="main">
     <header class="topbar" id="topbar"></header>
     <div class="page" id="dashboard-page">
-      <div style="text-align:center;padding:60px;color:#9ca3af">⏳ Loading dashboard...</div>
+      <div style="text-align:center;padding:60px;color:#9ca3af">
+        <div class="loading" style="margin: 0 auto 12px;"></div>
+        Loading dashboard...
+      </div>
     </div>
   </main>
 </div>
@@ -63,6 +498,7 @@
 <script src="lib-config.js"></script>
 <script src="lib-auth.js"></script>
 <script src="lib-ui.js"></script>
+
 <script>
 (async function() {
   try {
@@ -77,117 +513,153 @@
 
     const container = document.getElementById('dashboard-page');
     const role = session.role || 'staff';
-    const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    
+    const userName = session.name || 'User';
+    const today = new Date().toLocaleDateString('en-IN', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+
     let html = `
       <div class="hero">
-        <div class="hero-greeting">Welcome back 👋</div>
-        <div class="hero-name">${session.name || 'User'}</div>
-        <div class="hero-meta">📅 ${today} · Role: <strong>${role}</strong></div>
+        <div class="hero-content">
+          <div class="hero-left">
+            <div class="hero-greeting">Welcome back 👋</div>
+            <div class="hero-name">${userName}</div>
+            <div class="hero-meta">
+              <span>📅 ${today}</span>
+              <span>•</span>
+              <span>Role: <strong>${role}</strong></span>
+            </div>
+          </div>
+          <div class="hero-icon">🚀</div>
+        </div>
       </div>
 
       <div class="stats-grid">
         <div class="stat-block">
-          <div class="lbl">📊 System Status</div>
-          <div class="val">✅</div>
-          <div class="sub">All modules online</div>
+          <div class="stat-label">📊 System Status</div>
+          <div class="stat-value">✅</div>
+          <div class="stat-sub">All modules online</div>
         </div>
         <div class="stat-block">
-          <div class="lbl">👥 Active Users</div>
-          <div class="val">38</div>
-          <div class="sub">Connected now</div>
+          <div class="stat-label">👥 Active Users</div>
+          <div class="stat-value">38</div>
+          <div class="stat-sub">Connected now</div>
         </div>
         <div class="stat-block">
-          <div class="lbl">📦 Pending Orders</div>
-          <div class="val">12</div>
-          <div class="sub">In production</div>
+          <div class="stat-label">📦 Pending Orders</div>
+          <div class="stat-value">12</div>
+          <div class="stat-sub">In production</div>
         </div>
         <div class="stat-block">
-          <div class="lbl">💰 Today's Revenue</div>
-          <div class="val">₹2.4L</div>
-          <div class="sub">On track</div>
+          <div class="stat-label">💰 Today's Revenue</div>
+          <div class="stat-value">₹2.4L</div>
+          <div class="stat-sub">On track</div>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-head"><h3>📦 Available Modules</h3></div>
+        <div class="section-head">
+          <h3>📦 Available Modules</h3>
+          <span class="section-head-sub">8 modules</span>
+        </div>
         <div class="module-grid">
           <a href="orders.html" class="mod-card">
-            <span class="mc-icon">📋</span>
-            <span class="mc-label">Orders</span>
-            <span class="mc-sub">Multi-location</span>
+            <div class="mc-icon">📋</div>
+            <div class="mc-label">Orders</div>
+            <div class="mc-sub">Multi-location</div>
           </a>
           <a href="execution.html" class="mod-card">
-            <span class="mc-icon">🛺</span>
-            <span class="mc-label">Execution</span>
-            <span class="mc-sub">Field tracking</span>
+            <div class="mc-icon">🛺</div>
+            <div class="mc-label">Execution</div>
+            <div class="mc-sub">Field tracking</div>
           </a>
           <a href="printing.html" class="mod-card">
-            <span class="mc-icon">🖨️</span>
-            <span class="mc-label">Printing</span>
-            <span class="mc-sub">Job tracking</span>
+            <div class="mc-icon">🖨️</div>
+            <div class="mc-label">Printing</div>
+            <div class="mc-sub">Job tracking</div>
           </a>
           <a href="stitching.html" class="mod-card">
-            <span class="mc-icon">✂️</span>
-            <span class="mc-label">Stitching</span>
-            <span class="mc-sub">Quality control</span>
+            <div class="mc-icon">✂️</div>
+            <div class="mc-label">Stitching</div>
+            <div class="mc-sub">Quality control</div>
           </a>
           <a href="dispatch.html" class="mod-card">
-            <span class="mc-icon">🚚</span>
-            <span class="mc-label">Dispatch</span>
-            <span class="mc-sub">Logistics</span>
+            <div class="mc-icon">🚚</div>
+            <div class="mc-label">Dispatch</div>
+            <div class="mc-sub">Logistics</div>
           </a>
           <a href="leads.html" class="mod-card">
-            <span class="mc-icon">🎯</span>
-            <span class="mc-label">Leads</span>
-            <span class="mc-sub">CRM pipeline</span>
+            <div class="mc-icon">🎯</div>
+            <div class="mc-label">Leads</div>
+            <div class="mc-sub">CRM pipeline</div>
           </a>
           <a href="quotations.html" class="mod-card">
-            <span class="mc-icon">📝</span>
-            <span class="mc-label">Quotations</span>
-            <span class="mc-sub">Estimates</span>
+            <div class="mc-icon">📝</div>
+            <div class="mc-label">Quotations</div>
+            <div class="mc-sub">Estimates</div>
           </a>
           <a href="invoices.html" class="mod-card">
-            <span class="mc-icon">🧾</span>
-            <span class="mc-label">Invoices</span>
-            <span class="mc-sub">Tax invoices</span>
+            <div class="mc-icon">🧾</div>
+            <div class="mc-label">Invoices</div>
+            <div class="mc-sub">Tax invoices</div>
           </a>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-head"><h3>🔧 Admin Tools</h3></div>
+        <div class="section-head">
+          <h3>🔧 Admin Tools</h3>
+          <span class="section-head-sub">4 tools</span>
+        </div>
         <div class="module-grid">
           <a href="team.html" class="mod-card">
-            <span class="mc-icon">👥</span>
-            <span class="mc-label">Team</span>
-            <span class="mc-sub">Staff management</span>
+            <div class="mc-icon">👥</div>
+            <div class="mc-label">Team</div>
+            <div class="mc-sub">Staff management</div>
           </a>
           <a href="settings.html" class="mod-card">
-            <span class="mc-icon">⚙️</span>
-            <span class="mc-label">Settings</span>
-            <span class="mc-sub">Configuration</span>
+            <div class="mc-icon">⚙️</div>
+            <div class="mc-label">Settings</div>
+            <div class="mc-sub">Configuration</div>
           </a>
           <a href="reports.html" class="mod-card">
-            <span class="mc-icon">📊</span>
-            <span class="mc-label">Reports</span>
-            <span class="mc-sub">Analytics</span>
+            <div class="mc-icon">📊</div>
+            <div class="mc-label">Reports</div>
+            <div class="mc-sub">Analytics</div>
           </a>
           <a href="hr.html" class="mod-card">
-            <span class="mc-icon">💼</span>
-            <span class="mc-label">HR</span>
-            <span class="mc-sub">Human resources</span>
+            <div class="mc-icon">💼</div>
+            <div class="mc-label">HR</div>
+            <div class="mc-sub">Human resources</div>
           </a>
         </div>
       </div>
     `;
 
     container.innerHTML = html;
+
+    // Add stagger animation to stat blocks
+    const statBlocks = container.querySelectorAll('.stat-block');
+    statBlocks.forEach((block, index) => {
+      block.style.animation = `slideUp 0.6s ease-out ${0.15 + index * 0.05}s both`;
+    });
+
+    // Add stagger animation to module cards
+    const modCards = container.querySelectorAll('.mod-card');
+    modCards.forEach((card, index) => {
+      card.style.animationDelay = `${0.3 + index * 0.06}s`;
+    });
+
   } catch (error) {
-    console.error('Dashboard error:', error);
+    console.error(error);
     document.getElementById('dashboard-page').innerHTML = `
       <div class="hero"><div class="hero-name">Dashboard</div></div>
-      <div class="section"><div class="empty">⚠️ Error: ${error.message}</div></div>
+      <div class="section" style="text-align:center;padding:40px;color:#dc2626">
+        ⚠️ Error: ${error.message}
+      </div>
     `;
   }
 })();
