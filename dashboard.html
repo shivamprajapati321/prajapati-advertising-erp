@@ -6,7 +6,7 @@
   <title>Dashboard · Prajapati ERP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -14,30 +14,34 @@
       box-sizing: border-box;
     }
 
-    body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background: #f0f9ff;
       color: #1f2937;
+      overflow: hidden;
     }
 
     .app-layout {
       display: flex;
-      min-height: 100vh;
+      width: 100%;
+      height: 100vh;
     }
 
-    /* SIDEBAR - MODERN CYAN & GOLD */
+    /* SIDEBAR - FIXED WIDTH */
     .sidebar {
       width: 260px;
+      min-width: 260px;
+      max-width: 260px;
       background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
       color: white;
       padding: 24px 16px;
       overflow-y: auto;
-      position: fixed;
-      height: 100vh;
-      left: 0;
-      top: 0;
+      position: relative;
       z-index: 100;
       box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+      flex-shrink: 0;
     }
 
     .sidebar::before {
@@ -51,7 +55,41 @@
       pointer-events: none;
     }
 
-    /* Sidebar sections */
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 12px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+
+    .sidebar-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #06b6d4, #fbbf24);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo-text {
+      font-size: 13px;
+      font-weight: 800;
+      color: white;
+    }
+
+    .sidebar-logo-sub {
+      font-size: 10px;
+      color: #06b6d4;
+      font-weight: 700;
+    }
+
     .sidebar-section {
       margin-bottom: 24px;
       position: relative;
@@ -77,6 +115,7 @@
       height: 3px;
       background: #fbbf24;
       border-radius: 50%;
+      flex-shrink: 0;
     }
 
     .sidebar-link {
@@ -122,100 +161,13 @@
       color: #06b6d4;
     }
 
-    .sidebar-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 16px 12px;
-      margin-bottom: 24px;
-      border-bottom: 1px solid rgba(6, 182, 212, 0.2);
-      position: relative;
-      z-index: 2;
-    }
-
-    .sidebar-logo-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #06b6d4, #fbbf24);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-
-    .sidebar-logo-text {
-      font-size: 13px;
-      font-weight: 800;
-      color: white;
-    }
-
-    .sidebar-logo-sub {
-      font-size: 10px;
-      color: #06b6d4;
-      font-weight: 700;
-    }
-
-    .sidebar-footer {
-      position: absolute;
-      bottom: 20px;
-      left: 16px;
-      right: 16px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(6, 182, 212, 0.2);
-    }
-
-    .sidebar-user {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .sidebar-user-avatar {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, #06b6d4, #fbbf24);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 800;
-      font-size: 14px;
-    }
-
-    .sidebar-user-name {
-      font-size: 11px;
-      color: #cbd5e1;
-      font-weight: 700;
-    }
-
-    .sidebar-logout {
-      width: 100%;
-      padding: 8px 12px;
-      background: rgba(239, 68, 68, 0.2);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.25s;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .sidebar-logout:hover {
-      background: rgba(239, 68, 68, 0.3);
-      border-color: rgba(239, 68, 68, 0.5);
-    }
-
+    /* MAIN CONTENT AREA */
     .main {
       flex: 1;
-      margin-left: 260px;
       display: flex;
       flex-direction: column;
+      width: calc(100% - 260px);
+      overflow: hidden;
     }
 
     .topbar {
@@ -226,58 +178,24 @@
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 2px 8px rgba(6, 182, 212, 0.08);
-      position: sticky;
-      top: 0;
+      flex-shrink: 0;
       z-index: 50;
     }
 
-    .topbar-left {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-
-    .topbar-right {
-      display: flex;
-      gap: 12px;
-      align-items: center;
+    .topbar h2 {
+      font-size: 18px;
+      color: #0891b2;
+      margin: 0;
     }
 
     .page {
       flex: 1;
       padding: 32px 40px;
       overflow-y: auto;
-      animation: fadeIn 0.4s ease-out;
+      width: 100%;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes scaleIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    /* HERO SECTION - CYAN GRADIENT */
+    /* PAGE CONTENT STYLES */
     .hero {
       background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #0891b2 100%);
       border-radius: 18px;
@@ -361,7 +279,6 @@
       50% { transform: translateY(-10px); }
     }
 
-    /* STATS GRID */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -411,9 +328,6 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     .stat-value {
@@ -434,7 +348,6 @@
       font-weight: 600;
     }
 
-    /* SECTIONS */
     .section {
       background: white;
       border: 2px solid #e0f2fe;
@@ -474,7 +387,6 @@
       font-weight: 700;
     }
 
-    /* MODULE GRID */
     .module-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -553,6 +465,28 @@
       z-index: 1;
     }
 
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
     /* SCROLLBAR */
     .page::-webkit-scrollbar {
       width: 8px;
@@ -571,26 +505,43 @@
       background: #0891b2;
     }
 
-    /* RESPONSIVE */
+    /* RESPONSIVE - TABLET */
     @media (max-width: 1200px) {
       .stats-grid,
       .module-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+      
+      .page {
+        padding: 24px 32px;
+      }
     }
 
+    /* RESPONSIVE - MOBILE */
     @media (max-width: 768px) {
       .sidebar {
-        width: 70px;
+        width: 80px;
+        min-width: 80px;
+        max-width: 80px;
         padding: 12px 8px;
       }
 
       .main {
-        margin-left: 70px;
+        width: calc(100% - 80px);
       }
 
       .page {
-        padding: 20px;
+        padding: 16px 20px;
+      }
+
+      .topbar {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .topbar h2 {
+        font-size: 16px;
       }
 
       .hero {
@@ -601,15 +552,29 @@
         font-size: 28px;
       }
 
+      .hero-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+      }
+
+      .hero-icon {
+        font-size: 48px;
+      }
+
       .stats-grid,
       .module-grid {
         grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .section {
+        padding: 16px;
       }
 
       .sidebar-logo-text,
-      .sidebar-section-title,
       .sidebar-link {
-        font-size: 10px;
+        font-size: 11px;
       }
     }
 
@@ -621,6 +586,7 @@
 <body>
 
 <div class="app-layout">
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="sidebar-logo-icon">📦</div>
@@ -662,24 +628,13 @@
       <a href="team.html" class="sidebar-link">👥 Team</a>
       <a href="settings.html" class="sidebar-link">⚙️ Settings</a>
     </div>
-
-    <div class="sidebar-footer">
-      <div class="sidebar-user">
-        <div class="sidebar-user-avatar">S</div>
-        <div class="sidebar-user-name">Shivam<br>8484038138</div>
-      </div>
-      <button class="sidebar-logout" onclick="AUTH.logout()">🚪 Logout</button>
-    </div>
   </aside>
 
+  <!-- MAIN CONTENT -->
   <main class="main">
     <header class="topbar">
-      <div class="topbar-left">
-        <h2 style="font-size:18px;color:#0891b2;margin:0">Dashboard</h2>
-      </div>
-      <div class="topbar-right">
-        <span style="font-size:12px;color:#9ca3af">📅 Monday, 18 May 2026</span>
-      </div>
+      <h2>Dashboard</h2>
+      <span style="font-size:12px;color:#9ca3af">📅 Monday, 18 May 2026</span>
     </header>
 
     <div class="page" id="dashboard-page">
@@ -834,11 +789,6 @@
     const statBlocks = container.querySelectorAll('.stat-block');
     statBlocks.forEach((block, index) => {
       block.style.animation = `slideUp 0.6s ease-out ${0.15 + index * 0.05}s both`;
-    });
-
-    const modCards = container.querySelectorAll('.mod-card');
-    modCards.forEach((card, index) => {
-      card.style.animationDelay = `${0.3 + index * 0.06}s`;
     });
 
   } catch (error) {
