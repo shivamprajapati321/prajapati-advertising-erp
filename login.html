@@ -1,387 +1,422 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Login · Prajapati ERP</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css">
-<style>
-body {
-  background: linear-gradient(135deg, #0B1957, #1A2980);
-  display: flex; align-items: center; justify-content: center;
-  min-height: 100vh;
-  padding: 20px;
-}
-body::before {
-  content: ''; position: fixed; inset: 0;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(37,99,235,0.3), transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(245,184,0,0.15), transparent 50%);
-  pointer-events: none;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login · Prajapati ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
 
-.login-wrap {
-  position: relative; z-index: 1;
-  width: 100%; max-width: 420px;
-}
+    .logo-section {
+      text-align: center;
+      margin-bottom: 32px;
+    }
 
-.brand-block {
-  text-align: center; color: white; margin-bottom: 32px;
-}
-.brand-mark {
-  width: 64px; height: 64px;
-  background: white; color: var(--nav);
-  border-radius: 14px;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 24px; font-weight: 800;
-  margin-bottom: 16px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-}
-.brand-name {
-  font-size: 24px; font-weight: 800;
-  letter-spacing: -0.01em; margin-bottom: 4px;
-}
-.brand-name span { color: #FBBF24; }
-.brand-sub { font-size: 12px; opacity: 0.7; letter-spacing: 0.1em; text-transform: uppercase; }
+    .logo-icon {
+      width: 60px;
+      height: 60px;
+      background: #1e40af;
+      border-radius: 16px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
 
-.login-card {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.3);
-}
+    .logo-text { font-size: 24px; font-weight: 800; color: #1f2937; }
+    .logo-sub { font-size: 12px; color: #9ca3af; margin-top: 4px; letter-spacing: 0.05em; }
 
-.login-head { margin-bottom: 24px; }
-.login-head h1 { font-size: 22px; font-weight: 800; color: var(--nav); margin-bottom: 4px; }
-.login-head p { font-size: 13px; color: var(--mute); }
+    .form-section {
+      display: none;
+    }
 
-.step { display: none; }
-.step.active { display: block; }
+    .form-section.active {
+      display: block;
+    }
 
-.input-group { margin-bottom: 18px; }
-.input-group label {
-  display: block; font-size: 11px; font-weight: 700;
-  letter-spacing: 0.05em; text-transform: uppercase;
-  color: var(--mute); margin-bottom: 6px;
-}
-.input-group .with-prefix {
-  display: flex; align-items: center;
-  border: 1px solid var(--line); border-radius: 9px;
-  background: var(--soft); transition: all 0.15s;
-}
-.input-group .with-prefix:focus-within {
-  background: white; border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-}
-.input-group .with-prefix .prefix {
-  padding: 12px 4px 12px 14px;
-  font-weight: 800; color: var(--ink);
-  font-family: 'JetBrains Mono', monospace;
-}
-.input-group .with-prefix input {
-  flex: 1; padding: 12px 14px 12px 4px;
-  background: transparent; border: none; outline: none;
-  font-size: 16px; font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.04em;
-}
-.input-group input.otp-input {
-  width: 100%;
-  padding: 16px;
-  background: var(--soft);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  font-size: 24px;
-  font-weight: 800;
-  text-align: center;
-  letter-spacing: 0.5em;
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--ink);
-}
-.input-group input.otp-input:focus {
-  outline: none; background: white; border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-}
+    .form-section h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
 
-.btn-block {
-  width: 100%; padding: 14px;
-  font-size: 14px; font-weight: 800;
-  letter-spacing: 0.02em;
-  margin-top: 8px;
-}
+    .form-section p {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
 
-.helper-text {
-  text-align: center; font-size: 12px; color: var(--mute);
-  margin-top: 14px;
-}
-.helper-text a { color: var(--accent); font-weight: 700; cursor: pointer; }
+    .error-box {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #dc2626;
+      font-weight: 600;
+      display: none;
+    }
 
-.dev-mode-banner {
-  background: var(--amber-soft);
-  border: 1px solid var(--amber);
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 12px;
-  color: var(--ink);
-  margin-bottom: 18px;
-  font-weight: 600;
-}
-.dev-mode-banner code {
-  background: white; padding: 2px 8px;
-  border-radius: 4px; font-family: 'JetBrains Mono', monospace;
-  font-weight: 800; color: var(--accent);
-}
+    .error-box.show {
+      display: block;
+    }
 
-.error-msg {
-  background: var(--red-soft); color: var(--red-dk);
-  padding: 10px 14px; border-radius: 8px;
-  font-size: 12px; font-weight: 700;
-  margin-bottom: 14px;
-}
+    .warning-box {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: #92400e;
+      display: none;
+    }
 
-.success-msg {
-  background: var(--green-soft); color: var(--green-dk);
-  padding: 10px 14px; border-radius: 8px;
-  font-size: 12px; font-weight: 700;
-  margin-bottom: 14px;
-}
+    .warning-box.show {
+      display: block;
+    }
 
-.timer { color: var(--mute); font-size: 11px; font-weight: 700; }
-</style>
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #1e40af;
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .otp-display {
+      background: #f3f4f6;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin: 16px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 32px;
+      font-weight: 800;
+      color: #1f2937;
+      letter-spacing: 4px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-primary {
+      background: #1e40af;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #1e3a8a;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(30, 64, 175, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #1e40af;
+      border: 1px solid #1e40af;
+      margin-top: 12px;
+    }
+
+    .btn-secondary:hover {
+      background: #f0f4ff;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 16px;
+    }
+
+    .footer a {
+      color: #1e40af;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .resend-timer {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .resend-timer.ready a {
+      color: #1e40af;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 
-<div class="login-wrap">
-  <div class="brand-block">
-    <div class="brand-mark">PA</div>
-    <div class="brand-name">PRAJAPATI <span>ERP</span></div>
-    <div class="brand-sub">Enterprise Operations Suite</div>
+<div class="login-container">
+  <div class="logo-section">
+    <div class="logo-icon">📦</div>
+    <div class="logo-text">PRAJAPATI <span style="color: #f59e0b;">ERP</span></div>
+    <div class="logo-sub">ENTERPRISE OPERATIONS SUITE</div>
   </div>
 
-  <div class="login-card">
+  <!-- PHONE SECTION -->
+  <div class="form-section active" id="phone-section">
+    <h2>Welcome back 👋</h2>
+    <p>WhatsApp number daalo, OTP bhejenge</p>
+    
+    <div class="error-box" id="phone-error"></div>
 
-    <!-- STEP 1: Phone -->
-    <div class="step active" data-step="phone">
-      <div class="login-head">
-        <h1>Welcome back 👋</h1>
-        <p>WhatsApp number daalo, OTP bhejenge</p>
-      </div>
-
-      <div id="error-phone"></div>
-
-      <div class="input-group">
-        <label>WhatsApp Number</label>
-        <div class="with-prefix">
-          <span class="prefix">+91</span>
-          <input type="tel" id="phone-input" placeholder="98765 43210" maxlength="10" inputmode="numeric" autofocus>
-        </div>
-      </div>
-
-      <button class="btn primary btn-block" id="send-otp-btn">
-        <span>Send OTP via WhatsApp</span>
-      </button>
-
-      <div class="helper-text">
-        Issue with login? Contact admin
-      </div>
+    <div class="form-group">
+      <label>WhatsApp Number</label>
+      <input type="tel" id="phone-input" placeholder="+91 XXXXXXXXXX" value="+91 8484038138">
     </div>
 
-    <!-- STEP 2: OTP -->
-    <div class="step" data-step="otp">
-      <div class="login-head">
-        <h1>Enter OTP 🔐</h1>
-        <p>WhatsApp pe 6-digit code bheja hai <strong id="display-phone"></strong></p>
-      </div>
+    <button class="btn btn-primary" id="send-otp-btn" onclick="sendOTP()">
+      <span id="send-otp-text">📱 Send OTP</span>
+    </button>
 
-      <div id="error-otp"></div>
-      <div id="dev-otp-display"></div>
+    <div class="footer">
+      Issues with login? <a href="#" onclick="alert('Contact: support@prajapati.com')">Contact admin</a>
+    </div>
+  </div>
 
-      <div class="input-group">
-        <label>6-Digit OTP</label>
-        <input type="text" class="otp-input" id="otp-input" maxlength="6" inputmode="numeric" placeholder="000000">
-      </div>
-
-      <button class="btn primary btn-block" id="verify-otp-btn">
-        <span>Verify & Login</span>
-      </button>
-
-      <div class="helper-text">
-        <a onclick="goBack()">← Change number</a>
-        &nbsp;·&nbsp;
-        <a onclick="resendOTP()" id="resend-link">Resend OTP</a>
-        <span class="timer" id="resend-timer"></span>
-      </div>
+  <!-- OTP SECTION -->
+  <div class="form-section" id="otp-section">
+    <h2>Enter OTP 🔐</h2>
+    <p id="otp-phone-display">WhatsApp pe 6-digit code bheja hai</p>
+    
+    <div class="error-box" id="otp-error"></div>
+    <div class="warning-box" id="otp-warning">
+      💡 Wati delivery issue · Dev OTP: <span id="dev-otp">loading...</span>
     </div>
 
+    <div class="form-group">
+      <label>6-Digit OTP</label>
+      <input type="text" id="otp-input" placeholder="000000" maxlength="6" inputmode="numeric">
+    </div>
+
+    <div class="otp-display" id="otp-display">
+      <span id="otp-value">------</span>
+    </div>
+
+    <button class="btn btn-primary" id="verify-btn" onclick="verifyOTP()">
+      Verify & Login
+    </button>
+
+    <button class="btn btn-secondary" onclick="changeNumber()">
+      ← Change number
+    </button>
+
+    <div class="footer">
+      <span id="resend-timer" class="resend-timer">
+        Resend OTP <span id="timer">60</span>s
+      </span>
+    </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="lib-config.js"></script>
 <script src="lib-auth.js"></script>
-<script>
-let currentPhone = '';
 
-document.getElementById('send-otp-btn').addEventListener('click', sendOTP);
-document.getElementById('verify-otp-btn').addEventListener('click', verifyOTP);
-document.getElementById('phone-input').addEventListener('keypress', e => {
-  if (e.key === 'Enter') sendOTP();
-});
-document.getElementById('otp-input').addEventListener('keypress', e => {
-  if (e.key === 'Enter') verifyOTP();
+<script>
+let resendCountdown = 0;
+
+// Real-time OTP input display
+document.getElementById('otp-input').addEventListener('input', function(e) {
+  const val = this.value.padEnd(6, '-').slice(0, 6);
+  document.getElementById('otp-value').textContent = val;
 });
 
 async function sendOTP() {
-  const phone = document.getElementById('phone-input').value.trim();
-  const errEl = document.getElementById('error-phone');
-  errEl.innerHTML = '';
+  const phone = document.getElementById('phone-input').value;
+  const phoneError = document.getElementById('phone-error');
+  const btn = document.getElementById('send-otp-btn');
 
-  if (!/^[6-9]\d{9}$/.test(phone)) {
-    errEl.innerHTML = `<div class="error-msg">⚠️ Valid 10-digit Indian number daalo (starting with 6-9)</div>`;
+  phoneError.textContent = '';
+  phoneError.classList.remove('show');
+
+  if (!phone || phone.length < 10) {
+    phoneError.textContent = '❌ Valid phone number daalo';
+    phoneError.classList.add('show');
     return;
   }
 
-  const btn = document.getElementById('send-otp-btn');
   btn.disabled = true;
-  btn.innerHTML = '⏳ Sending...';
+  btn.innerHTML = '<span class="spinner"></span>Sending...';
 
-  currentPhone = '91' + phone;
-  document.getElementById('display-phone').textContent = '+91 ' + phone.slice(0,5) + ' ' + phone.slice(5);
+  try {
+    console.log('🚀 sendOTP() called');
+    const result = await AUTH.sendOTP(phone);
+    console.log('✅ sendOTP result:', result);
 
-  const result = await AUTH.sendOTP(currentPhone);
-  
-  btn.disabled = false;
-  btn.innerHTML = '<span>Send OTP via WhatsApp</span>';
+    // Show OTP section
+    document.getElementById('phone-section').classList.remove('active');
+    document.getElementById('otp-section').classList.add('active');
+    document.getElementById('otp-phone-display').textContent = `WhatsApp number daalo, OTP bheja hai ${phone}`;
+    
+    // Show dev OTP
+    const devOtp = sessionStorage.getItem('pending_otp');
+    console.log('📦 Dev OTP from sessionStorage:', devOtp);
+    document.getElementById('dev-otp').textContent = devOtp || 'NOT SET';
+    document.getElementById('otp-warning').classList.add('show');
 
-  // Switch to OTP step
-  document.querySelector('.step.active').classList.remove('active');
-  document.querySelector('[data-step="otp"]').classList.add('active');
-  document.getElementById('otp-input').focus();
+    // Start resend timer
+    startResendTimer();
 
-  // Dev mode: show OTP if Wati failed
-  if (!result.success) {
-    document.getElementById('dev-otp-display').innerHTML = `
-      <div class="dev-mode-banner">
-        💡 <strong>Wati delivery issue</strong> · Dev OTP: <code>${result.otp}</code>
-      </div>
-    `;
+  } catch (error) {
+    console.error('❌ sendOTP error:', error);
+    phoneError.textContent = '❌ ' + error.message;
+    phoneError.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📱 Send OTP';
   }
-
-  startResendTimer();
 }
 
 async function verifyOTP() {
-  const otp = document.getElementById('otp-input').value.trim();
-  const errEl = document.getElementById('error-otp');
-  errEl.innerHTML = '';
+  const phone = document.getElementById('phone-input').value;
+  const otp = document.getElementById('otp-input').value;
+  const otpError = document.getElementById('otp-error');
+  const btn = document.getElementById('verify-btn');
 
-  if (!/^\d{6}$/.test(otp)) {
-    errEl.innerHTML = `<div class="error-msg">⚠️ Valid 6-digit OTP daalo</div>`;
+  otpError.textContent = '';
+  otpError.classList.remove('show');
+
+  if (!otp || otp.length !== 6) {
+    otpError.textContent = '❌ 6-digit OTP daalo';
+    otpError.classList.add('show');
     return;
   }
 
-  const btn = document.getElementById('verify-otp-btn');
   btn.disabled = true;
-  btn.innerHTML = '⏳ Verifying...';
+  btn.innerHTML = '<span class="spinner"></span>Verifying...';
 
-  const result = AUTH.verifyOTP(currentPhone, otp);
+  try {
+    console.log('🔐 verifyOTP() called with:', otp);
+    const session = await AUTH.verifyOTP(phone, otp);
+    console.log('✅ Login successful:', session);
+    
+    // Redirect to dashboard
+    setTimeout(() => {
+      window.location.href = 'dashboard.html';
+    }, 500);
 
-  if (!result.success) {
-    errEl.innerHTML = `<div class="error-msg">❌ ${result.error}</div>`;
+  } catch (error) {
+    console.error('❌ verifyOTP error:', error);
+    otpError.textContent = '❌ ' + error.message;
+    otpError.classList.add('show');
+  } finally {
     btn.disabled = false;
-    btn.innerHTML = '<span>Verify & Login</span>';
-    return;
+    btn.innerHTML = 'Verify & Login';
   }
-
-  // Lookup user from prajapati_staff (DB-driven)
-  const staff = await AUTH.lookupStaff(currentPhone);
-  
-  if (!staff) {
-    errEl.innerHTML = `<div class="error-msg">🚫 Access denied: Aapka number registered nahi hai. Admin se contact karo.</div>`;
-    btn.disabled = false;
-    btn.innerHTML = '<span>Verify & Login</span>';
-    return;
-  }
-
-  // Save session with role from DB
-  const roleConfig = getRoleConfig(staff.role);
-  
-  // Parse custom_access (may be array, JSON string, or comma-separated)
-  let customAccess = [];
-  if (staff.custom_access) {
-    if (Array.isArray(staff.custom_access)) {
-      customAccess = staff.custom_access;
-    } else if (typeof staff.custom_access === 'string') {
-      try {
-        customAccess = JSON.parse(staff.custom_access);
-      } catch (e) {
-        customAccess = staff.custom_access.split(',').map(s => s.trim()).filter(Boolean);
-      }
-    }
-  }
-  
-  AUTH.setSession({
-    phone: currentPhone,
-    name: staff.name,
-    empCode: staff.emp_code,
-    role: staff.role,
-    department: staff.department || roleConfig.department,
-    staffId: staff.id,
-    customAccess: customAccess
-  });
-
-  errEl.innerHTML = `<div class="success-msg">✅ Welcome ${staff.name}! ${roleConfig.icon} ${roleConfig.label}</div>`;
-  
-  // Redirect to primary module if defined, else dashboard
-  const primaryModule = roleConfig.primaryModule;
-  const redirectUrl = primaryModule ? `${primaryModule}.html` : 'index.html';
-  
-  setTimeout(() => {
-    window.location.href = redirectUrl;
-  }, 1200);
 }
 
-function goBack() {
-  document.querySelector('.step.active').classList.remove('active');
-  document.querySelector('[data-step="phone"]').classList.add('active');
-  document.getElementById('phone-input').focus();
+function changeNumber() {
+  document.getElementById('phone-section').classList.add('active');
+  document.getElementById('otp-section').classList.remove('active');
+  document.getElementById('otp-input').value = '';
+  document.getElementById('otp-value').textContent = '------';
 }
 
-let resendTimerHandle = null;
 function startResendTimer() {
-  let s = 30;
-  const timerEl = document.getElementById('resend-timer');
-  const linkEl = document.getElementById('resend-link');
-  linkEl.style.opacity = '0.4';
-  linkEl.style.pointerEvents = 'none';
-  timerEl.textContent = ` (${s}s)`;
-  if (resendTimerHandle) clearInterval(resendTimerHandle);
-  resendTimerHandle = setInterval(() => {
-    s--;
-    if (s <= 0) {
-      clearInterval(resendTimerHandle);
-      timerEl.textContent = '';
-      linkEl.style.opacity = '1';
-      linkEl.style.pointerEvents = 'auto';
-    } else {
-      timerEl.textContent = ` (${s}s)`;
+  resendCountdown = 60;
+  const timerEl = document.getElementById('timer');
+  const interval = setInterval(() => {
+    resendCountdown--;
+    timerEl.textContent = resendCountdown;
+    if (resendCountdown <= 0) {
+      clearInterval(interval);
+      document.getElementById('resend-timer').classList.add('ready');
     }
   }, 1000);
 }
 
-async function resendOTP() {
-  if (document.getElementById('resend-link').style.pointerEvents === 'none') return;
-  await AUTH.sendOTP(currentPhone);
-  startResendTimer();
-}
-
-// If already logged in, redirect
-if (AUTH.getSession()) {
-  window.location.href = 'index.html';
-}
+// Auto-populate dev OTP for testing
+window.addEventListener('load', function() {
+  const devOtp = sessionStorage.getItem('pending_otp');
+  console.log('🔄 Page loaded, dev OTP:', devOtp);
+  if (devOtp) {
+    document.getElementById('dev-otp').textContent = devOtp;
+  }
+});
 </script>
 
 </body>
