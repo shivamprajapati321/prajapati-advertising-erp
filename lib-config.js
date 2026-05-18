@@ -1,7 +1,7 @@
 const CONFIG = {
-  // Supabase
+  // Supabase - CORRECT KEYS
   SUPABASE_URL: 'https://shafygjbffffjhwhmcgo.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM5MTE1NzMsImV4cCI6MjAyOTQ4NzU3M30.M8-p_PgqNaV_k-J5L6D3V8ZJZPfxQW0X0Y1Z2A3B4C5D',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE',
   
   // Wati
   WATI_URL: 'https://live-mt-server.wati.io/1077226',
@@ -12,28 +12,4 @@ const CONFIG = {
   APP_VERSION: '2.0.0'
 };
 
-// Initialize Supabase
-let supabaseClient = null;
-
-async function initSupabase() {
-  if (supabaseClient) return supabaseClient;
-  
-  const { createClient } = window.supabase;
-  if (!createClient) {
-    console.error('❌ Supabase library not loaded');
-    return null;
-  }
-
-  try {
-    supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-    console.log('✅ Supabase initialized');
-    return supabaseClient;
-  } catch (error) {
-    console.error('❌ Supabase init failed:', error);
-    return null;
-  }
-}
-
-// Make available globally
-window.CONFIG = CONFIG;
-window.initSupabase = initSupabase;
+console.log('✅ CONFIG loaded:', CONFIG.SUPABASE_URL);
