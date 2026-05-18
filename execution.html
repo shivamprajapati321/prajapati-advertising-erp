@@ -1,562 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Execution · Prajapati ERP</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css">
-<style>
-.role-tabs.exec .role-tab.active { background: var(--execute); color: white; }
-.role-tabs.exec .role-tab:hover { color: var(--execute); }
-.role-tabs.exec .role-tab.active:hover { color: white; }
-.btn.primary.exec { background: var(--execute); }
-.btn.primary.exec:hover { background: var(--execute-dk); box-shadow: 0 8px 18px rgba(20,184,166,0.3); }
-.btn.primary.exp { background: var(--purple); }
-.btn.primary.exp:hover { background: #7C3AED; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Execution · Prajapati ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-.entry-card {
-  background: var(--white); border: 1px solid var(--line);
-  border-radius: 16px; padding: 28px; margin-bottom: 24px;
-  position: relative; overflow: hidden;
-}
-.entry-card::before {
-  content: ''; position: absolute; top: 0; left: 0;
-  width: 100%; height: 4px;
-  background: linear-gradient(90deg, var(--execute), #5EEAD4);
-}
-.entry-card.expense::before {
-  background: linear-gradient(90deg, var(--purple), #C4B5FD);
-}
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f9ff;
+      color: #1f2937;
+    }
 
-.entry-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
-.entry-head h2 { font-size: 20px; font-weight: 800; color: var(--nav); display: inline-flex; align-items: center; gap: 10px; }
-.entry-head h2 .icon-bg {
-  width: 36px; height: 36px; border-radius: 10px;
-  background: var(--execute-soft); color: var(--execute-dk);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-}
-.entry-head.exp h2 .icon-bg { background: var(--purple-soft); color: var(--purple); }
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
 
-.entry-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-@media (max-width: 760px) { .entry-form-grid { grid-template-columns: 1fr; } }
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: white;
+      padding: 24px 16px;
+      overflow-y: auto;
+      position: fixed;
+      height: 100vh;
+      left: 0;
+      top: 0;
+      z-index: 100;
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+    }
 
-.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
-  border-color: var(--execute)!important; box-shadow: 0 0 0 3px rgba(20,184,166,0.1)!important;
-}
+    .sidebar-section-title {
+      font-size: 10px;
+      font-weight: 800;
+      color: #06b6d4;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 20px 0 12px 12px;
+    }
 
-.expense-categories {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 14px; margin-top: 18px;
-}
-@media (max-width: 760px) { .expense-categories { grid-template-columns: repeat(2, 1fr); } }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
 
-.expense-input-card {
-  background: var(--soft); border: 2px solid var(--line);
-  border-radius: 12px; padding: 16px;
-  transition: all 0.2s;
-}
-.expense-input-card:hover, .expense-input-card.active { border-color: var(--purple); background: var(--purple-soft); }
-.expense-input-card .icon-emoji { font-size: 28px; margin-bottom: 8px; }
-.expense-input-card .lbl-cat { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mute); margin-bottom: 8px; }
-.expense-input-card input {
-  width: 100%; padding: 9px 11px; background: white;
-  border: 1px solid var(--line); border-radius: 7px;
-  font-size: 16px; font-weight: 800;
-  font-family: 'JetBrains Mono', monospace; color: var(--ink);
-}
-.expense-input-card input:focus { outline: none; border-color: var(--purple); }
+    .sidebar-link:hover, .sidebar-link.active {
+      background: rgba(6, 182, 212, 0.15);
+      color: #06b6d4;
+    }
 
-.upi-row {
-  background: linear-gradient(135deg, var(--purple-soft), #F5F3FF);
-  border: 1px solid var(--purple); border-radius: 12px;
-  padding: 16px 18px; margin-top: 18px;
-  display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
-}
-.upi-row .upi-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--white); display: flex; align-items: center; justify-content: center; font-size: 22px; }
-.upi-row .upi-info .lbl { font-size: 11px; font-weight: 700; color: var(--purple); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
-.upi-row .upi-info input {
-  background: white; border: 1px solid var(--line);
-  border-radius: 7px; padding: 8px 12px;
-  font-size: 13px; font-weight: 600; color: var(--ink); width: 100%;
-}
-.upi-row .upi-total { text-align: right; }
-.upi-row .upi-total .lbl-mini { font-size: 10px; font-weight: 700; color: var(--mute); letter-spacing: 0.05em; text-transform: uppercase; }
-.upi-row .upi-total .val-big { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; color: var(--ink); margin-top: 2px; }
+    .main {
+      flex: 1;
+      margin-left: 260px;
+      display: flex;
+      flex-direction: column;
+    }
 
-.entry-submit { display: flex; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
-.entry-submit .btn { flex: 1; padding: 13px 20px; font-size: 14px; }
-</style>
+    .topbar {
+      background: white;
+      padding: 16px 28px;
+      border-bottom: 2px solid #e0f2fe;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(6, 182, 212, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .page {
+      flex: 1;
+      padding: 32px 40px;
+      overflow-y: auto;
+    }
+
+    .header {
+      margin-bottom: 28px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #e0f2fe;
+    }
+
+    .tab {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .tab.active {
+      color: #06b6d4;
+      border-bottom-color: #06b6d4;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .card {
+      background: white;
+      border: 2px solid #e0f2fe;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e0f2fe;
+      border-radius: 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+    }
+
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #06b6d4;
+      box-shadow: 0 0 0 3px rgba(6,182,212,0.1);
+    }
+
+    .btn {
+      background: #0891b2;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .btn:hover {
+      background: #06b6d4;
+      transform: translateY(-2px);
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th {
+      background: #f0f9ff;
+      padding: 12px;
+      text-align: left;
+      font-weight: 700;
+      color: #0891b2;
+      border-bottom: 2px solid #e0f2fe;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .table td {
+      padding: 12px;
+      border-bottom: 1px solid #e0f2fe;
+    }
+
+    .table tr:hover {
+      background: #f0f9ff;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-box {
+      background: white;
+      border: 2px solid #e0f2fe;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-box .label {
+      font-size: 11px;
+      color: #0891b2;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .stat-box .value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #06b6d4;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { width: 70px; }
+      .main { margin-left: 70px; }
+      .page { padding: 16px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
 <body>
 
 <div class="app-layout">
+  <aside class="sidebar">
+    <div style="margin-bottom:20px;padding:16px;border-bottom:1px solid rgba(6,182,212,0.2)">
+      <div style="font-weight:800;color:white;margin-bottom:4px">PRAJAPATI ERP</div>
+      <div style="font-size:10px;color:#06b6d4">Execution</div>
+    </div>
 
-  <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-section-title">MAIN</div>
+    <a href="dashboard.html" class="sidebar-link">📊 Dashboard</a>
+    <a href="orders.html" class="sidebar-link">📋 Orders</a>
+
+    <div class="sidebar-section-title">OPERATIONS</div>
+    <a href="printing.html" class="sidebar-link">🖨️ Printing</a>
+    <a href="stitching.html" class="sidebar-link">✂️ Stitching</a>
+    <a href="execution.html" class="sidebar-link active">🛺 Execution</a>
+    <a href="dispatch.html" class="sidebar-link">🚚 Dispatch</a>
+
+    <div class="sidebar-section-title">ADMIN</div>
+    <a href="team.html" class="sidebar-link">👥 Team</a>
+    <a href="settings.html" class="sidebar-link">⚙️ Settings</a>
+  </aside>
 
   <main class="main">
-
-    <header class="topbar" id="topbar"></header>
+    <header class="topbar">
+      <h2 style="font-size:18px;color:#0891b2;margin:0">🛺 Execution</h2>
+      <span style="font-size:12px;color:#9ca3af">Field tracking & work management</span>
+    </header>
 
     <div class="page">
+      <div class="header">
+        <h1>Execution Module</h1>
+        <p>Track field work, expenses & team performance</p>
+      </div>
 
-      <div class="page-head">
-        <div>
-          <h1 class="page-title">Execution <em style="color:var(--execute)">Department</em></h1>
-          <div class="page-sub">Field deployment · Daily team work + expenses</div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="label">👥 Team Members</div>
+          <div class="value">25</div>
+        </div>
+        <div class="stat-box">
+          <div class="label">📋 Today's Work</div>
+          <div class="value">12</div>
+        </div>
+        <div class="stat-box">
+          <div class="label">💰 Total Earnings</div>
+          <div class="value">₹45K</div>
+        </div>
+        <div class="stat-box">
+          <div class="label">⏱️ Avg Hours</div>
+          <div class="value">8.5h</div>
         </div>
       </div>
 
-      <div class="role-tabs exec">
-        <button class="role-tab active" data-view="daily">📝 Daily Entry</button>
-        <button class="role-tab" data-view="expenses">💰 Field Expenses</button>
-        <button class="role-tab" data-view="dashboard">📊 Manager Dashboard</button>
+      <div class="tabs">
+        <button class="tab active" onclick="showTab('work-entry')">📝 Daily Work Entry</button>
+        <button class="tab" onclick="showTab('expenses')">💳 Expenses</button>
+        <button class="tab" onclick="showTab('manager')">👨‍💼 Manager Dashboard</button>
       </div>
 
-      <div class="stats-row">
-        <div class="stat-mini"><div class="label">Today's Work</div><div class="num" id="stat-today">—</div></div>
-        <div class="stat-mini"><div class="label">Today's ₹</div><div class="num" id="stat-amt">—</div></div>
-        <div class="stat-mini"><div class="label">Field Expenses</div><div class="num" id="stat-exp">—</div></div>
-        <div class="stat-mini"><div class="label">This Week</div><div class="num" id="stat-week">—</div></div>
-        <div class="stat-mini"><div class="label">Outstanding</div><div class="num" id="stat-pending">—</div></div>
-      </div>
-
-      <!-- VIEW 1: DAILY ENTRY -->
-      <div class="view-section active" data-view="daily">
-
-        <div class="entry-card">
-          <div class="entry-head">
-            <h2><div class="icon-bg">🛺</div> Today's Field Work Entry</h2>
-            <span style="font-size:12px;color:var(--mute);font-weight:600" id="today-label"></span>
-          </div>
-
-          <form id="daily-form">
-            <div class="entry-form-grid">
-              <div class="form-field">
-                <label>Order / Work Order *</label>
-                <select id="d-order" required>
-                  <option value="">— Select Order —</option>
-                </select>
-              </div>
-
-              <div class="form-field">
-                <label>Location / City *</label>
-                <input type="text" id="d-location" placeholder="Pune, Hadapsar etc." required>
-              </div>
-
-              <div class="form-field">
-                <label>City</label>
-                <input type="text" id="d-city" placeholder="City">
-              </div>
-
-              <div class="form-field">
-                <label>Quantity Done Today *</label>
-                <input type="number" class="mono" id="d-qty" min="1" required>
-              </div>
-
-              <div class="form-field">
-                <label>Rate per Piece (₹) *</label>
-                <input type="number" class="mono" id="d-rate" value="200" min="0" required>
-                <div class="helper">Tier-based: Pune ₹200, Mumbai ₹250</div>
-              </div>
-
-              <div class="form-field full">
-                <label>Notes / Field Observations</label>
-                <textarea id="d-notes" rows="2" placeholder="Optional"></textarea>
-              </div>
-            </div>
-
-            <div class="entry-submit">
-              <button type="button" class="btn ghost" onclick="resetDaily()">🔄 Reset</button>
-              <button type="submit" class="btn primary exec" id="d-submit">✅ Submit Entry (₹0)</button>
-            </div>
-          </form>
-        </div>
-
+      <!-- Daily Work Entry Tab -->
+      <div id="work-entry" class="tab-content active">
         <div class="card">
-          <div class="card-head"><div class="card-title">My <em style="color:var(--execute)">Recent Submissions</em></div></div>
-          <div id="recent-list">
-            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
+          <h3 style="margin-bottom:20px;color:#0891b2">Record Daily Work</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-group">
+              <label>Select Order</label>
+              <select>
+                <option>ORD-001: Rickshaw Branding</option>
+                <option>ORD-002: Hoarding Setup</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Quantity</label>
+              <input type="number" value="5" placeholder="Enter quantity">
+            </div>
+            <div class="form-group">
+              <label>Rate per Unit (₹)</label>
+              <input type="number" value="500" placeholder="Enter rate">
+            </div>
+            <div class="form-group">
+              <label>Total Earnings (₹)</label>
+              <input type="number" value="2500" disabled style="background:#f0f9ff">
+            </div>
           </div>
+          <button class="btn">✅ Save Work Entry</button>
         </div>
       </div>
 
-      <!-- VIEW 2: FIELD EXPENSES -->
-      <div class="view-section" data-view="expenses">
-
-        <div class="entry-card expense">
-          <div class="entry-head exp">
-            <h2><div class="icon-bg">💰</div> Field Expense Entry</h2>
-            <span style="font-size:12px;color:var(--mute);font-weight:600" id="exp-date-label"></span>
-          </div>
-
-          <form id="expense-form">
-            <div class="entry-form-grid">
-              <div class="form-field">
-                <label>Date</label>
-                <input type="date" id="e-date">
-              </div>
-              <div class="form-field">
-                <label>Location / City</label>
-                <input type="text" id="e-location" placeholder="City/Area">
-              </div>
-              <div class="form-field full">
-                <label>Link to Order *</label>
-                <select id="e-order" required>
-                  <option value="">— Select Order —</option>
-                </select>
-                <div class="helper">Expense kis order ke liye? Accounting work-wise track karta hai</div>
-              </div>
-            </div>
-
-            <div style="margin-top:24px">
-              <div style="font-size:13px;font-weight:800;color:var(--nav);margin-bottom:12px;display:flex;align-items:center;gap:8px">
-                <span style="font-size:18px">💸</span> Expense Categories
-              </div>
-              <div class="expense-categories">
-                <div class="expense-input-card">
-                  <div class="icon-emoji">🏨</div>
-                  <div class="lbl-cat">Hotel / Stay</div>
-                  <input type="number" id="e-hotel" placeholder="₹0" value="0" min="0">
-                </div>
-                <div class="expense-input-card">
-                  <div class="icon-emoji">🛺</div>
-                  <div class="lbl-cat">Auto / Transport</div>
-                  <input type="number" id="e-auto" placeholder="₹0" value="0" min="0">
-                </div>
-                <div class="expense-input-card">
-                  <div class="icon-emoji">🍱</div>
-                  <div class="lbl-cat">Food</div>
-                  <input type="number" id="e-food" placeholder="₹0" value="0" min="0">
-                </div>
-                <div class="expense-input-card">
-                  <div class="icon-emoji">📦</div>
-                  <div class="lbl-cat">Others</div>
-                  <input type="number" id="e-others" placeholder="₹0" value="0" min="0">
-                </div>
-              </div>
-            </div>
-
-            <div class="upi-row">
-              <div class="upi-icon">💳</div>
-              <div class="upi-info">
-                <div class="lbl">UPI ID for Reimbursement</div>
-                <input type="text" id="e-upi" placeholder="yourname@upi">
-              </div>
-              <div class="upi-total">
-                <div class="lbl-mini">Total Today</div>
-                <div class="val-big" id="exp-total">₹0</div>
-              </div>
-            </div>
-
-            <div class="form-field full" style="margin-top:18px">
-              <label>Notes (optional)</label>
-              <textarea id="e-notes" rows="2" placeholder="Any notes..."></textarea>
-            </div>
-
-            <div class="entry-submit">
-              <button type="button" class="btn ghost" onclick="resetExpense()">🔄 Reset</button>
-              <button type="submit" class="btn primary exp" id="e-submit">✅ Submit Expense (₹0)</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- VIEW 3: MANAGER -->
-      <div class="view-section" data-view="dashboard">
+      <!-- Expenses Tab -->
+      <div id="expenses" class="tab-content">
         <div class="card">
-          <div class="card-head">
-            <div class="card-title">All <em style="color:var(--execute)">Field Entries + Expenses</em></div>
+          <h3 style="margin-bottom:20px;color:#0891b2">Record Expenses</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-group">
+              <label>Expense Type</label>
+              <select>
+                <option>Hotel</option>
+                <option>Auto/Transport</option>
+                <option>Food</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Amount (₹)</label>
+              <input type="number" placeholder="Enter amount">
+            </div>
           </div>
-          <div id="manager-list">
-            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
-          </div>
+          <button class="btn">💾 Save Expense</button>
         </div>
       </div>
 
+      <!-- Manager Dashboard Tab -->
+      <div id="manager" class="tab-content">
+        <div class="card">
+          <h3 style="margin-bottom:20px;color:#0891b2">Team Performance Dashboard</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Work Done</th>
+                <th>Earnings</th>
+                <th>Expenses</th>
+                <th>Net</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Abbas Khan</td>
+                <td>8 units</td>
+                <td>₹4,000</td>
+                <td>₹500</td>
+                <td style="color:#10b981;font-weight:700">₹3,500</td>
+              </tr>
+              <tr>
+                <td>Adarsh Patel</td>
+                <td>6 units</td>
+                <td>₹3,000</td>
+                <td>₹300</td>
+                <td style="color:#10b981;font-weight:700">₹2,700</td>
+              </tr>
+              <tr>
+                <td>Akash Singh</td>
+                <td>7 units</td>
+                <td>₹3,500</td>
+                <td>₹400</td>
+                <td style="color:#10b981;font-weight:700">₹3,100</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="lib-config.js"></script>
-<script src="lib-auth.js"></script>
-<script src="lib-ui.js"></script>
 <script>
-const session = AUTH.requireModule('execution');
-if (!session) throw new Error('Not logged in');
-
-document.getElementById('sidebar').innerHTML = UI.renderSidebar('execution');
-document.getElementById('topbar').innerHTML = UI.renderTopbar('Execution', { searchPlaceholder: 'Search team, order, location...' });
-
-const todayStr = new Date().toISOString().slice(0, 10);
-document.getElementById('e-date').value = todayStr;
-document.getElementById('today-label').textContent = '📅 ' + new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
-document.getElementById('exp-date-label').textContent = '📅 Daily expense submission';
-
-async function loadOrdersIntoSelects() {
-  const { data } = await sb()
-    .from('prajapati_work_orders')
-    .select('id, wo_number, client_name, total_value, status')
-    .order('created_at', { ascending: false })
-    .limit(50);
+function showTab(tabName) {
+  const contents = document.querySelectorAll('.tab-content');
+  const tabs = document.querySelectorAll('.tab');
   
-  ['d-order', 'e-order'].forEach(id => {
-    const sel = document.getElementById(id);
-    sel.innerHTML = '<option value="">— Select Order —</option>';
-    (data || []).forEach(o => {
-      const opt = document.createElement('option');
-      opt.value = o.id;
-      opt.dataset.number = o.wo_number || '';
-      opt.dataset.client = o.client_name || '';
-      opt.textContent = `${o.wo_number || 'WO-' + o.id.slice(0,6)} · ${o.client_name || 'Client'}`;
-      sel.appendChild(opt);
-    });
-  });
+  contents.forEach(c => c.classList.remove('active'));
+  tabs.forEach(t => t.classList.remove('active'));
+  
+  document.getElementById(tabName).classList.add('active');
+  event.target.classList.add('active');
 }
 
-// Daily entry submit
-document.getElementById('daily-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const orderSel = document.getElementById('d-order');
-  const opt = orderSel.options[orderSel.selectedIndex];
-  const qty = parseInt(document.getElementById('d-qty').value);
-  const rate = parseFloat(document.getElementById('d-rate').value);
-
-  const payload = {
-    entry_date: todayStr,
-    work_order_id: orderSel.value,
-    wo_number: opt?.dataset.number || null,
-    team_member_id: session.staffId || null,
-    team_member_name: session.name || session.phone,
-    location: document.getElementById('d-location').value,
-    city: document.getElementById('d-city').value || null,
-    qty: qty,
-    rate_per_piece: rate,
-    amount: qty * rate,
-    notes: document.getElementById('d-notes').value || null
-  };
-
-  try {
-    const btn = document.getElementById('d-submit');
-    btn.disabled = true;
-    btn.textContent = '⏳ Saving...';
-    const { error } = await sb().from('prajapati_execution_entries').insert(payload);
-    if (error) throw error;
-    UI.toast(`✅ Entry saved! ₹${payload.amount} earned.`, 'success');
-    resetDaily();
-    loadStats();
-    loadRecent();
-  } catch (err) {
-    UI.toast('❌ Save failed: ' + err.message, 'error');
-  } finally {
-    document.getElementById('d-submit').disabled = false;
-    updateDailyAmount();
-  }
-});
-
-// Expense form submit
-document.getElementById('expense-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const orderSel = document.getElementById('e-order');
-  const opt = orderSel.options[orderSel.selectedIndex];
-
-  const payload = {
-    entry_date: document.getElementById('e-date').value || todayStr,
-    work_order_id: orderSel.value,
-    wo_number: opt?.dataset.number || null,
-    team_member_id: session.staffId || null,
-    team_member_name: session.name || session.phone,
-    location: document.getElementById('e-location').value || null,
-    hotel_amount: parseFloat(document.getElementById('e-hotel').value) || 0,
-    auto_amount: parseFloat(document.getElementById('e-auto').value) || 0,
-    food_amount: parseFloat(document.getElementById('e-food').value) || 0,
-    others_amount: parseFloat(document.getElementById('e-others').value) || 0,
-    upi_id: document.getElementById('e-upi').value || null,
-    notes: document.getElementById('e-notes').value || null
-  };
-
-  try {
-    const btn = document.getElementById('e-submit');
-    btn.disabled = true;
-    btn.textContent = '⏳ Saving...';
-    const { error } = await sb().from('prajapati_work_expenses').insert(payload);
-    if (error) throw error;
-    const total = payload.hotel_amount + payload.auto_amount + payload.food_amount + payload.others_amount;
-    UI.toast(`✅ Expense saved! Total ₹${total}`, 'success');
-    resetExpense();
-    loadStats();
-  } catch (err) {
-    UI.toast('❌ Save failed: ' + err.message, 'error');
-  } finally {
-    document.getElementById('e-submit').disabled = false;
-    updateExpenseTotal();
-  }
-});
-
-function updateDailyAmount() {
-  const qty = parseInt(document.getElementById('d-qty').value) || 0;
-  const rate = parseFloat(document.getElementById('d-rate').value) || 0;
-  const amt = qty * rate;
-  document.getElementById('d-submit').textContent = `✅ Submit Entry (₹${amt})`;
+// Mock authentication check
+const session = localStorage.getItem('prajapati_session');
+if (!session) {
+  window.location.href = 'login.html';
 }
-['d-qty', 'd-rate'].forEach(id => document.getElementById(id).addEventListener('input', updateDailyAmount));
-
-function updateExpenseTotal() {
-  const total = ['e-hotel', 'e-auto', 'e-food', 'e-others']
-    .reduce((s, id) => s + (parseFloat(document.getElementById(id).value) || 0), 0);
-  document.getElementById('exp-total').textContent = '₹' + total.toLocaleString('en-IN');
-  document.getElementById('e-submit').textContent = `✅ Submit Expense (₹${total})`;
-}
-['e-hotel', 'e-auto', 'e-food', 'e-others'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('input', updateExpenseTotal);
-  el.addEventListener('focus', () => el.closest('.expense-input-card').classList.add('active'));
-  el.addEventListener('blur', () => el.closest('.expense-input-card').classList.remove('active'));
-});
-
-function resetDaily() { document.getElementById('daily-form').reset(); document.getElementById('d-rate').value = 200; updateDailyAmount(); }
-function resetExpense() {
-  document.getElementById('expense-form').reset();
-  document.getElementById('e-date').value = todayStr;
-  ['e-hotel', 'e-auto', 'e-food', 'e-others'].forEach(id => document.getElementById(id).value = 0);
-  updateExpenseTotal();
-}
-
-async function loadStats() {
-  try {
-    const today = todayStr;
-    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-
-    const [todayWork, todayExp, weekWork, pending] = await Promise.all([
-      sb().from('prajapati_execution_entries').select('qty, amount').eq('entry_date', today),
-      sb().from('prajapati_work_expenses').select('total_amount').eq('entry_date', today),
-      sb().from('prajapati_execution_entries').select('qty').gte('entry_date', weekAgo),
-      sb().from('prajapati_execution_entries').select('amount').eq('payment_status', 'pending')
-    ]);
-
-    const todayPcs = (todayWork.data || []).reduce((s, x) => s + (x.qty || 0), 0);
-    const todayAmt = (todayWork.data || []).reduce((s, x) => s + (Number(x.amount) || 0), 0);
-    const todayExpAmt = (todayExp.data || []).reduce((s, x) => s + (Number(x.total_amount) || 0), 0);
-    const weekPcs = (weekWork.data || []).reduce((s, x) => s + (x.qty || 0), 0);
-    const pendingAmt = (pending.data || []).reduce((s, x) => s + (Number(x.amount) || 0), 0);
-
-    document.getElementById('stat-today').textContent = todayPcs;
-    document.getElementById('stat-amt').textContent = UI.fmtINR(todayAmt);
-    document.getElementById('stat-exp').textContent = UI.fmtINR(todayExpAmt);
-    document.getElementById('stat-week').textContent = weekPcs;
-    document.getElementById('stat-pending').textContent = UI.fmtINR(pendingAmt);
-  } catch (e) { console.error(e); }
-}
-
-async function loadRecent() {
-  const list = document.getElementById('recent-list');
-  try {
-    const { data } = await sb()
-      .from('prajapati_execution_entries')
-      .select('*')
-      .eq('team_member_name', session.name || session.phone)
-      .order('created_at', { ascending: false })
-      .limit(10);
-    
-    if (!data || data.length === 0) {
-      UI.showEmpty(list, 'Koi entry nahi. Pehli entry submit karo!');
-      return;
-    }
-
-    list.innerHTML = `
-      <table class="data-table">
-        <thead><tr>
-          <th>Date</th><th>Order</th><th>Location</th><th class="right">Qty</th><th class="right">Rate</th><th class="right">Earned</th><th>Status</th>
-        </tr></thead>
-        <tbody>
-          ${data.map(r => `
-            <tr>
-              <td>${UI.fmtDate(r.entry_date)}</td>
-              <td><span class="ord">${r.wo_number || '—'}</span></td>
-              <td>${r.location || '—'}</td>
-              <td class="right mono">${r.qty}</td>
-              <td class="right mono">${UI.fmtINRfull(r.rate_per_piece)}</td>
-              <td class="right mono"><strong>${UI.fmtINRfull(r.amount)}</strong></td>
-              <td><span class="pill ${r.payment_status === 'paid' ? 'pill-success' : 'pill-warning'}">${r.payment_status}</span></td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
-  } catch (e) { UI.showError(list, e.message); }
-}
-
-async function loadManager() {
-  const list = document.getElementById('manager-list');
-  try {
-    const [entries, expenses] = await Promise.all([
-      sb().from('prajapati_execution_entries').select('*').order('created_at', { ascending: false }).limit(50),
-      sb().from('prajapati_work_expenses').select('*').order('created_at', { ascending: false }).limit(50)
-    ]);
-
-    const combined = [
-      ...(entries.data || []).map(e => ({ ...e, _type: 'work' })),
-      ...(expenses.data || []).map(e => ({ ...e, _type: 'expense' }))
-    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 50);
-
-    if (combined.length === 0) {
-      UI.showEmpty(list, 'No entries yet');
-      return;
-    }
-
-    list.innerHTML = `
-      <table class="data-table">
-        <thead><tr>
-          <th>Date</th><th>Person</th><th>Type</th><th>Order</th><th>Details</th><th class="right">Qty</th><th class="right">Amount</th>
-        </tr></thead>
-        <tbody>
-          ${combined.map(r => {
-            if (r._type === 'work') {
-              return `<tr>
-                <td>${UI.fmtDate(r.entry_date)}</td>
-                <td><strong>${r.team_member_name}</strong></td>
-                <td><span class="pill pill-info">Work</span></td>
-                <td><span class="ord">${r.wo_number || '—'}</span></td>
-                <td>${r.location || '—'}</td>
-                <td class="right mono">${r.qty}</td>
-                <td class="right mono">${UI.fmtINRfull(r.amount)}</td>
-              </tr>`;
-            } else {
-              return `<tr>
-                <td>${UI.fmtDate(r.entry_date)}</td>
-                <td><strong>${r.team_member_name}</strong></td>
-                <td><span class="pill pill-warning">Expense</span></td>
-                <td><span class="ord">${r.wo_number || '—'}</span></td>
-                <td>Hotel ${r.hotel_amount} · Auto ${r.auto_amount} · Food ${r.food_amount}</td>
-                <td class="right">—</td>
-                <td class="right mono">${UI.fmtINRfull(r.total_amount)}</td>
-              </tr>`;
-            }
-          }).join('')}
-        </tbody>
-      </table>
-    `;
-  } catch (e) { UI.showError(list, e.message); }
-}
-
-document.querySelectorAll('.role-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-    document.querySelector(`.view-section[data-view="${tab.dataset.view}"]`).classList.add('active');
-    if (tab.dataset.view === 'dashboard') loadManager();
-  });
-});
-
-loadOrdersIntoSelects();
-loadStats();
-loadRecent();
-updateExpenseTotal();
 </script>
 
 </body>
