@@ -19,13 +19,26 @@ const AUTH = {
     return window.supabase;
   },
 
-  requireLogin() {
+  getCurrentUser() {
     const session = localStorage.getItem('prajapati_session');
+    if (!session) {
+      return null;
+    }
+    try {
+      return JSON.parse(session);
+    } catch (e) {
+      console.error('Failed to parse session:', e);
+      return null;
+    }
+  },
+
+  requireLogin() {
+    const session = this.getCurrentUser();
     if (!session) {
       window.location.href = 'login.html';
       return null;
     }
-    return JSON.parse(session);
+    return session;
   },
 
   async sendOTP(phone) {
