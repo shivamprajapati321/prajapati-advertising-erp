@@ -466,6 +466,29 @@
             <input type="text" class="form-input" id="company-website" placeholder="https://example.com">
           </div>
 
+          <div class="form-group">
+            <label class="form-label">Company Logo</label>
+            <div style="display: flex; gap: 15px; align-items: flex-start;">
+              <div>
+                <div id="logo-preview" style="width: 120px; height: 120px; background: linear-gradient(135deg, #06b6d4, #fbbf24); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 50px;">
+                  🏢
+                </div>
+                <div style="font-size: 12px; color: #9ca3af; margin-top: 10px; text-align: center;">Current Logo</div>
+              </div>
+              <div style="flex: 1;">
+                <input type="file" id="logo-upload" accept="image/*" style="display: none;">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('logo-upload').click()" style="width: 100%; margin-bottom: 10px;">
+                  📤 Choose Logo
+                </button>
+                <div style="font-size: 12px; color: #9ca3af;">
+                  <div>✓ Recommended: 200x200px</div>
+                  <div>✓ Formats: JPG, PNG, GIF</div>
+                  <div>✓ Max size: 5MB</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="form-actions">
             <button class="btn btn-primary" onclick="saveCompanySettings()">Save Settings</button>
             <button class="btn btn-secondary" onclick="resetCompanySettings()">Reset</button>
@@ -830,6 +853,40 @@
         document.getElementById('company-gst').value = company.gst;
         document.getElementById('company-website').value = company.website;
       }
+
+      // Load logo
+      const savedLogo = localStorage.getItem('company-logo');
+      if (savedLogo) {
+        document.getElementById('logo-preview').innerHTML = `<img src="${savedLogo}" style="width: 100%; height: 100%; border-radius: 12px; object-fit: cover;">`;
+      }
+
+      // Logo upload handler
+      document.getElementById('logo-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          // Check file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            alert('❌ File size exceeds 5MB!');
+            return;
+          }
+
+          // Check file type
+          if (!file.type.startsWith('image/')) {
+            alert('❌ Please upload an image file!');
+            return;
+          }
+
+          // Read and display file
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const imageData = event.target.result;
+            document.getElementById('logo-preview').innerHTML = `<img src="${imageData}" style="width: 100%; height: 100%; border-radius: 12px; object-fit: cover;">`;
+            localStorage.setItem('company-logo', imageData);
+            console.log('✅ Logo uploaded successfully!');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
     });
   </script>
 </body>

@@ -598,6 +598,60 @@
         <input type="number" class="form-input" id="staff-performance" placeholder="0" min="0" max="100">
       </div>
 
+      <div class="form-group">
+        <label class="form-label" style="margin-bottom: 15px;">Module Access Permissions</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: #f9fafb; border-radius: 8px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="orders" checked>
+            <span style="font-size: 14px;">📦 Orders</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="leads" checked>
+            <span style="font-size: 14px;">🎯 Leads</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="quotations" checked>
+            <span style="font-size: 14px;">📝 Quotations</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="invoices" checked>
+            <span style="font-size: 14px;">💰 Invoices</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="customers" checked>
+            <span style="font-size: 14px;">👥 Customers</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="printing" checked>
+            <span style="font-size: 14px;">🖨️ Printing</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="stitching" checked>
+            <span style="font-size: 14px;">✂️ Stitching</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="execution" checked>
+            <span style="font-size: 14px;">🛺 Execution</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="reports">
+            <span style="font-size: 14px;">📊 Reports</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="analytics" checked>
+            <span style="font-size: 14px;">📈 Analytics</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="team">
+            <span style="font-size: 14px;">👨‍💼 Team Management</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" class="access-check" value="settings">
+            <span style="font-size: 14px;">⚙️ Settings</span>
+          </label>
+        </div>
+      </div>
+
       <div class="modal-buttons">
         <button class="btn-save" onclick="saveStaff()">Save</button>
         <button class="btn-cancel" onclick="closeStaffModal()">Cancel</button>
@@ -713,6 +767,12 @@
       document.getElementById('staff-role').value = '';
       document.getElementById('staff-status').value = 'active';
       document.getElementById('staff-performance').value = '0';
+      
+      // Check all permissions by default for new members
+      document.querySelectorAll('.access-check').forEach(check => {
+        check.checked = !['team', 'settings', 'reports'].includes(check.value);
+      });
+      
       document.getElementById('staff-modal').classList.add('show');
     }
 
@@ -736,10 +796,19 @@
         return;
       }
 
+      // Get selected access permissions
+      const accessChecks = document.querySelectorAll('.access-check');
+      const access = {};
+      accessChecks.forEach(check => {
+        access[check.value] = check.checked;
+      });
+
       const newMember = {
         id: editingId || Date.now(),
         name, phone, email, role, status, performance,
-        tasks: editingId ? (staffDatabase.find(s => s.id === editingId)?.tasks || 0) : 0
+        access: access,
+        tasks: editingId ? (staffDatabase.find(s => s.id === editingId)?.tasks || 0) : 0,
+        createdAt: new Date().toISOString()
       };
 
       if (editingId) {
@@ -752,7 +821,8 @@
       renderStaff(staffDatabase);
       updateStats();
       closeStaffModal();
-      console.log('✅ Staff member saved!');
+      console.log('✅ Staff member saved with access permissions!', newMember);
+      alert(`✅ ${name} saved with ${Object.values(access).filter(Boolean).length} module permissions!`);
     }
 
     // Search functionality
