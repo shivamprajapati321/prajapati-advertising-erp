@@ -156,7 +156,7 @@ const AUTH = {
     return window.supabase;
   },
 
-  // 🛡️ CHECK MODULE ACCESS
+  // 🛡️ CHECK MODULE ACCESS (with redirect)
   requireModule(module) {
     const session = this.getCurrentUser();
     
@@ -187,6 +187,31 @@ const AUTH = {
     }
 
     return session;
+  },
+
+  // ✅ CHECK IF CAN ACCESS MODULE (returns true/false, no redirect)
+  canAccess(module) {
+    const session = this.getCurrentUser();
+    
+    if (!session) {
+      return false;
+    }
+
+    // Module permissions
+    const moduleAccess = {
+      orders: ['admin', 'sales', 'operation', 'execution_manager', 'dispatch'],
+      printing: ['admin', 'printing', 'operation'],
+      stitching: ['admin', 'stitching', 'operation'],
+      execution: ['admin', 'execution', 'operation'],
+      dispatch: ['admin', 'dispatch', 'operation'],
+      dashboard: ['admin', 'sales', 'operation', 'printing', 'stitching', 'execution'],
+      team: ['admin'],
+      settings: ['admin'],
+      reports: ['admin']
+    };
+
+    const allowedRoles = moduleAccess[module] || [];
+    return allowedRoles.includes(session.role);
   }
 };
 
