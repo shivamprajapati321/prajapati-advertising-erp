@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="erp-design.css">
+<script>
+(function(){var s=localStorage.getItem('erp_session');if(!s){window.location.href='login.html';return;}var p=JSON.parse(s);if(Date.now()>p.expiresAt){localStorage.removeItem('erp_session');window.location.href='login.html';}})();
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sales CRM — Prajapati Advertising</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div class="erp-topbar">
+  <a href="index.html" class="erp-logo">
+    <div class="erp-logo-mark">PA</div>
+    <div class="erp-logo-text">
+      <div class="erp-logo-name">Prajapati Advertising</div>
+      <div class="erp-logo-tag">Enterprise ERP</div>
+    </div>
+  </a>
+  <nav class="erp-nav">
+    <a href="index.html">🏠 Home</a>
+    <a href="sales-crm.html" class="active">💼 Sales</a>
+    <a href="operations.html">⚙️ Operations</a>
+    <a href="dispatch.html">🚚 Dispatch</a>
+    <a href="hr.html">👥 HR</a>
+    <a href="reports.html">📊 Reports</a>
+    <a href="settings.html">⚙️ Settings</a>
+  </nav>
+  <div class="erp-user">
+    <div id="_uname" style="text-align:right"><div class="erp-user-name" id="_un">—</div><div class="erp-user-role" id="_ur"></div></div>
+    <div class="erp-avatar" id="_uav">?</div>
+    <button class="erp-logout" onclick="localStorage.removeItem('erp_session');window.location.href='login.html'">Logout</button>
+  </div>
+</div>
+<script>
+(function(){var s=localStorage.getItem('erp_session');if(!s)return;var p=JSON.parse(s);var el=document.getElementById('_un');var er=document.getElementById('_ur');var ea=document.getElementById('_uav');if(el)el.textContent=p.name||'User';if(er)er.textContent=(p.role||'').replace(/_/g,' ').toUpperCase();if(ea)ea.textContent=(p.name||'U')[0].toUpperCase();})();
+</script>
+<div class="erp-page">
+  <div class="tabs" id="main-tabs">
+    <div class="tab act" onclick="showTab('quotations',this)">💰 Quotations</div>
+    <div class="tab" onclick="showTab('pi',this)">📄 Proforma Invoice</div>
+    <div class="tab" onclick="showTab('invoices',this)">🧾 Final Invoice</div>
+    <div class="tab" onclick="showTab('clients',this)">👥 Clients</div>
+    <div class="tab" onclick="showTab('payments',this)">💳 Payments</div>
+    <div class="tab" onclick="showTab('leads',this)">🎯 Leads</div>
+    <div class="tab" onclick="showTab('targets',this)">📊 Targets</div>
+    <div class="tab" onclick="showTab('communication',this)">💬 Communication</div>
+  </div>
+
+  <!-- ═══ QUOTATIONS ═══ -->
+  <div id="tab-quotations">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700">💰 Quotations</div>
+        <div style="display:flex;gap:8px">
+          <select id="q-status" class="inp" style="width:140px" onchange="loadQuots()">
+            <option value="">All Status</option>
+            <option value="draft">Draft</option>
+            <option value="sent">Sent</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <button class="btn btn-primary" onclick="openNewQuot()">+ New Quotation</button>
+        </div>
+      </div>
+      <div id="quot-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- ═══ PI ═══ -->
+  <div id="tab-pi" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700">📄 Proforma Invoices</div>
+        <button class="btn btn-primary" onclick="openNewPI()">+ New PI</button>
+      </div>
+      <div id="pi-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- ═══ INVOICES ═══ -->
+  <div id="tab-invoices" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700">🧾 Final Invoices</div>
+        <div style="display:flex;gap:8px">
+          <select id="inv-entity" class="inp" style="width:180px" onchange="loadInvoices()">
+            <option value="">All Entities</option>
+            <option value="prajapati">🏢 Prajapati (GST)</option>
+            <option value="sakshi">🏬 Sakshi (No GST)</option>
+          </select>
+          <button class="btn btn-primary" onclick="openNewInv()">+ New Invoice</button>
+        </div>
+      </div>
+      <div id="inv-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- ═══ CLIENTS ═══ -->
+  <div id="tab-clients" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700">👥 Clients</div>
+        <button class="btn btn-primary" onclick="openNewClient()">+ Add Client</button>
+      </div>
+      <input id="client-search" class="inp" placeholder="🔍 Search client..." oninput="searchClients(this.value)" style="margin-bottom:10px">
+      <div id="client-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- ═══ PAYMENTS ═══ -->
+  <div id="tab-payments" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700">💳 Payment Records</div>
+        <button class="btn btn-g" onclick="openNewPayment()">+ Record Payment</button>
+      </div>
+      <div id="pay-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ QUOTATION MODAL ═══ -->
+<div id="m-quot" class="modal-bg">
+<div class="modal">
+  <div class="modal-hdr">
+    <span id="quot-modal-title">💰 New Quotation</span>
+    <button onclick="closeM('m-quot')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <input type="hidden" id="q-id">
+  <div class="g2">
+    <div class="fld"><label class="lbl">Client *</label>
+      <select id="q-client" class="inp"><option value="">— Select Client —</option></select>
+    </div>
+    <div class="fld"><label class="lbl">Validity (days)</label>
+      <input id="q-validity" class="inp" type="number" value="30"></div>
+  </div>
+  <!-- Items -->
+  <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--tx)">Line Items</div>
+  <div id="q-items"></div>
+  <button onclick="addItem('q')" class="btn btn-b" style="margin-bottom:12px;padding:6px 12px;font-size:11px">+ Add Item</button>
+  <!-- Totals -->
+  <div class="g2" style="margin-bottom:12px">
+    <div class="fld"><label class="lbl">Discount %</label><input id="q-disc" class="inp" type="number" value="0" oninput="calcTotals('q')"></div>
+    <div class="fld"><label class="lbl">Tax % (GST)</label><input id="q-tax" class="inp" type="number" value="18" oninput="calcTotals('q')"></div>
+  </div>
+  <div id="q-totals" style="background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:12px;font-size:13px"></div>
+  <div class="fld"><label class="lbl">Notes</label><textarea id="q-notes" class="inp" rows="2"></textarea></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="saveQuot('draft')">💾 Save Draft</button>
+    <button class="btn btn-o" onclick="saveQuot('sent')">📤 Save & Send</button>
+    <button class="btn" style="background:var(--br);color:var(--tx)" onclick="closeM('m-quot')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PI MODAL ═══ -->
+<div id="m-pi" class="modal-bg">
+<div class="modal">
+  <div class="modal-hdr">
+    <span>📄 New Proforma Invoice</span>
+    <button onclick="closeM('m-pi')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <input type="hidden" id="pi-id">
+  <div class="g2">
+    <div class="fld"><label class="lbl">Client *</label>
+      <select id="pi-client" class="inp"><option value="">— Select —</option></select></div>
+    <div class="fld"><label class="lbl">From Quotation</label>
+      <select id="pi-quot" class="inp" onchange="loadQuotItems()"><option value="">— None —</option></select></div>
+  </div>
+  <div id="pi-items"></div>
+  <button onclick="addItem('pi')" class="btn btn-b" style="margin-bottom:12px;padding:6px 12px;font-size:11px">+ Add Item</button>
+  <div class="g3" style="margin-bottom:12px">
+    <div class="fld"><label class="lbl">Discount %</label><input id="pi-disc" class="inp" type="number" value="0" oninput="calcTotals('pi')"></div>
+    <div class="fld"><label class="lbl">Tax %</label><input id="pi-tax" class="inp" type="number" value="18" oninput="calcTotals('pi')"></div>
+    <div class="fld"><label class="lbl">Advance Received</label><input id="pi-advance" class="inp" type="number" value="0" oninput="calcTotals('pi')"></div>
+  </div>
+  <div id="pi-totals" style="background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:12px;font-size:13px"></div>
+  <div class="fld"><label class="lbl">Notes</label><textarea id="pi-notes" class="inp" rows="2" placeholder="Payment terms, delivery details..."></textarea></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="savePI()">💾 Save PI</button>
+    <button class="btn btn-p" onclick="savePI('pdf')">📄 Save & Download PDF</button>
+    <button class="btn" style="background:var(--br);color:var(--tx)" onclick="closeM('m-pi')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ INVOICE MODAL ═══ -->
+<div id="m-inv" class="modal-bg">
+<div class="modal" style="max-width:800px">
+  <div class="modal-hdr">
+    <span id="inv-modal-title">🧾 New Invoice</span>
+    <button onclick="closeM('m-inv')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <input type="hidden" id="inv-id">
+  <!-- Entity selector -->
+  <div style="display:flex;gap:10px;margin-bottom:14px">
+    <button id="inv-pa-btn" class="btn btn-primary" onclick="setEntity('prajapati')" style="flex:1">🏢 Prajapati Advertising (GST)</button>
+    <button id="inv-sk-btn" class="btn" style="flex:1;background:var(--br);color:var(--tx)" onclick="setEntity('sakshi')">🏬 Sakshi Enterprises (No GST)</button>
+  </div>
+  <div id="inv-entity-info" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px;margin-bottom:12px;font-size:12px"></div>
+  <div class="g2">
+    <div class="fld"><label class="lbl">Client *</label>
+      <select id="inv-client" class="inp" onchange="loadClientGST()"><option value="">— Select —</option></select></div>
+    <div class="fld"><label class="lbl">From PI</label>
+      <select id="inv-pi" class="inp" onchange="loadPIItems()"><option value="">— None —</option></select></div>
+  </div>
+  <div id="inv-items"></div>
+  <button onclick="addItem('inv')" class="btn btn-b" style="margin-bottom:12px;padding:6px 12px;font-size:11px">+ Add Item</button>
+  <div id="inv-gst-fields">
+    <div class="g3" style="margin-bottom:12px">
+      <div class="fld"><label class="lbl">CGST %</label><input id="inv-cgst" class="inp" type="number" value="9" oninput="calcInvTotals()"></div>
+      <div class="fld"><label class="lbl">SGST %</label><input id="inv-sgst" class="inp" type="number" value="9" oninput="calcInvTotals()"></div>
+      <div class="fld"><label class="lbl">IGST %</label><input id="inv-igst" class="inp" type="number" value="0" oninput="calcInvTotals()"></div>
+    </div>
+  </div>
+  <div class="g2" style="margin-bottom:12px">
+    <div class="fld"><label class="lbl">Discount %</label><input id="inv-disc" class="inp" type="number" value="0" oninput="calcInvTotals()"></div>
+    <div class="fld"><label class="lbl">Advance Adjusted</label><input id="inv-advance" class="inp" type="number" value="0" oninput="calcInvTotals()"></div>
+  </div>
+  <div id="inv-totals" style="background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:12px;font-size:13px"></div>
+  <div class="fld"><label class="lbl">Notes</label><textarea id="inv-notes" class="inp" rows="2"></textarea></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="saveInv('draft')">💾 Save Draft</button>
+    <button class="btn btn-o" onclick="saveInv('sent')">📤 Save & Send</button>
+    <button class="btn btn-p" onclick="genInvPDF()">📄 Download PDF</button>
+    <button class="btn" style="background:var(--br);color:var(--tx)" onclick="closeM('m-inv')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ CLIENT MODAL ═══ -->
+<div id="m-client" class="modal-bg">
+<div class="modal">
+  <div class="modal-hdr">
+    <span id="client-modal-title">👥 Add Client</span>
+    <button onclick="closeM('m-client')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <input type="hidden" id="cl-id">
+  <div class="g2">
+    <div class="fld"><label class="lbl">Company Name *</label><input id="cl-company" class="inp" placeholder="Company Pvt Ltd"></div>
+    <div class="fld"><label class="lbl">Contact Person</label><input id="cl-contact" class="inp"></div>
+    <div class="fld"><label class="lbl">Phone</label><input id="cl-phone" class="inp" type="tel"></div>
+    <div class="fld"><label class="lbl">Email</label><input id="cl-email" class="inp" type="email"></div>
+    <div class="fld"><label class="lbl">GST Number</label><input id="cl-gst" class="inp" placeholder="27XXXXX"></div>
+    <div class="fld"><label class="lbl">City</label><input id="cl-city" class="inp"></div>
+    <div class="fld"><label class="lbl">State</label><input id="cl-state" class="inp"></div>
+    <div class="fld"><label class="lbl">Industry</label><input id="cl-industry" class="inp" placeholder="Healthcare, FMCG..."></div>
+  </div>
+  <div class="fld"><label class="lbl">Address</label><textarea id="cl-address" class="inp" rows="2"></textarea></div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <button class="btn btn-primary" onclick="saveClient()">💾 Save Client</button>
+    <button class="btn" style="background:var(--br);color:var(--tx)" onclick="closeM('m-client')">Cancel</button>
+  </div>
+</div>
+</div>
+
+
+
+  <!-- ═══ LEADS TAB ══════════════════════════════════════════ -->
+  <div id="tab-leads" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div style="font-size:14px;font-weight:700">🎯 Leads Pipeline</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="syncIndiaMART()" style="background:#ff6600">📥 IndiaMART Sync</button>
+          <button class="btn btn-primary" onclick="openNewLead()">+ New Lead</button>
+        </div>
+      </div>
+      <!-- Pipeline summary -->
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px" id="lead-pipeline-strip"></div>
+      <!-- Leads table -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <select id="lead-status-filter" class="inp" style="width:160px" onchange="loadLeads()">
+          <option value="">All Status</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="qualified">Qualified</option>
+          <option value="proposal">Proposal Sent</option>
+          <option value="negotiation">Negotiation</option>
+          <option value="won">Won</option>
+          <option value="lost">Lost</option>
+        </select>
+        <input id="lead-search" class="inp" placeholder="Search..." oninput="filterLeads(this.value)" style="flex:1;min-width:150px">
+      </div>
+      <div id="leads-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TARGETS TAB ══════════════════════════════════════════ -->
+  <div id="tab-targets" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div style="font-size:14px;font-weight:700">📊 Sales Targets</div>
+        <div style="display:flex;gap:8px">
+          <input id="target-period" class="inp" type="month" style="width:160px" onchange="loadTargets()">
+          <button class="btn btn-primary" onclick="openSetTarget()">+ Set Target</button>
+        </div>
+      </div>
+      <div id="targets-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px"></div>
+      <div id="targets-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- ═══ COMMUNICATION TAB ═══════════════════════════════════ -->
+  <div id="tab-communication" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div style="font-size:14px;font-weight:700">💬 Follow-ups & Communication</div>
+        <div style="display:flex;gap:8px">
+          <select id="fu-filter" class="inp" style="width:140px" onchange="loadFollowups()">
+            <option value="">All</option>
+            <option value="pending">Pending</option>
+            <option value="done">Done</option>
+            <option value="today">Due Today</option>
+            <option value="overdue">Overdue</option>
+          </select>
+          <button class="btn btn-primary" onclick="openNewFollowup()">+ Follow-up</button>
+        </div>
+      </div>
+      <!-- Today's due -->
+      <div id="today-followups" style="margin-bottom:14px"></div>
+      <div id="followups-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- LEAD MODAL -->
+  <div id="m-lead" class="overlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="lead-modal-title">🎯 New Lead</div>
+      <button class="modal-close" onclick="closeM('m-lead')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ld-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fld"><label class="lbl">Company Name *</label><input id="ld-company" class="inp" placeholder="Client company"></div>
+        <div class="fld"><label class="lbl">Contact Person</label><input id="ld-contact" class="inp"></div>
+        <div class="fld"><label class="lbl">Phone</label><input id="ld-phone" class="inp" type="tel"></div>
+        <div class="fld"><label class="lbl">Email</label><input id="ld-email" class="inp" type="email"></div>
+        <div class="fld"><label class="lbl">City</label><input id="ld-city" class="inp" placeholder="Pune"></div>
+        <div class="fld"><label class="lbl">Source</label>
+          <select id="ld-source" class="inp"><option value="manual">Manual</option><option value="indiamart">IndiaMART</option><option value="referral">Referral</option><option value="website">Website</option><option value="walkin">Walk-in</option></select></div>
+        <div class="fld"><label class="lbl">Media Interest</label>
+          <select id="ld-media" class="inp"><option>Hood</option><option>Back Panel</option><option>Flex Banner</option><option>No Parking Board</option><option>Multiple</option></select></div>
+        <div class="fld"><label class="lbl">Est. Value (₹)</label><input id="ld-value" class="inp" type="number" placeholder="0"></div>
+        <div class="fld"><label class="lbl">Status</label>
+          <select id="ld-status" class="inp"><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal">Proposal Sent</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="lost">Lost</option></select></div>
+        <div class="fld"><label class="lbl">Follow-up Date</label><input id="ld-followup" class="inp" type="date"></div>
+      </div>
+      <div class="fld"><label class="lbl">Notes</label><textarea id="ld-notes" class="inp" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="saveLead()">💾 Save Lead</button>
+      <button class="btn btn-ghost" onclick="closeM('m-lead')">Cancel</button>
+    </div>
+  </div>
+  </div>
+
+  <!-- TARGET MODAL -->
+  <div id="m-target" class="overlay">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-hdr">
+      <div class="modal-title">📊 Set Target</div>
+      <button class="modal-close" onclick="closeM('m-target')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fld"><label class="lbl">Period</label><input id="tg-period" class="inp" type="month"></div>
+        <div class="fld"><label class="lbl">Staff</label>
+          <select id="tg-staff" class="inp"><option value="">Team Overall</option></select></div>
+        <div class="fld"><label class="lbl">Revenue Target (₹)</label><input id="tg-rev" class="inp" type="number" placeholder="500000"></div>
+        <div class="fld"><label class="lbl">Invoice Count</label><input id="tg-inv" class="inp" type="number" placeholder="10"></div>
+        <div class="fld"><label class="lbl">New Clients</label><input id="tg-clients" class="inp" type="number" placeholder="5"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="saveTarget()">💾 Save Target</button>
+      <button class="btn btn-ghost" onclick="closeM('m-target')">Cancel</button>
+    </div>
+  </div>
+  </div>
+
+  <!-- FOLLOW-UP MODAL -->
+  <div id="m-followup" class="overlay">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-hdr">
+      <div class="modal-title">💬 Add Follow-up</div>
+      <button class="modal-close" onclick="closeM('m-followup')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fld" style="grid-column:1/-1"><label class="lbl">Client / Lead *</label><input id="fu-entity" class="inp" placeholder="Client or lead name"></div>
+        <div class="fld"><label class="lbl">Type</label>
+          <select id="fu-type" class="inp"><option value="call">📞 Call</option><option value="whatsapp">💬 WhatsApp</option><option value="email">📧 Email</option><option value="visit">🚗 Visit</option><option value="meeting">🤝 Meeting</option></select></div>
+        <div class="fld"><label class="lbl">Due Date *</label><input id="fu-date" class="inp" type="date"></div>
+        <div class="fld"><label class="lbl">Assigned To</label>
+          <select id="fu-assigned" class="inp"><option value="">Self</option></select></div>
+      </div>
+      <div class="fld"><label class="lbl">Notes / Agenda</label><textarea id="fu-notes" class="inp" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="saveFollowup()">💾 Save</button>
+      <button class="btn btn-ghost" onclick="closeM('m-followup')">Cancel</button>
+    </div>
+  </div>
+  </div>
+
+<script>
+const SU='https://shafygjbffffjhwhmcgo.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE';
+
+async function db(m,p,b){
+  try{
+    const r=await fetch(SU+'/rest/v1/'+p,{method:m,headers:{apikey:SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json',Prefer:['POST','PATCH'].includes(m)?'return=representation':''},body:b?JSON.stringify(b):undefined});
+    if(!r.ok){console.error(r.status,await r.text());return null;}
+    const t=await r.text();return t?JSON.parse(t):null;
+  }catch(e){console.error(e);return null;}
+}
+
+async function rpc(fn,params){
+  const r=await fetch(SU+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'},body:JSON.stringify(params||{})});
+  const t=await r.text();return t?JSON.parse(t):null;
+}
+
+let _clients=[],_quots=[],_pis=[],_invEntity='prajapati';
+
+// MODAL
+function openM(id){document.getElementById(id).classList.add('show');document.getElementById(id).style.display='flex';}
+function closeM(id){document.getElementById(id).classList.remove('show');document.getElementById(id).style.display='none';}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg'))closeM(e.target.id);});
+
+// TABS
+function showTab(name,el){
+  if(name==='leads')loadLeads();
+  if(name==='targets')loadTargets();
+  if(name==='communication')loadFollowups();
+  document.querySelectorAll('[id^=tab-]').forEach(x=>x.style.display='none');
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('act'));
+  document.getElementById('tab-'+name).style.display='';
+  el.classList.add('act');
+  const fns={quotations:loadQuots,pi:loadPIs,invoices:loadInvoices,clients:loadClients,payments:loadPayments};
+  if(fns[name])fns[name]();
+}
+
+function fmt(n){return '₹'+parseFloat(n||0).toLocaleString('en-IN',{minimumFractionDigits:2});}
+function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—';}
+
+// ═══ CLIENTS ═══
+async function loadClients(search=''){
+  let q='prajapati_clients?select=*&order=company_name';
+  if(search)q+=`&company_name=ilike.*${search}*`;
+  const data=await db('GET',q);_clients=data||[];
+  renderClients(_clients);
+  // Update dropdowns
+  const opts='<option value="">— Select Client —</option>'+_clients.map(c=>`<option value="${c.id}">${c.company_name}</option>`).join('');
+  ['q-client','pi-client','inv-client'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+
+function renderClients(data){
+  document.getElementById('client-list').innerHTML=data.length?`
+    <table class="tbl"><tr><th>Company</th><th>Contact</th><th>Phone</th><th>GST</th><th>City</th><th>Actions</th></tr>
+    ${data.map(c=>`<tr>
+      <td><strong>${c.company_name}</strong></td>
+      <td>${c.contact_person||'—'}</td>
+      <td style="font-family:monospace">${c.phone||'—'}</td>
+      <td style="font-size:11px">${c.gst_number||'—'}</td>
+      <td>${c.city||'—'}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-b" style="padding:3px 8px;font-size:10px" onclick="editClient('${c.id}')">✏️</button>
+        <button class="btn btn-primary" style="padding:3px 8px;font-size:10px" onclick="newQuotForClient('${c.id}')">+ Quote</button>
+      </td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No clients yet</div>';
+}
+
+function searchClients(q){renderClients(_clients.filter(c=>c.company_name?.toLowerCase().includes(q.toLowerCase())||c.contact_person?.toLowerCase().includes(q.toLowerCase())));}
+
+function openNewClient(){
+  document.getElementById('client-modal-title').textContent='👥 Add Client';
+  document.getElementById('cl-id').value='';
+  ['cl-company','cl-contact','cl-phone','cl-email','cl-gst','cl-city','cl-state','cl-industry','cl-address'].forEach(id=>document.getElementById(id).value='');
+  openM('m-client');
+}
+
+function editClient(id){
+  const c=_clients.find(x=>x.id===id);if(!c)return;
+  document.getElementById('client-modal-title').textContent='✏️ Edit Client';
+  document.getElementById('cl-id').value=c.id;
+  document.getElementById('cl-company').value=c.company_name||'';
+  document.getElementById('cl-contact').value=c.contact_person||'';
+  document.getElementById('cl-phone').value=c.phone||'';
+  document.getElementById('cl-email').value=c.email||'';
+  document.getElementById('cl-gst').value=c.gst_number||'';
+  document.getElementById('cl-city').value=c.city||'';
+  document.getElementById('cl-state').value=c.state||'';
+  document.getElementById('cl-industry').value=c.industry||'';
+  document.getElementById('cl-address').value=c.address||'';
+  openM('m-client');
+}
+
+async function saveClient(){
+  const company=document.getElementById('cl-company').value.trim();
+  if(!company){alert('Company name required!');return;}
+  const payload={company_name:company,contact_person:document.getElementById('cl-contact').value,phone:document.getElementById('cl-phone').value,email:document.getElementById('cl-email').value,gst_number:document.getElementById('cl-gst').value,city:document.getElementById('cl-city').value,state:document.getElementById('cl-state').value,industry:document.getElementById('cl-industry').value,address:document.getElementById('cl-address').value,updated_at:new Date().toISOString()};
+  const id=document.getElementById('cl-id').value;
+  if(id)await db('PATCH','prajapati_clients?id=eq.'+id,payload);
+  else await db('POST','prajapati_clients',payload);
+  closeM('m-client');loadClients();alert('✅ Client saved!');
+}
+
+// ═══ ITEMS SYSTEM ═══
+const itemTemplates=[
+  'Auto Rickshaw Hood Branding','Auto Rickshaw Back Panel','No Parking Board','Flex Banner','Vinyl Sticker',
+  'Rickshaw Hood (Printing)','Rickshaw Back Panel (Printing)','Installation Charges','Design Charges','Transportation'
+];
+
+function addItem(prefix){
+  const container=document.getElementById(prefix+'-items');
+  const idx=container.children.length;
+  const div=document.createElement('div');
+  div.style.cssText='display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center';
+  div.innerHTML=`
+    <input class="inp item-desc" placeholder="Item description" style="font-size:12px" list="item-list" oninput="calcTotals('${prefix}')">
+    <input class="inp item-qty" type="number" placeholder="Qty" value="1" style="font-size:12px" oninput="calcTotals('${prefix}')">
+    <input class="inp item-unit" placeholder="Unit" value="pcs" style="font-size:12px">
+    <input class="inp item-rate" type="number" placeholder="Rate" style="font-size:12px" oninput="calcTotals('${prefix}')">
+    <button onclick="this.parentElement.remove();calcTotals('${prefix}')" style="background:var(--re);color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">✕</button>
+  `;
+  container.appendChild(div);
+}
+
+datalist_html='<datalist id="item-list">'+itemTemplates.map(t=>`<option value="${t}">`).join('')+'</datalist>';
+document.body.insertAdjacentHTML('beforeend',datalist_html);
+
+function getItems(prefix){
+  const container=document.getElementById(prefix+'-items');
+  return Array.from(container.children).map(row=>{
+    const desc=row.querySelector('.item-desc')?.value||'';
+    const qty=parseFloat(row.querySelector('.item-qty')?.value||0);
+    const unit=row.querySelector('.item-unit')?.value||'pcs';
+    const rate=parseFloat(row.querySelector('.item-rate')?.value||0);
+    return {desc,qty,unit,rate,amount:qty*rate};
+  }).filter(i=>i.desc||i.rate);
+}
+
+function calcTotals(prefix){
+  const items=getItems(prefix);
+  const subtotal=items.reduce((s,i)=>s+i.amount,0);
+  const discPct=parseFloat(document.getElementById(prefix+'-disc')?.value||0);
+  const taxPct=parseFloat(document.getElementById(prefix+'-tax')?.value||0);
+  const discAmt=subtotal*discPct/100;
+  const taxable=subtotal-discAmt;
+  const taxAmt=taxable*taxPct/100;
+  const total=taxable+taxAmt;
+  let html=`<div style="display:flex;flex-direction:column;gap:4px;font-size:12px">
+    <div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>`;
+  if(discPct>0)html+=`<div style="display:flex;justify-content:space-between;color:var(--re)"><span>Discount (${discPct}%)</span><span>-${fmt(discAmt)}</span></div>`;
+  if(taxPct>0)html+=`<div style="display:flex;justify-content:space-between;color:var(--tx2)"><span>GST (${taxPct}%)</span><span>${fmt(taxAmt)}</span></div>`;
+  if(prefix==='pi'){
+    const adv=parseFloat(document.getElementById('pi-advance')?.value||0);
+    html+=`<div style="display:flex;justify-content:space-between;border-top:2px solid var(--br);padding-top:6px;margin-top:4px;font-weight:700;font-size:14px"><span>Total</span><span>${fmt(total)}</span></div>`;
+    if(adv>0)html+=`<div style="display:flex;justify-content:space-between;color:var(--re)"><span>Advance Received</span><span>-${fmt(adv)}</span></div><div style="display:flex;justify-content:space-between;font-weight:700;color:var(--or)"><span>Balance Due</span><span>${fmt(total-adv)}</span></div>`;
+  }else{
+    html+=`<div style="display:flex;justify-content:space-between;border-top:2px solid var(--br);padding-top:6px;margin-top:4px;font-weight:700;font-size:14px"><span>Total</span><span>${fmt(total)}</span></div>`;
+  }
+  html+='</div>';
+  const el=document.getElementById(prefix+'-totals');if(el)el.innerHTML=html;
+}
+
+function calcInvTotals(){
+  const items=getItems('inv');
+  const subtotal=items.reduce((s,i)=>s+i.amount,0);
+  const disc=parseFloat(document.getElementById('inv-disc')?.value||0);
+  const discAmt=subtotal*disc/100;
+  const taxable=subtotal-discAmt;
+  let gst=0;
+  if(_invEntity==='prajapati'){
+    const cgst=parseFloat(document.getElementById('inv-cgst')?.value||0);
+    const sgst=parseFloat(document.getElementById('inv-sgst')?.value||0);
+    const igst=parseFloat(document.getElementById('inv-igst')?.value||0);
+    gst=taxable*(cgst+sgst+igst)/100;
+  }
+  const total=taxable+gst;
+  const adv=parseFloat(document.getElementById('inv-advance')?.value||0);
+  const due=total-adv;
+  let html=`<div style="display:flex;flex-direction:column;gap:4px;font-size:12px">
+    <div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>`;
+  if(disc>0)html+=`<div style="display:flex;justify-content:space-between;color:var(--re)"><span>Discount (${disc}%)</span><span>-${fmt(discAmt)}</span></div>`;
+  if(_invEntity==='prajapati'&&gst>0){
+    const cgst=parseFloat(document.getElementById('inv-cgst')?.value||0);
+    const sgst=parseFloat(document.getElementById('inv-sgst')?.value||0);
+    const igst=parseFloat(document.getElementById('inv-igst')?.value||0);
+    if(cgst>0)html+=`<div style="display:flex;justify-content:space-between;color:var(--tx2)"><span>CGST (${cgst}%)</span><span>${fmt(taxable*cgst/100)}</span></div>`;
+    if(sgst>0)html+=`<div style="display:flex;justify-content:space-between;color:var(--tx2)"><span>SGST (${sgst}%)</span><span>${fmt(taxable*sgst/100)}</span></div>`;
+    if(igst>0)html+=`<div style="display:flex;justify-content:space-between;color:var(--tx2)"><span>IGST (${igst}%)</span><span>${fmt(taxable*igst/100)}</span></div>`;
+  }
+  html+=`<div style="display:flex;justify-content:space-between;border-top:2px solid var(--br);padding-top:6px;margin-top:4px;font-weight:700;font-size:14px"><span>Total</span><span>${fmt(total)}</span></div>`;
+  if(adv>0)html+=`<div style="display:flex;justify-content:space-between;color:var(--re)"><span>Advance Adjusted</span><span>-${fmt(adv)}</span></div><div style="display:flex;justify-content:space-between;font-weight:700;color:var(--or);font-size:14px"><span>Amount Due</span><span>${fmt(due)}</span></div>`;
+  html+='</div>';
+  document.getElementById('inv-totals').innerHTML=html;
+}
+
+// ═══ QUOTATIONS ═══
+async function loadQuots(){
+  const status=document.getElementById('q-status')?.value;
+  let q='prajapati_quotations?select=*,prajapati_clients(company_name)&order=created_at.desc';
+  if(status)q+='&status=eq.'+status;
+  const data=await db('GET',q);_quots=data||[];
+  document.getElementById('quot-list').innerHTML=data?.length?`
+    <table class="tbl"><tr><th>Number</th><th>Client</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+    ${data.map(q=>`<tr>
+      <td style="font-family:monospace;color:var(--or);font-weight:700">${q.quot_number}</td>
+      <td><strong>${q.prajapati_clients?.company_name||q.client_name||'—'}</strong></td>
+      <td style="font-weight:700">${fmt(q.total)}</td>
+      <td><span class="bdg bdg-${q.status==='approved'?'g':q.status==='sent'?'b':q.status==='rejected'?'r':'o'}">${q.status}</span></td>
+      <td style="font-size:11px">${fmtDate(q.created_at)}</td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn" style="padding:3px 8px;font-size:10px;background:var(--bl);color:#fff" onclick="viewQuot('${q.id}')">👁️</button>
+        <button class="btn btn-p" style="padding:3px 8px;font-size:10px" onclick="convertToPI('${q.id}')">→ PI</button>
+        <button class="btn" style="padding:3px 8px;font-size:10px;background:#22c55e;color:#fff" onclick="quotStatus('${q.id}','approved')">✓</button>
+        <button class="btn btn-r" style="padding:3px 8px;font-size:10px" onclick="quotStatus('${q.id}','rejected')">✗</button>
+      </td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No quotations yet</div>';
+  // Load quotations for PI dropdown
+  const popts='<option value="">— None —</option>'+(_quots||[]).filter(q=>q.status!=='rejected').map(q=>`<option value="${q.id}">${q.quot_number} — ${q.prajapati_clients?.company_name||q.client_name}</option>`).join('');
+  const pisel=document.getElementById('pi-quot');if(pisel)pisel.innerHTML=popts;
+}
+
+async function openNewQuot(){
+  await loadClients();
+  document.getElementById('quot-modal-title').textContent='💰 New Quotation';
+  document.getElementById('q-id').value='';
+  document.getElementById('q-client').value='';
+  document.getElementById('q-validity').value=30;
+  document.getElementById('q-disc').value=0;
+  document.getElementById('q-tax').value=18;
+  document.getElementById('q-notes').value='';
+  document.getElementById('q-items').innerHTML='';
+  document.getElementById('q-totals').innerHTML='';
+  addItem('q');addItem('q');
+  openM('m-quot');
+}
+
+async function saveQuot(status){
+  const cid=document.getElementById('q-client').value;
+  if(!cid){alert('Client select karo!');return;}
+  const items=getItems('q');
+  const subtotal=items.reduce((s,i)=>s+i.amount,0);
+  const discPct=parseFloat(document.getElementById('q-disc').value||0);
+  const taxPct=parseFloat(document.getElementById('q-tax').value||0);
+  const discAmt=subtotal*discPct/100;
+  const taxable=subtotal-discAmt;
+  const taxAmt=taxable*taxPct/100;
+  const total=taxable+taxAmt;
+  const client=_clients.find(c=>c.id===cid);
+  const qnum=await rpc('next_quot_number');
+  const payload={quot_number:qnum,client_id:cid,client_name:client?.company_name,items,subtotal,discount_pct:discPct,discount_amt:discAmt,tax_pct:taxPct,tax_amt:taxAmt,total,validity_days:parseInt(document.getElementById('q-validity').value)||30,notes:document.getElementById('q-notes').value,status};
+  const r=await db('POST','prajapati_quotations',payload);
+  if(r){alert('✅ Quotation '+(status==='sent'?'sent':'saved')+'!');closeM('m-quot');loadQuots();}
+}
+
+async function quotStatus(id,status){await db('PATCH','prajapati_quotations?id=eq.'+id,{status});loadQuots();}
+
+function newQuotForClient(cid){openNewQuot().then(()=>{document.getElementById('q-client').value=cid;});}
+
+// ═══ PI ═══
+async function loadPIs(){
+  const data=await db('GET','prajapati_pi?select=*,prajapati_clients(company_name)&order=created_at.desc');
+  _pis=data||[];
+  document.getElementById('pi-list').innerHTML=data?.length?`
+    <table class="tbl"><tr><th>PI Number</th><th>Client</th><th>Total</th><th>Advance</th><th>Balance</th><th>Status</th><th>Actions</th></tr>
+    ${data.map(p=>`<tr>
+      <td style="font-family:monospace;color:var(--pu);font-weight:700">${p.pi_number}</td>
+      <td><strong>${p.prajapati_clients?.company_name||p.client_name||'—'}</strong></td>
+      <td style="font-weight:700">${fmt(p.total)}</td>
+      <td style="color:var(--gr)">${fmt(p.advance_received)}</td>
+      <td style="color:var(--or);font-weight:700">${fmt(p.balance_due)}</td>
+      <td><span class="bdg bdg-${p.status==='paid'?'g':p.status==='advance_received'?'b':'o'}">${p.status}</span></td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-p" style="padding:3px 8px;font-size:10px" onclick="genPIPDF('${p.id}')">📄 PDF</button>
+        <button class="btn btn-b" style="padding:3px 8px;font-size:10px" onclick="convertToInv('${p.id}')">→ Invoice</button>
+      </td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No PIs yet</div>';
+  // Load PIs for invoice dropdown
+  const opts='<option value="">— None —</option>'+(_pis||[]).map(p=>`<option value="${p.id}">${p.pi_number} — ${p.prajapati_clients?.company_name||p.client_name}</option>`).join('');
+  const invpi=document.getElementById('inv-pi');if(invpi)invpi.innerHTML=opts;
+}
+
+async function openNewPI(){
+  await loadClients();
+  await loadQuots();
+  document.getElementById('pi-id').value='';
+  document.getElementById('pi-client').value='';
+  document.getElementById('pi-quot').value='';
+  document.getElementById('pi-disc').value=0;
+  document.getElementById('pi-tax').value=18;
+  document.getElementById('pi-advance').value=0;
+  document.getElementById('pi-notes').value='';
+  document.getElementById('pi-items').innerHTML='';
+  document.getElementById('pi-totals').innerHTML='';
+  addItem('pi');addItem('pi');
+  openM('m-pi');
+}
+
+async function loadQuotItems(){
+  const qid=document.getElementById('pi-quot').value;
+  if(!qid)return;
+  const q=_quots.find(x=>x.id===qid);
+  if(!q)return;
+  document.getElementById('pi-client').value=q.client_id||'';
+  document.getElementById('pi-disc').value=q.discount_pct||0;
+  document.getElementById('pi-tax').value=q.tax_pct||18;
+  document.getElementById('pi-items').innerHTML='';
+  (q.items||[]).forEach(item=>{
+    const container=document.getElementById('pi-items');
+    const div=document.createElement('div');
+    div.style.cssText='display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center';
+    div.innerHTML=`<input class="inp item-desc" value="${item.desc||''}" list="item-list" oninput="calcTotals('pi')" style="font-size:12px"><input class="inp item-qty" type="number" value="${item.qty||1}" oninput="calcTotals('pi')" style="font-size:12px"><input class="inp item-unit" value="${item.unit||'pcs'}" style="font-size:12px"><input class="inp item-rate" type="number" value="${item.rate||0}" oninput="calcTotals('pi')" style="font-size:12px"><button onclick="this.parentElement.remove();calcTotals('pi')" style="background:var(--re);color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">✕</button>`;
+    container.appendChild(div);
+  });
+  calcTotals('pi');
+}
+
+async function savePI(action){
+  const cid=document.getElementById('pi-client').value;
+  if(!cid){alert('Client select karo!');return;}
+  const items=getItems('pi');
+  const subtotal=items.reduce((s,i)=>s+i.amount,0);
+  const discPct=parseFloat(document.getElementById('pi-disc').value||0);
+  const taxPct=parseFloat(document.getElementById('pi-tax').value||0);
+  const adv=parseFloat(document.getElementById('pi-advance').value||0);
+  const discAmt=subtotal*discPct/100;const taxable=subtotal-discAmt;const taxAmt=taxable*taxPct/100;const total=taxable+taxAmt;
+  const client=_clients.find(c=>c.id===cid);
+  const pnum=await rpc('next_pi_number');
+  const payload={pi_number:pnum,quotation_id:document.getElementById('pi-quot').value||null,client_id:cid,client_name:client?.company_name,items,subtotal,discount_pct:discPct,discount_amt:discAmt,tax_pct:taxPct,tax_amt:taxAmt,total,advance_received:adv,balance_due:total-adv,notes:document.getElementById('pi-notes').value,status:adv>0?'advance_received':'sent'};
+  const r=await db('POST','prajapati_pi',payload);
+  if(r){
+    alert('✅ PI saved!');closeM('m-pi');loadPIs();
+    if(action==='pdf')genPIPDFById(r[0]||r);
+  }
+}
+
+// ═══ INVOICE ═══
+async function loadInvoices(){
+  const entity=document.getElementById('inv-entity')?.value;
+  let q='prajapati_invoices?select=*,prajapati_clients(company_name)&order=created_at.desc';
+  if(entity)q+='&invoice_type=eq.'+entity;
+  const data=await db('GET',q);
+  document.getElementById('inv-list').innerHTML=data?.length?`
+    <table class="tbl"><tr><th>Invoice #</th><th>Entity</th><th>Client</th><th>Total</th><th>Due</th><th>Status</th><th>Actions</th></tr>
+    ${data.map(i=>`<tr>
+      <td style="font-family:monospace;font-weight:700;color:${i.invoice_type==='sakshi'?'var(--pu)':'var(--or)'}">${i.invoice_number}</td>
+      <td><span class="bdg bdg-${i.invoice_type==='sakshi'?'p':'o'}">${i.invoice_type==='sakshi'?'Sakshi':'Prajapati'}</span></td>
+      <td><strong>${i.prajapati_clients?.company_name||i.client_name||'—'}</strong></td>
+      <td style="font-weight:700">${fmt(i.total)}</td>
+      <td style="color:${i.payment_status==='paid'?'var(--gr)':'var(--re)'};font-weight:700">${fmt(i.amount_due)}</td>
+      <td><span class="bdg bdg-${i.payment_status==='paid'?'g':i.payment_status==='partial'?'b':'r'}">${i.payment_status}</span></td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-p" style="padding:3px 8px;font-size:10px" onclick="genInvPDFById('${i.id}')">📄 PDF</button>
+        <button class="btn btn-g" style="padding:3px 8px;font-size:10px" onclick="markPaid('${i.id}')">✓ Paid</button>
+        <button class="btn btn-b" style="padding:3px 8px;font-size:10px" onclick="sendWA('${i.id}')">💬 WA</button>
+      </td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No invoices yet</div>';
+}
+
+function setEntity(entity){
+  _invEntity=entity;
+  const isPA=entity==='prajapati';
+  document.getElementById('inv-pa-btn').style.cssText=isPA?'flex:1;background:var(--nav);color:#fff;border:none;border-radius:8px;padding:8px;font-weight:700;cursor:pointer':'flex:1;background:var(--br);color:var(--tx);border:none;border-radius:8px;padding:8px;font-weight:700;cursor:pointer';
+  document.getElementById('inv-sk-btn').style.cssText=!isPA?'flex:1;background:var(--nav);color:#fff;border:none;border-radius:8px;padding:8px;font-weight:700;cursor:pointer':'flex:1;background:var(--br);color:var(--tx);border:none;border-radius:8px;padding:8px;font-weight:700;cursor:pointer';
+  document.getElementById('inv-gst-fields').style.display=isPA?'block':'none';
+  document.getElementById('inv-entity-info').innerHTML=isPA?
+    '<strong>Prajapati Advertising</strong> — GSTIN: 27ABCPA1234A1Z5 | HSN/SAC: 998312<br>GST applicable — CGST 9% + SGST 9% (Intra-state) or IGST 18% (Inter-state)':
+    '<strong>Sakshi Enterprises</strong> — Unregistered entity<br>No GST applicable on this invoice';
+  calcInvTotals();
+}
+
+async function openNewInv(){
+  await loadClients();await loadPIs();
+  document.getElementById('inv-modal-title').textContent='🧾 New Invoice';
+  document.getElementById('inv-id').value='';
+  document.getElementById('inv-client').value='';document.getElementById('inv-pi').value='';
+  document.getElementById('inv-disc').value=0;document.getElementById('inv-advance').value=0;
+  document.getElementById('inv-cgst').value=9;document.getElementById('inv-sgst').value=9;document.getElementById('inv-igst').value=0;
+  document.getElementById('inv-notes').value='';
+  document.getElementById('inv-items').innerHTML='';document.getElementById('inv-totals').innerHTML='';
+  setEntity('prajapati');
+  addItem('inv');addItem('inv');
+  openM('m-inv');
+}
+
+async function loadPIItems(){
+  const pid=document.getElementById('inv-pi').value;if(!pid)return;
+  const pi=_pis.find(x=>x.id===pid);if(!pi)return;
+  document.getElementById('inv-client').value=pi.client_id||'';
+  document.getElementById('inv-advance').value=pi.advance_received||0;
+  document.getElementById('inv-items').innerHTML='';
+  (pi.items||[]).forEach(item=>{
+    const container=document.getElementById('inv-items');
+    const div=document.createElement('div');
+    div.style.cssText='display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center';
+    div.innerHTML=`<input class="inp item-desc" value="${item.desc||''}" oninput="calcInvTotals()" style="font-size:12px"><input class="inp item-qty" type="number" value="${item.qty||1}" oninput="calcInvTotals()" style="font-size:12px"><input class="inp item-unit" value="${item.unit||'pcs'}" style="font-size:12px"><input class="inp item-rate" type="number" value="${item.rate||0}" oninput="calcInvTotals()" style="font-size:12px"><button onclick="this.parentElement.remove();calcInvTotals()" style="background:var(--re);color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">✕</button>`;
+    container.appendChild(div);
+  });
+  calcInvTotals();
+}
+
+async function saveInv(status){
+  const cid=document.getElementById('inv-client').value;if(!cid){alert('Client select karo!');return;}
+  const items=getItems('inv');
+  const subtotal=items.reduce((s,i)=>s+i.amount,0);
+  const disc=parseFloat(document.getElementById('inv-disc').value||0);
+  const discAmt=subtotal*disc/100;const taxable=subtotal-discAmt;
+  let cgst=0,sgst=0,igst=0,total=taxable;
+  if(_invEntity==='prajapati'){
+    cgst=taxable*parseFloat(document.getElementById('inv-cgst').value||0)/100;
+    sgst=taxable*parseFloat(document.getElementById('inv-sgst').value||0)/100;
+    igst=taxable*parseFloat(document.getElementById('inv-igst').value||0)/100;
+    total=taxable+cgst+sgst+igst;
+  }
+  const adv=parseFloat(document.getElementById('inv-advance').value||0);
+  const due=total-adv;
+  const client=_clients.find(c=>c.id===cid);
+  const prefix=_invEntity==='sakshi'?'SK':'PA';
+  const inum=await rpc('next_inv_number',{entity:prefix});
+  const payload={invoice_number:inum,invoice_type:_invEntity,pi_id:document.getElementById('inv-pi').value||null,client_id:cid,client_name:client?.company_name,client_gst:client?.gst_number,billing_entity:_invEntity==='sakshi'?'Sakshi Enterprises':'Prajapati Advertising',items,subtotal,cgst_pct:parseFloat(document.getElementById('inv-cgst')?.value||0),sgst_pct:parseFloat(document.getElementById('inv-sgst')?.value||0),igst_pct:parseFloat(document.getElementById('inv-igst')?.value||0),cgst_amt:cgst,sgst_amt:sgst,igst_amt:igst,total,discount_pct:disc,discount_amt:discAmt,advance_adjusted:adv,amount_due:due,payment_status:'unpaid',notes:document.getElementById('inv-notes').value,status};
+  const r=await db('POST','prajapati_invoices',payload);
+  if(r){alert('✅ Invoice saved!');closeM('m-inv');loadInvoices();}
+}
+
+async function markPaid(id){
+  const mode=prompt('Payment mode: cash/upi/neft/cheque');if(!mode)return;
+  await db('PATCH','prajapati_invoices?id=eq.'+id,{payment_status:'paid',amount_due:0,payment_mode:mode,payment_date:new Date().toISOString().slice(0,10)});
+  loadInvoices();
+}
+
+// CONVERT
+async function convertToPI(qid){
+  const q=_quots.find(x=>x.id===qid);if(!q)return;
+  await openNewPI();
+  setTimeout(()=>{
+    document.getElementById('pi-quot').value=qid;
+    loadQuotItems();
+  },200);
+}
+
+async function convertToInv(pid){
+  await openNewInv();
+  setTimeout(()=>{
+    document.getElementById('inv-pi').value=pid;
+    loadPIItems();
+  },200);
+}
+
+// PDF GENERATION
+async function genPIPDFById(pi){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,pa=20;
+  // Header
+  doc.setFillColor(11,25,87);doc.rect(0,0,W,36,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont(undefined,'bold');
+  doc.text('Prajapati Advertising',pa,14);
+  doc.setFontSize(9);doc.setFont(undefined,'normal');
+  doc.text('www.prajapatiadvertising.com | info@prajapatiadvertising.com',pa,22);
+  doc.text('PROFORMA INVOICE',W-pa,14,{align:'right'});
+  doc.setFontSize(11);doc.setFont(undefined,'bold');
+  doc.text(pi.pi_number||'PI',W-pa,22,{align:'right'});
+  // Client
+  doc.setTextColor(0,0,0);doc.setFontSize(10);doc.setFont(undefined,'normal');
+  doc.text('Bill To:',pa,46);doc.setFont(undefined,'bold');
+  doc.text(pi.client_name||'',pa,53);
+  doc.setFont(undefined,'normal');doc.setFontSize(9);
+  doc.text('Date: '+new Date(pi.created_at).toLocaleDateString('en-IN'),W-pa,46,{align:'right'});
+  // Items table
+  let y=70;
+  doc.setFillColor(11,25,87);doc.rect(pa,y,W-2*pa,8,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(9);
+  doc.text('#',pa+2,y+5.5);doc.text('Description',pa+10,y+5.5);doc.text('Qty',pa+110,y+5.5);doc.text('Rate',pa+130,y+5.5);doc.text('Amount',pa+150,y+5.5);
+  y+=10;doc.setTextColor(0,0,0);
+  (pi.items||[]).forEach((item,i)=>{
+    if(i%2===1){doc.setFillColor(248,250,252);doc.rect(pa,y-2,W-2*pa,8,'F');}
+    doc.text((i+1).toString(),pa+2,y+3.5);
+    doc.text((item.desc||'').slice(0,40),pa+10,y+3.5);
+    doc.text((item.qty||0).toString(),pa+110,y+3.5);
+    doc.text('₹'+(item.rate||0).toLocaleString('en-IN'),pa+130,y+3.5);
+    doc.text('₹'+(item.amount||0).toLocaleString('en-IN'),pa+150,y+3.5);
+    y+=8;
+  });
+  // Totals
+  y+=4;doc.line(pa,y,W-pa,y);y+=6;
+  doc.setFontSize(9);
+  doc.text('Subtotal:',W-pa-60,y);doc.text('₹'+(pi.subtotal||0).toLocaleString('en-IN'),W-pa,y,{align:'right'});y+=6;
+  if(pi.tax_amt>0){doc.text('GST ('+pi.tax_pct+'%):',W-pa-60,y);doc.text('₹'+pi.tax_amt.toLocaleString('en-IN'),W-pa,y,{align:'right'});y+=6;}
+  doc.setFont(undefined,'bold');doc.setFontSize(11);
+  doc.text('Total:',W-pa-60,y);doc.text('₹'+(pi.total||0).toLocaleString('en-IN'),W-pa,y,{align:'right'});y+=8;
+  if(pi.advance_received>0){doc.setFont(undefined,'normal');doc.setFontSize(9);doc.text('Advance Received:',W-pa-60,y);doc.text('₹'+pi.advance_received.toLocaleString('en-IN'),W-pa,y,{align:'right'});y+=6;doc.setFont(undefined,'bold');doc.text('Balance Due:',W-pa-60,y);doc.text('₹'+pi.balance_due.toLocaleString('en-IN'),W-pa,y,{align:'right'});}
+  // Footer
+  doc.setFillColor(11,25,87);doc.rect(0,280,W,17,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont(undefined,'normal');
+  doc.text('This is a computer generated proforma invoice.',W/2,287,{align:'center'});
+  doc.text('Prajapati Advertising | www.prajapatiadvertising.com',W/2,292,{align:'center'});
+  doc.save((pi.pi_number||'PI')+'.pdf');
+}
+
+async function genPIPDF(id){
+  const data=await db('GET','prajapati_pi?id=eq.'+id);
+  if(data?.[0])genPIPDFById(data[0]);
+}
+
+async function genInvPDFById(id){
+  const data=await db('GET','prajapati_invoices?id=eq.'+id+'&select=*,prajapati_clients(company_name,gst_number,address,city,state)');
+  if(!data?.[0])return;
+  const inv=data[0];
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,pa=20;
+  const isSakshi=inv.invoice_type==='sakshi';
+  // Header
+  doc.setFillColor(11,25,87);doc.rect(0,0,W,42,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont(undefined,'bold');
+  doc.text(isSakshi?'Sakshi Enterprises':'Prajapati Advertising',pa,13);
+  doc.setFontSize(9);doc.setFont(undefined,'normal');
+  if(!isSakshi)doc.text('GSTIN: 27ABCPA1234A1Z5 | SAC: 998312',pa,20);
+  doc.text('www.prajapatiadvertising.com',pa,27);
+  doc.setFontSize(13);doc.setFont(undefined,'bold');
+  doc.text('TAX INVOICE',W-pa,13,{align:'right'});
+  doc.setFontSize(10);
+  doc.text(inv.invoice_number,W-pa,20,{align:'right'});
+  doc.setFontSize(8);doc.setFont(undefined,'normal');
+  doc.text('Date: '+new Date(inv.created_at).toLocaleDateString('en-IN'),W-pa,27,{align:'right'});
+  // Bill To
+  doc.setTextColor(0,0,0);doc.setFontSize(9);
+  const cl=inv.prajapati_clients;
+  let y=50;
+  doc.setFont(undefined,'bold');doc.text('Bill To:',pa,y);y+=5;
+  doc.text(cl?.company_name||inv.client_name||'',pa,y);y+=4;
+  doc.setFont(undefined,'normal');
+  if(cl?.address){doc.text(cl.address.slice(0,50),pa,y);y+=4;}
+  if(cl?.city){doc.text((cl.city||'')+(cl.state?', '+cl.state:''),pa,y);y+=4;}
+  if(cl?.gst_number&&!isSakshi){doc.text('GSTIN: '+cl.gst_number,pa,y);y+=4;}
+  y+=4;
+  // Items
+  doc.setFillColor(11,25,87);doc.rect(pa,y,W-2*pa,8,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(9);
+  doc.text('Sr',pa+2,y+5.5);doc.text('Description',pa+10,y+5.5);doc.text('Qty',pa+105,y+5.5);doc.text('Rate',pa+122,y+5.5);doc.text('Amount',pa+145,y+5.5);
+  y+=10;doc.setTextColor(0,0,0);
+  (inv.items||[]).forEach((item,i)=>{
+    if(i%2===0){doc.setFillColor(248,250,252);doc.rect(pa,y-2,W-2*pa,8,'F');}
+    doc.text((i+1).toString(),pa+2,y+3.5);
+    doc.text((item.desc||'').slice(0,45),pa+10,y+3.5);
+    doc.text((item.qty||0).toString(),pa+105,y+3.5);
+    doc.text('₹'+(item.rate||0).toLocaleString('en-IN'),pa+122,y+3.5);
+    doc.text('₹'+(item.amount||0).toLocaleString('en-IN'),pa+145,y+3.5);
+    y+=8;
+  });
+  y+=4;doc.line(pa,y,W-pa,y);y+=6;
+  // Totals
+  doc.setFontSize(9);
+  doc.text('Subtotal:',W-pa-60,y);doc.text('₹'+(inv.subtotal||0).toLocaleString('en-IN'),W-pa,y,{align:'right'});y+=6;
+  if(!isSakshi){
+    if(inv.cgst_amt>0){doc.text('CGST ('+inv.cgst_pct+'%):',W-pa-60,y);doc.text('₹'+inv.cgst_amt.toLocaleString('en-IN'),W-pa,y,{align:'right'});y+=5;}
+    if(inv.sgst_amt>0){doc.text('SGST ('+inv.sgst_pct+'%):',W-pa-60,y);doc.text('₹'+inv.sgst_amt.toLocaleString('en-IN'),W-pa,y,{align:'right'});y+=5;}
+    if(inv.igst_amt>0){doc.text('IGST ('+inv.igst_pct+'%):',W-pa-60,y);doc.text('₹'+inv.igst_amt.toLocaleString('en-IN'),W-pa,y,{align:'right'});y+=5;}
+  }else{doc.setFontSize(8);doc.setTextColor(100,100,100);doc.text('(No GST - Unregistered)',W-pa,y,{align:'right'});y+=5;doc.setTextColor(0,0,0);}
+  doc.setFont(undefined,'bold');doc.setFontSize(12);
+  doc.text('Total:',W-pa-60,y);doc.text('₹'+(inv.total||0).toLocaleString('en-IN'),W-pa,y,{align:'right'});y+=8;
+  if(inv.advance_adjusted>0){doc.setFont(undefined,'normal');doc.setFontSize(9);doc.text('Advance Adjusted:',W-pa-60,y);doc.text('-₹'+inv.advance_adjusted.toLocaleString('en-IN'),W-pa,y,{align:'right'});y+=5;doc.setFont(undefined,'bold');doc.setFontSize(11);doc.text('Amount Due:',W-pa-60,y);doc.text('₹'+inv.amount_due.toLocaleString('en-IN'),W-pa,y,{align:'right'});}
+  // Footer
+  doc.setFillColor(11,25,87);doc.rect(0,280,W,17,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(7.5);doc.setFont(undefined,'normal');
+  doc.text('This is a computer generated invoice.',W/2,286,{align:'center'});
+  doc.text((isSakshi?'Sakshi Enterprises':'Prajapati Advertising | GSTIN: 27ABCPA1234A1Z5')+' | www.prajapatiadvertising.com',W/2,292,{align:'center'});
+  doc.save(inv.invoice_number+'.pdf');
+}
+
+async function genInvPDF(){
+  alert('Save karo pehle!');
+}
+
+async function sendWA(id){
+  const data=await db('GET','prajapati_invoices?id=eq.'+id);
+  const inv=data?.[0];if(!inv)return;
+  const msg='*Invoice: '+inv.invoice_number+'*\nClient: '+inv.client_name+'\nAmount: ₹'+inv.total?.toLocaleString('en-IN')+'\nDue: ₹'+inv.amount_due?.toLocaleString('en-IN')+'\n\nPrajapati Advertising\nwww.prajapatiadvertising.com';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+async function loadPayments(){
+  const data=await db('GET','prajapati_payments?select=*,prajapati_clients(company_name)&order=created_at.desc&limit=50');
+  document.getElementById('pay-list').innerHTML=data?.length?`
+    <table class="tbl"><tr><th>Ref</th><th>Client</th><th>Amount</th><th>Mode</th><th>Date</th><th>Notes</th></tr>
+    ${data.map(p=>`<tr>
+      <td style="font-family:monospace">${p.payment_ref||'—'}</td>
+      <td><strong>${p.prajapati_clients?.company_name||p.client_name||'—'}</strong></td>
+      <td style="font-weight:700;color:var(--gr)">${fmt(p.amount)}</td>
+      <td><span class="bdg bdg-b">${p.payment_mode||'—'}</span></td>
+      <td style="font-size:11px">${fmtDate(p.payment_date)}</td>
+      <td style="font-size:11px">${p.notes||'—'}</td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No payments recorded</div>';
+}
+
+function openNewPayment(){alert('Payment record feature — coming in next update!');}
+
+// INIT
+loadClients();
+loadQuots();
+
+
+// ════ LEADS ════════════════════════════════════════════
+let _allLeads = [];
+async function loadLeads() {
+  const status = document.getElementById('lead-status-filter')?.value;
+  let q = 'prajapati_leads?select=*&order=created_at.desc';
+  if (status) q += '&status=eq.' + status;
+  const data = await db('GET', q);
+  _allLeads = data || [];
+  renderLeads(_allLeads);
+  renderPipelineStrip(_allLeads);
+}
+
+function renderPipelineStrip(leads) {
+  const stages = ['new','contacted','qualified','proposal','negotiation','won','lost'];
+  const stageColors = {new:'#94a3b8',contacted:'#3b82f6',qualified:'#8b5cf6',proposal:'#f59e0b',negotiation:'#FF6B00',won:'#22c55e',lost:'#ef4444'};
+  const counts = {};
+  stages.forEach(s => counts[s] = leads.filter(l => l.status === s).length);
+  const total = leads.length || 1;
+  const el = document.getElementById('lead-pipeline-strip');
+  if (el) el.innerHTML = stages.map(s =>
+    `<div style="background:${stageColors[s]}18;border:1px solid ${stageColors[s]}40;border-radius:8px;padding:8px 14px;white-space:nowrap;text-align:center;min-width:80px">
+      <div style="font-size:18px;font-weight:800;color:${stageColors[s]}">${counts[s]}</div>
+      <div style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase">${s}</div>
+    </div>`).join('');
+}
+
+function filterLeads(q) {
+  const ql = q.toLowerCase();
+  renderLeads(_allLeads.filter(l => l.company_name?.toLowerCase().includes(ql) || l.contact_person?.toLowerCase().includes(ql) || l.phone?.includes(ql)));
+}
+
+function fmt_val(n) { return n >= 100000 ? '₹'+(n/100000).toFixed(1)+'L' : '₹'+(n||0).toLocaleString('en-IN'); }
+
+function renderLeads(data) {
+  const el = document.getElementById('leads-list');
+  if (!el) return;
+  const sc = {new:'bdg-gray',contacted:'bdg-blue',qualified:'bdg-purple',proposal:'bdg-amber',negotiation:'bdg-orange',won:'bdg-green',lost:'bdg-red'};
+  el.innerHTML = data.length ? `<table class="tbl">
+    <tr><th>Lead #</th><th>Company</th><th>Contact</th><th>Phone</th><th>Media</th><th>Value</th><th>Status</th><th>Follow-up</th><th>Actions</th></tr>
+    ${data.map(l => `<tr>
+      <td style="font-family:monospace;font-size:11px;color:#0B1957">${l.lead_number||'—'}</td>
+      <td><strong>${l.company_name}</strong><br><span style="font-size:10px;color:#94a3b8">${l.source||''}</span></td>
+      <td style="font-size:12px">${l.contact_person||'—'}</td>
+      <td style="font-family:monospace;font-size:11px">${l.phone||'—'}</td>
+      <td><span class="bdg bdg-blue">${l.media_interest||'—'}</span></td>
+      <td style="font-weight:700;color:#22c55e">${fmt_val(l.estimated_value)}</td>
+      <td><span class="bdg ${sc[l.status]||'bdg-gray'}">${l.status}</span></td>
+      <td style="font-size:11px;color:${l.follow_up_date&&new Date(l.follow_up_date)<new Date()?'#ef4444':'#64748b'}">${l.follow_up_date?new Date(l.follow_up_date).toLocaleDateString('en-IN'):'—'}</td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-blue btn-sm" onclick="editLead('${l.id}')">✏️</button>
+        <button class="btn btn-primary btn-sm" onclick="convertToQuote('${l.id}')">→ Quote</button>
+        <button class="btn btn-sm" style="background:#25D366;color:#fff;border:none" onclick="leadWA('${l.phone}','${l.company_name.replace(/'/g,"\\'")}')">💬</button>
+      </td>
+    </tr>`).join('')}
+    </table>` : '<div style="color:#94a3b8;padding:20px;text-align:center">No leads found. Add manually or sync from IndiaMART.</div>';
+}
+
+function openNewLead() {
+  document.getElementById('lead-modal-title').textContent = '🎯 New Lead';
+  document.getElementById('ld-id').value = '';
+  ['ld-company','ld-contact','ld-phone','ld-email','ld-city','ld-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ld-value').value = '';
+  document.getElementById('ld-status').value = 'new';
+  document.getElementById('ld-followup').value = new Date(Date.now()+2*86400000).toISOString().slice(0,10);
+  openM('m-lead');
+}
+
+function editLead(id) {
+  const l = _allLeads.find(x => x.id===id); if (!l) return;
+  document.getElementById('lead-modal-title').textContent = '✏️ Edit Lead';
+  document.getElementById('ld-id').value = l.id;
+  document.getElementById('ld-company').value = l.company_name||'';
+  document.getElementById('ld-contact').value = l.contact_person||'';
+  document.getElementById('ld-phone').value = l.phone||'';
+  document.getElementById('ld-email').value = l.email||'';
+  document.getElementById('ld-city').value = l.city||'';
+  document.getElementById('ld-source').value = l.source||'manual';
+  document.getElementById('ld-media').value = l.media_interest||'Hood';
+  document.getElementById('ld-value').value = l.estimated_value||0;
+  document.getElementById('ld-status').value = l.status||'new';
+  document.getElementById('ld-followup').value = l.follow_up_date||'';
+  document.getElementById('ld-notes').value = l.notes||'';
+  openM('m-lead');
+}
+
+async function saveLead() {
+  const company = document.getElementById('ld-company').value.trim();
+  if (!company) { alert('Company name required!'); return; }
+  const id = document.getElementById('ld-id').value;
+  const payload = {company_name:company,contact_person:document.getElementById('ld-contact').value,phone:document.getElementById('ld-phone').value,email:document.getElementById('ld-email').value,city:document.getElementById('ld-city').value,source:document.getElementById('ld-source').value,media_interest:document.getElementById('ld-media').value,estimated_value:parseFloat(document.getElementById('ld-value').value)||0,status:document.getElementById('ld-status').value,follow_up_date:document.getElementById('ld-followup').value||null,notes:document.getElementById('ld-notes').value,updated_at:new Date().toISOString()};
+  if (id) await db('PATCH','prajapati_leads?id=eq.'+id, payload);
+  else { const num = await rpc('next_lead_number'); payload.lead_number = num; await db('POST','prajapati_leads',payload); }
+  closeM('m-lead'); loadLeads(); alert('✅ Lead saved!');
+}
+
+async function convertToQuote(id) {
+  const l = _allLeads.find(x => x.id===id); if (!l) return;
+  // Mark lead as won, open quote tab
+  await db('PATCH','prajapati_leads?id=eq.'+id,{status:'proposal',updated_at:new Date().toISOString()});
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('act'));
+  document.querySelectorAll('[id^=tab-]').forEach(x => x.style.display='none');
+  document.getElementById('tab-quotations').style.display='';
+  // Pre-fill client name in new quote
+  alert('Lead "'+l.company_name+'" marked as proposal. Ab Quotations tab mein naya quote banao.');
+  loadLeads();
+}
+
+async function syncIndiaMART() {
+  const btn = event.target; btn.textContent = '⏳ Syncing...'; btn.disabled = true;
+  try {
+    const r = await fetch('https://mapi.indiamart.com/wservce/crm/crmListing/v2/?glusr_crm_key=mRy2Fb5u7XjDSvet4nKP7lGHoVHCmTA=&start_time=&end_time=&start=0&end=10');
+    const d = await r.json();
+    const leads = d?.RESPONSE?.Results || [];
+    if (!leads.length) { alert('No new leads from IndiaMART'); return; }
+    let added = 0;
+    for (const l of leads) {
+      const num = await rpc('next_lead_number');
+      await db('POST','prajapati_leads',{lead_number:num,company_name:l.SENDER_COMPANY||l.SENDER_NAME,contact_person:l.SENDER_NAME,phone:l.SENDER_MOBILE,email:l.SENDER_EMAIL,city:l.SENDER_CITY,source:'indiamart',media_interest:l.SUBJECT||'—',notes:l.QUERY_MESSAGE,status:'new',indiamart_query_id:l.UNIQUE_QUERY_ID}).catch(()=>{});
+      added++;
+    }
+    alert('✅ '+added+' leads synced from IndiaMART!');
+    loadLeads();
+  } catch(e) { alert('IndiaMART sync error: '+e.message); }
+  btn.textContent = '📥 IndiaMART Sync'; btn.disabled = false;
+}
+
+function leadWA(phone, name) {
+  const msg = 'Namaste '+name+'! Prajapati Advertising se contact kar rahe hain. Aapki inquiry ke regarding baat karna chahte hain. Kab suitable time hoga?';
+  window.open('https://wa.me/91'+phone+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ════ TARGETS ═══════════════════════════════════════════════
+async function loadTargets() {
+  const period = document.getElementById('target-period')?.value || new Date().toISOString().slice(0,7);
+  const [targets, invs] = await Promise.all([
+    db('GET','prajapati_targets?payroll_month=neq.x&select=*&order=created_at.desc').catch(()=>[]),
+    db('GET','prajapati_invoices?select=total,payment_status&order=created_at.desc').catch(()=>[])
+  ]);
+  const totalTarget = (targets||[]).reduce((s,t)=>s+(t.target_revenue||0),0);
+  const totalInv = (invs||[]).reduce((s,i)=>s+(i.total||0),0);
+  const pct = totalTarget > 0 ? Math.round(totalInv/totalTarget*100) : 0;
+  const kpiEl = document.getElementById('targets-kpis');
+  if (kpiEl) kpiEl.innerHTML = [
+    `<div style="background:#fff;border:1px solid #e2e8f0;border-top:3px solid #3b82f6;border-radius:10px;padding:14px"><div style="font-size:22px;font-weight:800;color:#0B1957">₹${(totalTarget/100000).toFixed(1)}L</div><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">Target Revenue</div></div>`,
+    `<div style="background:#fff;border:1px solid #e2e8f0;border-top:3px solid #22c55e;border-radius:10px;padding:14px"><div style="font-size:22px;font-weight:800;color:#22c55e">₹${(totalInv/100000).toFixed(1)}L</div><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">Achieved</div></div>`,
+    `<div style="background:#fff;border:1px solid #e2e8f0;border-top:3px solid ${pct>=100?'#22c55e':pct>=70?'#f59e0b':'#ef4444'};border-radius:10px;padding:14px"><div style="font-size:22px;font-weight:800;color:${pct>=100?'#22c55e':pct>=70?'#f59e0b':'#ef4444'}">${pct}%</div><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">Achievement</div></div>`,
+    `<div style="background:#fff;border:1px solid #e2e8f0;border-top:3px solid #f59e0b;border-radius:10px;padding:14px"><div style="font-size:22px;font-weight:800;color:#f59e0b">₹${((totalTarget-totalInv)/100000).toFixed(1)}L</div><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">Gap</div></div>`,
+  ].join('');
+  // Progress bar
+  const listEl = document.getElementById('targets-list');
+  if (listEl) listEl.innerHTML = `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px;font-weight:700"><span>Revenue Progress</span><span>${pct}%</span></div>
+    <div style="height:10px;background:#f1f5f9;border-radius:5px;overflow:hidden"><div style="height:10px;background:${pct>=100?'#22c55e':pct>=70?'#f59e0b':'#3b82f6'};border-radius:5px;width:${Math.min(pct,100)}%;transition:width 1s"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-top:6px"><span>₹0</span><span>₹${(totalTarget/100000).toFixed(1)}L</span></div>
+    ${(targets||[]).length === 0 ? '<div style="color:#94a3b8;text-align:center;padding:20px;font-size:13px">No targets set. Click "+ Set Target" to add.</div>' : ''}
+  </div>`;
+}
+
+function openSetTarget() {
+  document.getElementById('tg-period').value = new Date().toISOString().slice(0,7);
+  document.getElementById('tg-rev').value = '';
+  document.getElementById('tg-inv').value = '';
+  document.getElementById('tg-clients').value = '';
+  openM('m-target');
+}
+
+async function saveTarget() {
+  const rev = parseFloat(document.getElementById('tg-rev').value)||0;
+  if (!rev) { alert('Revenue target daalo!'); return; }
+  const period = document.getElementById('tg-period').value;
+  await db('POST','prajapati_targets',{target_period:period,period_type:'monthly',target_revenue:rev,target_invoices:parseInt(document.getElementById('tg-inv').value)||0,target_clients:parseInt(document.getElementById('tg-clients').value)||0,staff_name:document.getElementById('tg-staff').value||'Team'});
+  closeM('m-target'); loadTargets(); alert('✅ Target set!');
+}
+
+// ════ COMMUNICATION ═════════════════════════════════════════
+let _allFU = [];
+async function loadFollowups() {
+  const filter = document.getElementById('fu-filter')?.value;
+  const today = new Date().toISOString().slice(0,10);
+  let q = 'prajapati_followups?select=*&order=due_date.asc';
+  if (filter === 'pending') q += '&status=eq.pending';
+  else if (filter === 'done') q += '&status=eq.done';
+  else if (filter === 'today') q += '&due_date=eq.'+today+'&status=eq.pending';
+  else if (filter === 'overdue') q += '&due_date=lt.'+today+'&status=eq.pending';
+  const data = await db('GET', q);
+  _allFU = data || [];
+  // Today's due section
+  const todayDue = _allFU.filter(f => f.due_date === today && f.status === 'pending');
+  const todayEl = document.getElementById('today-followups');
+  if (todayEl && todayDue.length) {
+    todayEl.innerHTML = `<div style="background:#fff7ed;border:1px solid #fde68a;border-radius:10px;padding:12px;margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px">⚡ Due Today (${todayDue.length})</div>${todayDue.map(f=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #fde68a;font-size:12px"><span><strong>${f.entity_name||'—'}</strong> · ${f.follow_up_type}</span><button onclick="markFUDone('${f.id}')" style="background:#22c55e;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer">✓ Done</button></div>`).join('')}</div>`;
+  } else if (todayEl) todayEl.innerHTML = '';
+  const fuEl = document.getElementById('followups-list');
+  if (!fuEl) return;
+  const typeEmoji = {call:'📞',whatsapp:'💬',email:'📧',visit:'🚗',meeting:'🤝'};
+  fuEl.innerHTML = _allFU.length ? `<table class="tbl">
+    <tr><th>Entity</th><th>Type</th><th>Due Date</th><th>Assigned</th><th>Notes</th><th>Status</th><th>Actions</th></tr>
+    ${_allFU.map(f => {
+      const over = f.status==='pending'&&f.due_date<today;
+      return `<tr>
+        <td><strong>${f.entity_name||'—'}</strong></td>
+        <td>${typeEmoji[f.follow_up_type]||''} ${f.follow_up_type}</td>
+        <td style="font-size:11px;color:${over?'#ef4444':f.due_date===today?'#f59e0b':'#64748b'};font-weight:${over?'700':'400'}">${f.due_date?new Date(f.due_date).toLocaleDateString('en-IN'):'—'}${over?' ⚠️':''}</td>
+        <td style="font-size:11px">${f.assigned_to||'Self'}</td>
+        <td style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis">${f.notes||'—'}</td>
+        <td><span class="bdg bdg-${f.status==='done'?'green':f.status==='pending'?'amber':'blue'}">${f.status}</span></td>
+        <td style="display:flex;gap:4px">
+          ${f.status==='pending'?`<button class="btn btn-primary btn-sm" onclick="markFUDone('${f.id}')">✓</button>`:''}
+          <button class="btn btn-sm" style="background:#25D366;color:#fff;border:none" onclick="fuWA('${f.entity_name?.replace(/'/g,"\\'")||''}')">💬</button>
+        </td>
+      </tr>`;
+    }).join('')}
+    </table>` : '<div style="color:#94a3b8;padding:20px;text-align:center">No follow-ups. Add one!</div>';
+}
+
+function openNewFollowup() {
+  document.getElementById('fu-entity').value = '';
+  document.getElementById('fu-notes').value = '';
+  document.getElementById('fu-date').value = new Date(Date.now()+86400000).toISOString().slice(0,10);
+  document.getElementById('fu-type').value = 'call';
+  openM('m-followup');
+}
+
+async function saveFollowup() {
+  const entity = document.getElementById('fu-entity').value.trim();
+  const date = document.getElementById('fu-date').value;
+  if (!entity || !date) { alert('Entity aur date required!'); return; }
+  await db('POST','prajapati_followups',{entity_name:entity,follow_up_type:document.getElementById('fu-type').value,due_date:date,notes:document.getElementById('fu-notes').value,assigned_to:document.getElementById('fu-assigned').value||'Self',status:'pending'});
+  closeM('m-followup'); loadFollowups(); alert('✅ Follow-up scheduled!');
+}
+
+async function markFUDone(id) {
+  await db('PATCH','prajapati_followups?id=eq.'+id,{status:'done',completed_at:new Date().toISOString()});
+  loadFollowups();
+}
+
+function fuWA(name) {
+  const msg = 'Namaste '+name+'! Prajapati Advertising se follow-up kar rahe hain. Koi update hai?';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+</script>
+</body>
+</html>

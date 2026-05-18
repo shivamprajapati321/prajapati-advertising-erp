@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Field Cam Admin — Prajapati</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#09090B;--bg1:#111113;--bg2:#18181B;--br:#27272A;--tx:#FAFAFA;--tx2:#A1A1AA;--or:#FF6B00;--gr:#22C55E;--bl:#38BDF8;--re:#EF4444;--pu:#A855F7}
+body{background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;font-size:14px}
+.hdr{background:var(--bg1);border-bottom:1px solid var(--br);padding:10px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+.logo{font-size:15px;font-weight:900;color:var(--or);letter-spacing:3px}
+.main{padding:16px;max-width:1300px;margin:0 auto}
+.tabs{display:flex;gap:3px;background:var(--bg2);padding:3px;border-radius:10px;border:1px solid var(--br);margin-bottom:16px;flex-wrap:wrap}
+.tab{flex:1;min-width:55px;padding:7px 6px;border-radius:7px;border:none;cursor:pointer;font-weight:600;font-size:11px;font-family:inherit;color:var(--tx2);background:transparent;transition:all .15s;white-space:nowrap}
+.tab.act{color:var(--or);background:var(--bg)}
+.card{background:var(--bg1);border:1px solid var(--br);border-radius:12px;padding:16px;margin-bottom:12px}
+.lbl{display:block;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.inp{width:100%;padding:8px 12px;background:var(--bg2);border:1px solid var(--br);border-radius:8px;color:var(--tx);font-size:13px;outline:none;font-family:inherit}
+.inp:focus{border-color:var(--or)}
+.btn{padding:8px 14px;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+.btn-o{background:var(--or);color:#000}
+.btn-g{background:var(--gr);color:#000}
+.btn-r{background:var(--re);color:#fff}
+.btn-b{background:var(--bl);color:#000}
+.btn-p{background:var(--pu);color:#fff}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fld{margin-bottom:10px}
+.bdg{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.bdg-g{background:rgba(34,197,94,.15);color:var(--gr)}
+.bdg-o{background:rgba(255,107,0,.15);color:var(--or)}
+.bdg-r{background:rgba(239,68,68,.15);color:var(--re)}
+.bdg-b{background:rgba(56,189,248,.15);color:var(--bl)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:7px 10px;text-align:left;font-size:9px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;background:var(--bg2);border-bottom:1px solid var(--br)}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--bg2);color:var(--tx2);vertical-align:middle}
+.tbl tr:hover td{background:var(--bg2)}
+.pb{height:5px;background:var(--br);border-radius:3px;overflow:hidden;margin-top:3px}
+.pb-f{height:100%;border-radius:3px;background:var(--or)}
+.st{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--tx)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px}
+.kpi{background:var(--bg1);border:1px solid var(--br);border-radius:10px;padding:12px;border-left-width:3px}
+.kpi-l{font-size:9px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.kpi-v{font-size:24px;font-weight:900}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.modal-bg.show{display:flex}
+.modal-box{background:var(--bg1);border:1px solid var(--br);border-radius:14px;padding:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto}
+.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:15px;font-weight:700}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--tx2);line-height:1}
+@media(max-width:600px){.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <span class="logo">PRAJAPATI FIELD CAM</span>
+  <span id="hdr-stats" style="font-size:11px;color:var(--tx2)">Admin Panel</span>
+</div>
+<div class="main">
+  <div class="tabs">
+    <button class="tab act" onclick="sw('dashboard',this)">📊 Dash</button>
+    <button class="tab" onclick="sw('team',this)">👥 Team</button>
+    <button class="tab" onclick="sw('campaigns',this)">📋 Camps</button>
+    <button class="tab" onclick="sw('assign',this)">📅 Assign</button>
+    <button class="tab" onclick="sw('photos',this)">🖼️ Photos</button>
+    <button class="tab" onclick="sw('pdf',this)">📄 PDF</button>
+    <button class="tab" onclick="sw('reports',this)">📈 Reports</button>
+    <button class="tab" onclick="sw('live',this)">📍 Live</button>
+    <button class="tab" onclick="sw('branding',this)">🎨 Brand</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="t-dashboard">
+    <div id="d-kpis" class="kpi-grid"></div>
+    <div class="g2">
+      <div class="card"><div class="st">📊 Today Progress</div><div id="d-prog">⏳</div></div>
+      <div class="card"><div class="st">📷 Recent Photos</div><div id="d-photos">⏳</div></div>
+    </div>
+  </div>
+
+  <!-- TEAM -->
+  <div id="t-team" style="display:none">
+    <div class="card">
+      <div class="st">➕ Add Member</div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Name *</label><input id="tm-name" class="inp" placeholder="Worker naam"></div>
+        <div class="fld"><label class="lbl">Phone *</label><input id="tm-phone" class="inp" type="tel" maxlength="10" placeholder="10-digit"></div>
+        <div class="fld"><label class="lbl">PIN *</label><input id="tm-pin" class="inp" type="password" maxlength="4" placeholder="4-digit"></div>
+        <div class="fld"><label class="lbl">Role</label>
+          <select id="tm-role" class="inp"><option value="field_worker">Field Worker</option><option value="supervisor">Supervisor</option></select></div>
+        <div class="fld"><label class="lbl">Manual GPS</label>
+          <select id="tm-gps" class="inp"><option value="false">❌ No</option><option value="true">✅ Yes</option></select></div>
+      </div>
+      <button class="btn btn-o" onclick="addMember()">+ Add Member</button>
+    </div>
+    <div id="team-list"></div>
+  </div>
+
+  <!-- CAMPAIGNS -->
+  <div id="t-campaigns" style="display:none">
+    <div class="card">
+      <div class="st">➕ New Campaign</div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Name *</label><input id="cp-name" class="inp" placeholder="Campaign name"></div>
+        <div class="fld"><label class="lbl">Client</label><input id="cp-client" class="inp" placeholder="Client company"></div>
+        <div class="fld"><label class="lbl">Code *</label><input id="cp-code" class="inp" placeholder="INV-2026-05"></div>
+        <div class="fld"><label class="lbl">Media Type</label>
+          <select id="cp-media" class="inp"><option>Hood</option><option>Back Panel</option><option>Both</option></select></div>
+        <div class="fld"><label class="lbl">Total Quota</label><input id="cp-quota" class="inp" type="number" placeholder="500"></div>
+        <div class="fld"><label class="lbl">Start Date</label><input id="cp-start" class="inp" type="date"></div>
+        <div class="fld"><label class="lbl">End Date</label><input id="cp-end" class="inp" type="date"></div>
+        <div class="fld"><label class="lbl">Branding</label>
+          <select id="cp-brand" class="inp"><option value="">🏢 Default (Prajapati)</option></select></div>
+        <div class="fld"><label class="lbl">Vehicle API</label>
+          <select id="cp-api" class="inp"><option value="false">❌ Disabled</option><option value="true">✅ Enabled</option></select></div>
+      </div>
+      <button class="btn btn-o" onclick="addCampaign()">+ Create Campaign</button>
+    </div>
+    <div id="camp-list"></div>
+  </div>
+
+  <!-- ASSIGN -->
+  <div id="t-assign" style="display:none">
+    <div class="card">
+      <div class="st">📅 Daily Assignment</div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Member *</label>
+          <select id="as-mem" class="inp"><option value="">— Select —</option></select></div>
+        <div class="fld"><label class="lbl">Campaign *</label>
+          <select id="as-camp" class="inp"><option value="">— Select —</option></select></div>
+        <div class="fld"><label class="lbl">Date *</label><input id="as-date" class="inp" type="date"></div>
+        <div class="fld"><label class="lbl">Daily Quota</label><input id="as-quota" class="inp" type="number" placeholder="25"></div>
+        <div class="fld"><label class="lbl">GPS Mode</label>
+          <select id="as-gps" class="inp" onchange="toggleGPS()">
+            <option value="auto">🛰️ Auto GPS</option>
+            <option value="manual">📍 Manual GPS</option>
+          </select></div>
+      </div>
+      <div id="gps-wrap" style="display:none;background:rgba(56,189,248,.07);border:1px solid rgba(56,189,248,.2);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--bl);margin-bottom:8px">📍 Manual GPS</div>
+        <div class="fld" style="position:relative">
+          <label class="lbl">🔍 Search</label>
+          <input id="gps-q" class="inp" placeholder="Location search..." oninput="searchLoc(this.value)" autocomplete="off">
+          <button onclick="myLoc()" style="position:absolute;right:8px;top:26px;background:none;border:none;cursor:pointer;font-size:16px">🎯</button>
+          <div id="gps-res" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1a1a1a;border:1px solid var(--br);border-radius:8px;z-index:200;max-height:180px;overflow-y:auto"></div>
+        </div>
+        <div class="g2">
+          <div class="fld"><label class="lbl">Latitude</label><input id="as-lat" class="inp" placeholder="Auto fill"></div>
+          <div class="fld"><label class="lbl">Longitude</label><input id="as-lng" class="inp" placeholder="Auto fill"></div>
+          <div class="fld"><label class="lbl">Address</label><input id="as-addr" class="inp" placeholder="Auto fill"></div>
+          <div class="fld"><label class="lbl">Pincode</label><input id="as-pin" class="inp" placeholder="Auto fill"></div>
+        </div>
+      </div>
+      <button class="btn btn-o" onclick="createAssign()">📅 Create Assignment</button>
+    </div>
+    <div id="assign-list"></div>
+  </div>
+
+  <!-- PHOTOS -->
+  <div id="t-photos" style="display:none">
+    <div class="card">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:1;min-width:130px"><label class="lbl">Campaign</label>
+          <select id="ph-camp" class="inp"><option value="">All</option></select></div>
+        <div style="flex:1;min-width:130px"><label class="lbl">Worker</label>
+          <select id="ph-mem" class="inp"><option value="">All</option></select></div>
+        <div><label class="lbl">Date</label><input id="ph-date" class="inp" type="date" style="width:160px"></div>
+        <button class="btn btn-o" onclick="loadPhotos()">🔍 Filter</button>
+        <button class="btn btn-b" id="zip-btn" style="display:none" onclick="downloadZIP()">📦 ZIP</button>
+      </div>
+    </div>
+    <div id="photo-stats" style="margin-bottom:10px"></div>
+    <div id="photo-grid"></div>
+  </div>
+
+  <!-- PDF -->
+  <div id="t-pdf" style="display:none">
+    <div class="card">
+      <div class="st">📄 PDF Generator</div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Campaign *</label>
+          <select id="pdf-camp" class="inp"><option value="">— Select —</option></select></div>
+        <div class="fld"><label class="lbl">Worker</label>
+          <select id="pdf-mem" class="inp"><option value="">All Workers</option></select></div>
+        <div class="fld"><label class="lbl">From</label><input id="pdf-from" class="inp" type="date"></div>
+        <div class="fld"><label class="lbl">To</label><input id="pdf-to" class="inp" type="date"></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-o" onclick="genPDF('hood')">🛺 Hood PDF (3/page)</button>
+        <button class="btn btn-p" onclick="genPDF('back')">📋 Back Panel (1/page)</button>
+      </div>
+    </div>
+    <div id="pdf-status" style="color:var(--tx2);padding:20px;text-align:center">Campaign select karke PDF banao</div>
+  </div>
+
+  <!-- REPORTS -->
+  <div id="t-reports" style="display:none">
+    <div class="card">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <div><label class="lbl">Type</label>
+          <select id="rp-type" class="inp" style="width:160px">
+            <option value="team">👥 Team Wise</option>
+            <option value="campaign">📋 Campaign Wise</option>
+            <option value="daily">📅 Daily</option>
+          </select></div>
+        <div><label class="lbl">From</label><input id="rp-from" class="inp" type="date" style="width:150px"></div>
+        <div><label class="lbl">To</label><input id="rp-to" class="inp" type="date" style="width:150px"></div>
+        <button class="btn btn-o" onclick="genReport()">📊 Generate</button>
+        <button class="btn btn-g" onclick="exportCSV()">📥 CSV</button>
+        <button class="btn" style="background:#25D366;color:#fff" onclick="sendWA()">💬 WhatsApp</button>
+      </div>
+    </div>
+    <div id="report-out"></div>
+  </div>
+
+  <!-- LIVE -->
+  <div id="t-live" style="display:none">
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+      <span class="st" style="margin:0">📍 Live Locations</span>
+      <button class="btn btn-o" onclick="loadLive()" style="padding:6px 12px">🔄 Refresh</button>
+    </div>
+    <div id="live-list"></div>
+  </div>
+
+  <!-- BRANDING -->
+  <div id="t-branding" style="display:none">
+    <div class="card">
+      <div class="st">🎨 Branding Settings</div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Type</label>
+          <select id="br-type" class="inp" onchange="toggleBrand()">
+            <option value="prajapati">🏢 Prajapati (Default)</option>
+            <option value="agency">🤝 Agency (Custom)</option>
+            <option value="clean">⬜ Clean (No Branding)</option>
+          </select></div>
+        <div class="fld"><label class="lbl">Company Name</label><input id="br-name" class="inp" value="Prajapati Advertising"></div>
+        <div class="fld"><label class="lbl">Website</label><input id="br-web" class="inp" value="www.prajapatiadvertising.com"></div>
+        <div class="fld"><label class="lbl">Stamp Color</label><input id="br-color" class="inp" type="color" value="#FF6B00"></div>
+      </div>
+      <div id="br-agency" style="display:none;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div class="g2">
+          <div class="fld"><label class="lbl">Agency Name</label><input id="br-aname" class="inp"></div>
+          <div class="fld"><label class="lbl">Agency Website</label><input id="br-aweb" class="inp"></div>
+        </div>
+      </div>
+      <button class="btn btn-g" onclick="saveBrand()">💾 Save Branding</button>
+    </div>
+    <div id="brand-list"></div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<!-- Assignment Edit -->
+<div id="m-assign" class="modal-bg">
+  <div class="modal-box">
+    <div class="modal-hdr">✏️ Edit Assignment <button class="modal-close" onclick="closeM('m-assign')">✕</button></div>
+    <input type="hidden" id="ea-id">
+    <div class="fld"><label class="lbl">Daily Quota</label><input id="ea-quota" class="inp" type="number"></div>
+    <div class="fld"><label class="lbl">Status</label>
+      <select id="ea-status" class="inp">
+        <option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="completed">Completed</option>
+      </select></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-o" onclick="saveAssignEdit()">💾 Save</button>
+      <button class="btn btn-r" onclick="closeM('m-assign')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Team Edit -->
+<div id="m-team" class="modal-bg">
+  <div class="modal-box">
+    <div class="modal-hdr">✏️ Edit Member <button class="modal-close" onclick="closeM('m-team')">✕</button></div>
+    <input type="hidden" id="et-id">
+    <div class="g2">
+      <div class="fld"><label class="lbl">Name</label><input id="et-name" class="inp"></div>
+      <div class="fld"><label class="lbl">Phone</label><input id="et-phone" class="inp" type="tel" maxlength="10"></div>
+      <div class="fld"><label class="lbl">New PIN (blank = keep)</label><input id="et-pin" class="inp" type="password" maxlength="4" placeholder="Leave blank"></div>
+      <div class="fld"><label class="lbl">Role</label>
+        <select id="et-role" class="inp"><option value="field_worker">Field Worker</option><option value="supervisor">Supervisor</option></select></div>
+      <div class="fld"><label class="lbl">Manual GPS</label>
+        <select id="et-gps" class="inp"><option value="false">❌ No</option><option value="true">✅ Yes</option></select></div>
+      <div class="fld"><label class="lbl">Status</label>
+        <select id="et-status" class="inp"><option value="active">Active</option><option value="inactive">Inactive</option><option value="suspended">Suspended</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-o" onclick="saveTeamEdit()">💾 Save</button>
+      <button class="btn btn-r" onclick="closeM('m-team')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Campaign Edit -->
+<div id="m-camp" class="modal-bg">
+  <div class="modal-box">
+    <div class="modal-hdr">✏️ Edit Campaign <button class="modal-close" onclick="closeM('m-camp')">✕</button></div>
+    <input type="hidden" id="ec-id">
+    <div class="g2">
+      <div class="fld"><label class="lbl">Name</label><input id="ec-name" class="inp"></div>
+      <div class="fld"><label class="lbl">Client</label><input id="ec-client" class="inp"></div>
+      <div class="fld"><label class="lbl">Code</label><input id="ec-code" class="inp"></div>
+      <div class="fld"><label class="lbl">Media</label>
+        <select id="ec-media" class="inp"><option>Hood</option><option>Back Panel</option><option>Both</option></select></div>
+      <div class="fld"><label class="lbl">Quota</label><input id="ec-quota" class="inp" type="number"></div>
+      <div class="fld"><label class="lbl">Status</label>
+        <select id="ec-status" class="inp"><option value="active">Active</option><option value="paused">Paused</option><option value="completed">Completed</option></select></div>
+      <div class="fld"><label class="lbl">Start Date</label><input id="ec-start" class="inp" type="date"></div>
+      <div class="fld"><label class="lbl">End Date</label><input id="ec-end" class="inp" type="date"></div>
+      <div class="fld"><label class="lbl">Branding</label>
+        <select id="ec-brand" class="inp"><option value="">🏢 Default</option></select></div>
+      <div class="fld"><label class="lbl">Vehicle API</label>
+        <select id="ec-api" class="inp"><option value="false">❌ Disabled</option><option value="true">✅ Enabled</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-o" onclick="saveCampEdit()">💾 Save</button>
+      <button class="btn btn-r" onclick="closeM('m-camp')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Photo Edit -->
+<div id="m-photo" class="modal-bg">
+  <div class="modal-box">
+    <div class="modal-hdr">✏️ Edit Photo <button class="modal-close" onclick="closeM('m-photo')">✕</button></div>
+    <input type="hidden" id="ep-id">
+    <div class="g2">
+      <div class="fld"><label class="lbl">Vehicle Number</label><input id="ep-veh" class="inp" placeholder="MH12AB1234"></div>
+      <div class="fld"><label class="lbl">Owner Name</label><input id="ep-own" class="inp"></div>
+      <div class="fld"><label class="lbl">Owner Phone</label><input id="ep-ph" class="inp"></div>
+      <div class="fld"><label class="lbl">Pincode</label><input id="ep-pin" class="inp"></div>
+      <div class="fld"><label class="lbl">City</label><input id="ep-city" class="inp"></div>
+      <div class="fld"><label class="lbl">GPS Mode</label>
+        <select id="ep-gps" class="inp"><option value="auto">Auto</option><option value="manual">Manual</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-o" onclick="savePhotoEdit()">💾 Save</button>
+      <button class="btn btn-r" onclick="closeM('m-photo')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SU='https://fpbktcgtspqsqpaytslv.supabase.co';
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwYmt0Y2d0c3Bxc3FwYXl0c2x2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDI0NTksImV4cCI6MjA5MjI3ODQ1OX0._iXN3-rQ9tAW1OuzY4cZZT-Jdvysv4bJlkwT3TwvSJI';
+
+let _teams=[], _camps=[], _photos=[], _rep=[];
+
+async function db(m,p,b){
+  try{
+    const r=await fetch(SU+'/rest/v1/'+p,{method:m,headers:{apikey:SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json',Prefer:['POST','PATCH'].includes(m)?'return=representation':''},body:b?JSON.stringify(b):undefined});
+    if(!r.ok){console.error(r.status,await r.text());return null;}
+    const t=await r.text();return t?JSON.parse(t):null;
+  }catch(e){console.error(e);return null;}
+}
+
+// MODAL
+function openM(id){const el=document.getElementById(id);if(el){el.classList.add('show');el.style.display='flex';}}
+function closeM(id){const el=document.getElementById(id);if(el){el.classList.remove('show');el.style.display='none';}}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg'))closeM(e.target.id);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.show').forEach(m=>closeM(m.id));});
+
+// TAB SWITCH
+function sw(name,el){
+  document.querySelectorAll('[id^=t-]').forEach(x=>x.style.display='none');
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('act'));
+  document.getElementById('t-'+name).style.display='';
+  el.classList.add('act');
+  const fns={dashboard:loadDash,team:loadTeam,campaigns:loadCampaigns,assign:loadAssign,photos:loadPhotos,pdf:loadPDF,reports:loadReports,live:loadLive,branding:loadBrand};
+  if(fns[name])fns[name]();
+}
+
+// DASHBOARD
+async function loadDash(){
+  const today=new Date().toISOString().slice(0,10);
+  const [mem,camp,photos,sess]=await Promise.all([
+    db('GET','fc_team_members?select=id&status=eq.active'),
+    db('GET','fc_campaigns?select=id&status=eq.active'),
+    db('GET','fc_photos?select=id,upload_status&captured_at=gte.'+today),
+    db('GET','fc_sessions?select=id&is_active=eq.true'),
+  ]);
+  const up=(photos||[]).filter(p=>p.upload_status==='uploaded').length;
+  const pnd=(photos||[]).filter(p=>p.upload_status==='pending').length;
+  document.getElementById('d-kpis').innerHTML=
+    kpi('Workers',(mem||[]).length,'var(--bl)')+kpi('Campaigns',(camp||[]).length,'var(--or)')+
+    kpi('Photos Today',(photos||[]).length,'var(--gr)')+kpi('Uploaded',up,'#10B981')+
+    kpi('Pending',pnd,pnd>0?'#F59E0B':'var(--gr)')+kpi('Sessions',(sess||[]).length,'var(--pu)');
+  document.getElementById('hdr-stats').textContent='Workers: '+(mem||[]).length+' | Photos: '+(photos||[]).length;
+  const prog=await db('GET','fc_daily_progress?assignment_date=eq.'+today+'&order=progress_pct.desc');
+  document.getElementById('d-prog').innerHTML=!(prog?.length)?'<div style="color:var(--tx2)">No assignments today</div>':
+    prog.map(r=>`<div style="padding:6px 0;border-bottom:1px solid var(--br)"><div style="display:flex;justify-content:space-between"><span style="font-weight:700">${r.member_name}</span><span style="color:var(--gr);font-weight:700">${r.vehicles_done}/${r.daily_quota}</span></div><div style="font-size:11px;color:var(--tx2)">${r.campaign_name}</div><div class="pb"><div class="pb-f" style="width:${r.progress_pct}%;background:${r.progress_pct>=100?'var(--gr)':'var(--or)'}"></div></div></div>`).join('');
+  const rp=await db('GET','fc_photos?select=vehicle_number,captured_at,fc_team_members(name)&order=captured_at.desc&limit=5');
+  document.getElementById('d-photos').innerHTML=!(rp?.length)?'<div style="color:var(--tx2)">No photos</div>':
+    rp.map(p=>`<div style="padding:5px 0;border-bottom:1px solid var(--br);font-size:12px"><span style="color:var(--or);font-weight:700">${p.vehicle_number||'—'}</span><span style="color:var(--tx2);margin-left:8px">${p.fc_team_members?.name||'—'}</span><span style="float:right;color:var(--tx2)">${new Date(p.captured_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span></div>`).join('');
+}
+function kpi(l,v,c){return `<div class="kpi" style="border-color:${c}"><div class="kpi-l">${l}</div><div class="kpi-v" style="color:${c}">${v}</div></div>`;}
+
+// TEAM
+async function addMember(){
+  const n=document.getElementById('tm-name').value.trim(),ph=document.getElementById('tm-phone').value.trim(),pi=document.getElementById('tm-pin').value.trim();
+  if(!n||!ph||!pi){alert('Name, Phone, PIN required!');return;}
+  const r=await db('POST','fc_team_members',{name:n,phone:ph,pin:pi,role:document.getElementById('tm-role').value,can_use_manual_gps:document.getElementById('tm-gps').value==='true',status:'active'});
+  if(r){alert('✅ Member added!');loadTeam();}else alert('❌ Error — phone already exists?');
+}
+async function loadTeam(){
+  const data=await db('GET','fc_team_members?select=id,name,phone,role,can_use_manual_gps,status&order=created_at.desc');
+  _teams=data||[];
+  document.getElementById('team-list').innerHTML=`<div style="overflow-x:auto"><table class="tbl"><tr><th>Name</th><th>Phone</th><th>Role</th><th>GPS</th><th>Status</th><th>Actions</th></tr>${_teams.map(m=>`<tr><td><strong>${m.name}</strong></td><td style="font-family:monospace">${m.phone}</td><td><span class="bdg bdg-b">${m.role}</span></td><td>${m.can_use_manual_gps?'✅':'❌'}</td><td><span class="bdg ${m.status==='active'?'bdg-g':'bdg-r'}">${m.status}</span></td><td style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-b" style="padding:3px 8px;font-size:11px" onclick="openTeamEdit('${m.id}')">✏️ Edit</button><button class="btn btn-o" style="padding:3px 8px;font-size:11px" onclick="toggleM('${m.id}','${m.status}')">${m.status==='active'?'Deactivate':'Activate'}</button><button class="btn btn-r" style="padding:3px 8px;font-size:11px" onclick="delMember('${m.id}','${m.name}')">Delete</button></td></tr>`).join('')}</table></div>`;
+}
+function openTeamEdit(id){
+  const m=_teams.find(x=>x.id===id);if(!m)return;
+  document.getElementById('et-id').value=m.id;
+  document.getElementById('et-name').value=m.name||'';
+  document.getElementById('et-phone').value=m.phone||'';
+  document.getElementById('et-pin').value='';
+  document.getElementById('et-role').value=m.role||'field_worker';
+  document.getElementById('et-gps').value=m.can_use_manual_gps?'true':'false';
+  document.getElementById('et-status').value=m.status||'active';
+  openM('m-team');
+}
+async function saveTeamEdit(){
+  const id=document.getElementById('et-id').value;
+  const pin=document.getElementById('et-pin').value.trim();
+  const pay={name:document.getElementById('et-name').value.trim(),phone:document.getElementById('et-phone').value.trim(),role:document.getElementById('et-role').value,can_use_manual_gps:document.getElementById('et-gps').value==='true',status:document.getElementById('et-status').value,updated_at:new Date().toISOString()};
+  if(pin.length===4)pay.pin=pin;
+  await db('PATCH','fc_team_members?id=eq.'+id,pay);
+  closeM('m-team');loadTeam();alert('✅ Saved!');
+}
+async function toggleM(id,status){await db('PATCH','fc_team_members?id=eq.'+id,{status:status==='active'?'inactive':'active'});loadTeam();}
+async function delMember(id,name){if(!confirm('"'+name+'" delete karein?'))return;await db('DELETE','fc_team_members?id=eq.'+id);loadTeam();}
+
+// CAMPAIGNS
+async function loadBrandings(selId){
+  const br=await db('GET','fc_branding?select=id,company_name,branding_type&order=created_at');
+  const opts='<option value="">🏢 Default (Prajapati)</option>'+(br||[]).map(b=>`<option value="${b.id}">${b.branding_type==='prajapati'?'🏢':b.branding_type==='agency'?'🤝':'⬜'} ${b.company_name||b.branding_type}</option>`).join('');
+  [selId,'cp-brand','ec-brand'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+async function addCampaign(){
+  const n=document.getElementById('cp-name').value.trim(),c=document.getElementById('cp-code').value.trim();
+  if(!n||!c){alert('Name aur Code required!');return;}
+  const r=await db('POST','fc_campaigns',{name:n,client_name:document.getElementById('cp-client').value,campaign_code:c,media_type:document.getElementById('cp-media').value,total_quota:parseInt(document.getElementById('cp-quota').value)||0,start_date:document.getElementById('cp-start').value||null,end_date:document.getElementById('cp-end').value||null,branding_id:document.getElementById('cp-brand').value||null,vehicle_api_enabled:document.getElementById('cp-api').value==='true',status:'active'});
+  if(r){alert('✅ Campaign created!');loadCampaigns();}
+}
+async function loadCampaigns(){
+  await loadBrandings();
+  const data=await db('GET','fc_campaigns?select=id,name,client_name,campaign_code,media_type,total_quota,vehicle_api_enabled,status,start_date,end_date,branding_id&order=created_at.desc');
+  _camps=data||[];
+  document.getElementById('camp-list').innerHTML=`<div style="overflow-x:auto"><table class="tbl"><tr><th>Name</th><th>Code</th><th>Media</th><th>Quota</th><th>Status</th><th>Actions</th></tr>${_camps.map(c=>`<tr><td><strong>${c.name}</strong><br><span style="font-size:10px;color:var(--tx2)">${c.client_name||''}</span></td><td style="font-family:monospace;color:var(--or)">${c.campaign_code}</td><td><span class="bdg bdg-b">${c.media_type}</span></td><td style="font-weight:700">${c.total_quota}</td><td><span class="bdg ${c.status==='active'?'bdg-g':c.status==='paused'?'bdg-o':'bdg-r'}">${c.status}</span></td><td style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-b" style="padding:3px 8px;font-size:11px" onclick="openCampEdit('${c.id}')">✏️ Edit</button><button class="btn btn-o" style="padding:3px 8px;font-size:11px" onclick="pauseCamp('${c.id}','${c.status}')">${c.status==='active'?'⏸ Pause':'▶ Resume'}</button><button class="btn btn-r" style="padding:3px 8px;font-size:11px" onclick="doneCamp('${c.id}')">✓ Done</button></td></tr>`).join('')}</table></div>`;
+}
+function openCampEdit(id){
+  const c=_camps.find(x=>x.id===id);if(!c)return;
+  document.getElementById('ec-id').value=c.id;
+  document.getElementById('ec-name').value=c.name||'';
+  document.getElementById('ec-client').value=c.client_name||'';
+  document.getElementById('ec-code').value=c.campaign_code||'';
+  document.getElementById('ec-media').value=c.media_type||'Hood';
+  document.getElementById('ec-quota').value=c.total_quota||0;
+  document.getElementById('ec-status').value=c.status||'active';
+  document.getElementById('ec-start').value=c.start_date||'';
+  document.getElementById('ec-end').value=c.end_date||'';
+  document.getElementById('ec-api').value=c.vehicle_api_enabled?'true':'false';
+  // Set branding
+  const br=document.getElementById('ec-brand');
+  if(br&&c.branding_id)setTimeout(()=>{br.value=c.branding_id;},100);
+  loadBrandings();
+  openM('m-camp');
+}
+async function saveCampEdit(){
+  const id=document.getElementById('ec-id').value;
+  await db('PATCH','fc_campaigns?id=eq.'+id,{name:document.getElementById('ec-name').value,client_name:document.getElementById('ec-client').value,campaign_code:document.getElementById('ec-code').value,media_type:document.getElementById('ec-media').value,total_quota:parseInt(document.getElementById('ec-quota').value)||0,status:document.getElementById('ec-status').value,start_date:document.getElementById('ec-start').value||null,end_date:document.getElementById('ec-end').value||null,branding_id:document.getElementById('ec-brand').value||null,vehicle_api_enabled:document.getElementById('ec-api').value==='true',updated_at:new Date().toISOString()});
+  closeM('m-camp');loadCampaigns();alert('✅ Saved!');
+}
+async function pauseCamp(id,s){await db('PATCH','fc_campaigns?id=eq.'+id,{status:s==='active'?'paused':'active'});loadCampaigns();}
+async function doneCamp(id){if(!confirm('Complete mark karein?'))return;await db('PATCH','fc_campaigns?id=eq.'+id,{status:'completed'});loadCampaigns();}
+
+// ASSIGN
+function toggleGPS(){document.getElementById('gps-wrap').style.display=document.getElementById('as-gps').value==='manual'?'':'none';}
+async function loadAssign(){
+  const [mem,camp]=await Promise.all([db('GET','fc_team_members?select=id,name,phone&status=eq.active&order=name'),db('GET','fc_campaigns?select=id,name,campaign_code&status=eq.active&order=name')]);
+  document.getElementById('as-mem').innerHTML='<option value="">— Select —</option>'+(mem||[]).map(m=>`<option value="${m.id}">${m.name} (${m.phone})</option>`).join('');
+  document.getElementById('as-camp').innerHTML='<option value="">— Select —</option>'+(camp||[]).map(c=>`<option value="${c.id}">${c.name} [${c.campaign_code}]</option>`).join('');
+  document.getElementById('as-date').value=new Date().toISOString().slice(0,10);
+  const today=new Date().toISOString().slice(0,10);
+  const data=await db('GET',`fc_daily_progress?assignment_date=eq.${today}&order=member_name`);
+  document.getElementById('assign-list').innerHTML=`<div class="card"><div class="st">📋 Today Assignments</div>${!(data?.length)?'<div style="color:var(--tx2)">No assignments today</div>':`<div style="overflow-x:auto"><table class="tbl"><tr><th>Worker</th><th>Campaign</th><th>Quota</th><th>Done</th><th>Progress</th><th>Status</th><th>Actions</th></tr>${data.map(r=>`<tr><td><strong>${r.member_name}</strong><br><span style="font-size:10px">${r.member_phone}</span></td><td>${r.campaign_name}</td><td>${r.daily_quota}</td><td style="color:var(--gr);font-weight:700">${r.vehicles_done}</td><td style="min-width:90px"><div class="pb"><div class="pb-f" style="width:${r.progress_pct}%;background:${r.progress_pct>=100?'var(--gr)':'var(--or)'}"></div></div><span style="font-size:10px">${r.progress_pct}%</span></td><td><span class="bdg ${r.status==='completed'?'bdg-g':r.status==='in_progress'?'bdg-o':'bdg-r'}">${r.status}</span></td><td style="display:flex;gap:4px"><button class="btn btn-b" style="padding:3px 7px;font-size:10px" onclick="openAssignEdit('${r.assignment_id}','${r.daily_quota}','${r.status}')">✏️</button><button class="btn btn-r" style="padding:3px 7px;font-size:10px" onclick="delAssign('${r.assignment_id}')">🗑️</button></td></tr>`).join('')}</table></div>`}</div>`;
+}
+async function createAssign(){
+  const mid=document.getElementById('as-mem').value,cid=document.getElementById('as-camp').value,date=document.getElementById('as-date').value;
+  if(!mid||!cid||!date){alert('Member, Campaign, Date required!');return;}
+  const pay={member_id:mid,campaign_id:cid,assignment_date:date,daily_quota:parseInt(document.getElementById('as-quota').value)||0,gps_mode:document.getElementById('as-gps').value};
+  if(pay.gps_mode==='manual'){pay.manual_lat=parseFloat(document.getElementById('as-lat').value)||null;pay.manual_lng=parseFloat(document.getElementById('as-lng').value)||null;pay.manual_address=document.getElementById('as-addr').value;pay.manual_pincode=document.getElementById('as-pin').value;}
+  const r=await db('POST','fc_daily_assignments',pay);
+  if(r){alert('✅ Assignment created!');loadAssign();}else alert('❌ Error — already assigned?');
+}
+function openAssignEdit(id,quota,status){
+  document.getElementById('ea-id').value=id;
+  document.getElementById('ea-quota').value=quota;
+  document.getElementById('ea-status').value=status;
+  openM('m-assign');
+}
+async function saveAssignEdit(){
+  const id=document.getElementById('ea-id').value;
+  await db('PATCH','fc_daily_assignments?id=eq.'+id,{daily_quota:parseInt(document.getElementById('ea-quota').value),status:document.getElementById('ea-status').value});
+  closeM('m-assign');loadAssign();
+}
+async function delAssign(id){if(!confirm('Delete karein?'))return;await db('DELETE','fc_daily_assignments?id=eq.'+id);loadAssign();}
+
+// GPS SEARCH
+let _gt=null;
+async function searchLoc(q){
+  clearTimeout(_gt);const el=document.getElementById('gps-res');
+  if(!q||q.length<3){el.style.display='none';return;}
+  _gt=setTimeout(async()=>{
+    el.style.display='block';el.innerHTML='<div style="padding:8px;color:var(--tx2)">⏳</div>';
+    try{
+      const r=await fetch(`https://us1.locationiq.com/v1/search?key=pk.fde6fab706b3370a82c78ba286a896be&q=${encodeURIComponent(q)}&format=json&addressdetails=1&limit=5&countrycodes=in&accept-language=en`);
+      const d=await r.json();
+      el.innerHTML=d.length?d.map(i=>`<div onclick="pickLoc(${i.lat},${i.lon},'${i.display_name.replace(/'/g,"\'")}','${i.address?.postcode||''}')" style="padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--br);font-size:12px;color:var(--tx)" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">📍 ${i.display_name}</div>`).join(''):'<div style="padding:8px;color:var(--tx2)">No results</div>';
+    }catch{el.innerHTML='<div style="padding:8px;color:var(--re)">Error</div>';}
+  },500);
+}
+function pickLoc(lat,lon,addr,pin){
+  document.getElementById('as-lat').value=parseFloat(lat).toFixed(6);document.getElementById('as-lng').value=parseFloat(lon).toFixed(6);
+  document.getElementById('as-addr').value=addr;document.getElementById('as-pin').value=pin.trim();
+  document.getElementById('gps-q').value=addr;document.getElementById('gps-res').style.display='none';
+}
+function myLoc(){navigator.geolocation?.getCurrentPosition(async p=>{const {latitude:la,longitude:lo}=p.coords;try{const r=await fetch(`https://us1.locationiq.com/v1/reverse?key=pk.fde6fab706b3370a82c78ba286a896be&lat=${la}&lon=${lo}&format=json`);const d=await r.json();pickLoc(la,lo,d.display_name,d.address?.postcode||'');}catch{pickLoc(la,lo,`${la},${lo}`,'');}},()=>alert('Location denied'));}
+document.addEventListener('click',e=>{if(!e.target.closest('#gps-q')&&!e.target.closest('#gps-res')){const el=document.getElementById('gps-res');if(el)el.style.display='none';}});
+
+// PHOTOS
+async function loadPhotos(){
+  const camp=document.getElementById('ph-camp').value,mem=document.getElementById('ph-mem').value,date=document.getElementById('ph-date').value;
+  let q='fc_photos?select=id,storage_url,vehicle_number,latitude,longitude,address,captured_at,gps_mode,upload_status,owner_name,owner_phone,pincode,city,fc_team_members(name,phone),fc_campaigns(name,campaign_code)&order=captured_at.desc&limit=200';
+  if(camp)q+='&campaign_id=eq.'+camp;if(mem)q+='&member_id=eq.'+mem;
+  if(date)q+='&captured_at=gte.'+date+'&captured_at=lte.'+date+'T23:59:59';
+  const data=await db('GET',q);_photos=data||[];
+  const up=_photos.filter(p=>p.upload_status==='uploaded').length;
+  document.getElementById('photo-stats').innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap">${sp('Total',_photos.length,'var(--or)')+sp('Uploaded',up,'var(--gr)')+sp('Pending',_photos.length-up,'#F59E0B')+sp('With Plate',_photos.filter(p=>p.vehicle_number).length,'var(--bl)')}</div>`;
+  document.getElementById('zip-btn').style.display=_photos.length?'':'none';
+  if(!_photos.length){document.getElementById('photo-grid').innerHTML='<div style="color:var(--tx2);text-align:center;padding:40px">No photos</div>';return;}
+  document.getElementById('photo-grid').innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px">${_photos.map(p=>`<div style="background:var(--bg2);border-radius:8px;overflow:hidden;border:1px solid var(--br)">${p.storage_url?`<img src="${p.storage_url}" style="width:100%;height:100px;object-fit:cover" onclick="viewPhoto('${p.storage_url}','${p.vehicle_number||''}','${p.fc_team_members?.name||''}')">`:` <div style="width:100%;height:100px;background:var(--br);display:flex;align-items:center;justify-content:center;font-size:24px">📷</div>`}<div style="padding:6px 8px;font-size:10px"><div style="color:var(--or);font-weight:700">${p.vehicle_number||'No Plate'}</div><div style="color:var(--tx2)">${p.fc_team_members?.name||'—'}</div><div style="color:var(--tx2)">${new Date(p.captured_at).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><span class="bdg ${p.upload_status==='uploaded'?'bdg-g':'bdg-o'}" style="font-size:9px">${p.upload_status}</span><button onclick="openPhotoEdit('${p.id}')" style="background:var(--bl);color:#000;border:none;border-radius:4px;padding:2px 6px;cursor:pointer;font-size:9px">✏️</button></div></div></div>`).join('')}</div>`;
+}
+function sp(l,v,c){return `<div style="background:var(--bg1);border:1px solid var(--br);border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--tx2)">${l}</span><span style="font-weight:900;color:${c}">${v}</span></div>`;}
+function viewPhoto(url,plate,worker){if(!url){alert('Not uploaded yet');return;}window.open(url,'_blank');}
+function openPhotoEdit(id){
+  const p=_photos.find(x=>x.id===id);if(!p)return;
+  document.getElementById('ep-id').value=p.id;document.getElementById('ep-veh').value=p.vehicle_number||'';
+  document.getElementById('ep-own').value=p.owner_name||'';document.getElementById('ep-ph').value=p.owner_phone||'';
+  document.getElementById('ep-pin').value=p.pincode||'';document.getElementById('ep-city').value=p.city||'';
+  document.getElementById('ep-gps').value=p.gps_mode||'auto';openM('m-photo');
+}
+async function savePhotoEdit(){
+  const id=document.getElementById('ep-id').value;
+  await db('PATCH','fc_photos?id=eq.'+id,{vehicle_number:document.getElementById('ep-veh').value.toUpperCase(),owner_name:document.getElementById('ep-own').value,owner_phone:document.getElementById('ep-ph').value,pincode:document.getElementById('ep-pin').value,city:document.getElementById('ep-city').value,gps_mode:document.getElementById('ep-gps').value});
+  closeM('m-photo');loadPhotos();alert('✅ Saved!');
+}
+async function downloadZIP(){
+  if(!_photos.length){alert('Load photos first');return;}
+  const up=_photos.filter(p=>p.storage_url&&p.upload_status==='uploaded');
+  if(!up.length){alert('No uploaded photos');return;}
+  alert(up.length+' photos ZIP ho raha hai...');
+  const zip=new JSZip();
+  for(const p of up){try{const r=await fetch(p.storage_url);const b=await r.blob();zip.file(`${p.vehicle_number||'UNK'}_${new Date(p.captured_at).toISOString().slice(0,10)}.jpg`,b);}catch{}}
+  const c=await zip.generateAsync({type:'blob'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(c);a.download=`photos_${new Date().toISOString().slice(0,10)}.zip`;a.click();
+}
+
+// PDF
+async function loadPDF(){
+  const [camps,mems]=await Promise.all([db('GET','fc_campaigns?select=id,name,campaign_code&status=eq.active&order=name'),db('GET','fc_team_members?select=id,name&status=eq.active&order=name')]);
+  document.getElementById('pdf-camp').innerHTML='<option value="">— Select —</option>'+(camps||[]).map(c=>`<option value="${c.id}">${c.name} [${c.campaign_code}]</option>`).join('');
+  document.getElementById('pdf-mem').innerHTML='<option value="">All Workers</option>'+(mems||[]).map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  const t=new Date().toISOString().slice(0,10);document.getElementById('pdf-from').value=t;document.getElementById('pdf-to').value=t;
+}
+async function genPDF(type){
+  const cid=document.getElementById('pdf-camp').value;if(!cid){alert('Campaign select karo!');return;}
+  const mid=document.getElementById('pdf-mem').value,from=document.getElementById('pdf-from').value,to=document.getElementById('pdf-to').value;
+  let q=`fc_photos?select=*,fc_team_members(name,phone),fc_campaigns(name,campaign_code,client_name)&campaign_id=eq.${cid}&upload_status=eq.uploaded&order=captured_at.asc`;
+  if(mid)q+='&member_id=eq.'+mid;if(from)q+='&captured_at=gte.'+from;if(to)q+='&captured_at=lte.'+to+'T23:59:59';
+  const photos=await db('GET',q);
+  if(!photos?.length){alert('No uploaded photos found');return;}
+  document.getElementById('pdf-status').innerHTML='<div style="color:var(--or)">⏳ '+photos.length+' photos ka PDF ban raha hai...</div>';
+  if(type==='hood')await genHoodPDF(photos);else await genBackPDF(photos);
+}
+async function b64(url){try{const r=await fetch(url);const b=await r.blob();return new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(b);});}catch{return null;}}
+async function genHoodPDF(photos){
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const W=297,H=210,camp=photos[0]?.fc_campaigns;
+  for(let i=0;i<photos.length;i+=3){
+    if(i>0)doc.addPage();const gr=photos.slice(i,i+3);
+    doc.setFillColor(255,107,0);doc.rect(0,0,W,12,'F');doc.setTextColor(0,0,0);doc.setFontSize(11);doc.setFont(undefined,'bold');
+    doc.text('PRAJAPATI ADVERTISING',10,8);doc.setFontSize(9);doc.text(`Campaign: ${camp?.name||''} | ${camp?.campaign_code||''}`,W/2,8,{align:'center'});doc.text(new Date().toLocaleDateString('en-IN'),W-10,8,{align:'right'});
+    const sw=(W-20)/3;
+    for(let j=0;j<gr.length;j++){
+      const p=gr[j];const x=10+j*(sw+5);
+      if(p.storage_url){const b=await b64(p.storage_url);if(b)doc.addImage(b,'JPEG',x,14,sw,130);else{doc.setFillColor(50,50,50);doc.rect(x,14,sw,130,'F');}}
+      doc.setFillColor(20,20,20);doc.rect(x,146,sw,35,'F');
+      doc.setTextColor(255,107,0);doc.setFontSize(10);doc.setFont(undefined,'bold');doc.text(p.vehicle_number||'NO PLATE',x+sw/2,153,{align:'center'});
+      doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont(undefined,'normal');
+      doc.text(`Driver: ${p.fc_team_members?.name||p.owner_name||'—'}`,x+3,160);
+      doc.text(`Contact: ${p.fc_team_members?.phone||p.owner_phone||'—'}`,x+3,166);
+      doc.text(`GPS: ${p.latitude?p.latitude.toFixed(4)+', '+p.longitude.toFixed(4):'—'}`,x+3,172);
+      doc.setTextColor(150,150,150);doc.setFontSize(7);doc.text(`#${i+j+1} | ${new Date(p.captured_at).toLocaleString('en-IN')}`,x+3,178);
+    }
+    doc.setFillColor(30,30,30);doc.rect(0,H-8,W,8,'F');doc.setTextColor(150,150,150);doc.setFontSize(7);
+    doc.text('www.prajapatiadvertising.com',W/2,H-3,{align:'center'});doc.text(`Page ${Math.floor(i/3)+1}`,W-10,H-3,{align:'right'});
+  }
+  doc.save(`Hood_${camp?.campaign_code||'report'}_${new Date().toISOString().slice(0,10)}.pdf`);
+  document.getElementById('pdf-status').innerHTML='<div style="color:var(--gr)">✅ Hood PDF downloaded! ('+photos.length+' photos, '+Math.ceil(photos.length/3)+' pages)</div>';
+}
+async function genBackPDF(photos){
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,H=297,camp=photos[0]?.fc_campaigns;
+  for(let i=0;i<photos.length;i++){
+    if(i>0)doc.addPage();const p=photos[i];
+    doc.setFillColor(255,107,0);doc.rect(0,0,W,14,'F');doc.setTextColor(0,0,0);doc.setFontSize(12);doc.setFont(undefined,'bold');doc.text('PRAJAPATI ADVERTISING',10,9);
+    doc.setFontSize(8);doc.text(`${camp?.name||''} | ${camp?.campaign_code||''}`,W/2,9,{align:'center'});doc.text(new Date().toLocaleDateString('en-IN'),W-10,9,{align:'right'});
+    if(p.storage_url){const b=await b64(p.storage_url);if(b)doc.addImage(b,'JPEG',10,18,W-20,178);}
+    doc.setFillColor(20,20,20);doc.rect(0,200,W,H-200,'F');
+    doc.setTextColor(255,107,0);doc.setFontSize(14);doc.setFont(undefined,'bold');doc.text(p.vehicle_number||'NO PLATE',W/2,210,{align:'center'});
+    doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont(undefined,'normal');
+    doc.text(`Worker: ${p.fc_team_members?.name||'—'} | ${p.fc_team_members?.phone||'—'}`,W/2,218,{align:'center'});
+    doc.text(`${(p.address||'—').slice(0,60)}`,W/2,225,{align:'center'});
+    doc.text(`GPS: ${p.latitude?p.latitude.toFixed(5)+', '+p.longitude.toFixed(5):'—'} | ${new Date(p.captured_at).toLocaleString('en-IN')}`,W/2,232,{align:'center'});
+    doc.setTextColor(100,100,100);doc.setFontSize(7);doc.text(`Photo ${i+1} of ${photos.length} | www.prajapatiadvertising.com`,W/2,H-4,{align:'center'});
+  }
+  doc.save(`BackPanel_${camp?.campaign_code||'report'}_${new Date().toISOString().slice(0,10)}.pdf`);
+  document.getElementById('pdf-status').innerHTML='<div style="color:var(--gr)">✅ Back Panel PDF downloaded! ('+photos.length+' pages)</div>';
+}
+
+// REPORTS
+async function loadReports(){
+  const t=new Date().toISOString().slice(0,10);document.getElementById('rp-from').value=t;document.getElementById('rp-to').value=t;
+  document.getElementById('report-out').innerHTML='<div style="color:var(--tx2);text-align:center;padding:30px">Generate karo</div>';
+}
+async function genReport(){
+  const type=document.getElementById('rp-type').value,from=document.getElementById('rp-from').value,to=document.getElementById('rp-to').value;
+  let q='fc_photos?select=*,fc_team_members(name,phone),fc_campaigns(name,campaign_code)&order=captured_at.desc';
+  if(from)q+='&captured_at=gte.'+from;if(to)q+='&captured_at=lte.'+to+'T23:59:59';
+  const data=await db('GET',q);_rep=data||[];
+  if(!_rep.length){document.getElementById('report-out').innerHTML='<div style="color:var(--tx2);text-align:center;padding:30px">No data</div>';return;}
+  let html='';
+  if(type==='team'){const bw={};_rep.forEach(p=>{const k=p.fc_team_members?.name||'Unknown';if(!bw[k])bw[k]={n:k,ph:p.fc_team_members?.phone||'',t:0,pl:0,up:0};bw[k].t++;if(p.vehicle_number)bw[k].pl++;if(p.upload_status==='uploaded')bw[k].up++;});html=`<div class="card"><div class="st">👥 Team Wise (${from} to ${to})</div><div style="overflow-x:auto"><table class="tbl"><tr><th>Worker</th><th>Phone</th><th>Photos</th><th>Plates</th><th>Uploaded</th><th>Pending</th></tr>${Object.values(bw).sort((a,b)=>b.t-a.t).map(w=>`<tr><td><strong>${w.n}</strong></td><td>${w.ph}</td><td style="color:var(--or);font-weight:700">${w.t}</td><td style="color:var(--gr)">${w.pl}</td><td style="color:var(--bl)">${w.up}</td><td style="color:#F59E0B">${w.t-w.up}</td></tr>`).join('')}</table></div></div>`;}
+  else if(type==='campaign'){const bc={};_rep.forEach(p=>{const k=p.fc_campaigns?.name||'Unknown';if(!bc[k])bc[k]={n:k,c:p.fc_campaigns?.campaign_code||'',t:0,pl:0,w:new Set()};bc[k].t++;if(p.vehicle_number)bc[k].pl++;if(p.member_id)bc[k].w.add(p.member_id);});html=`<div class="card"><div class="st">📋 Campaign Wise</div><div style="overflow-x:auto"><table class="tbl"><tr><th>Campaign</th><th>Code</th><th>Photos</th><th>Plates</th><th>Workers</th></tr>${Object.values(bc).sort((a,b)=>b.t-a.t).map(c=>`<tr><td><strong>${c.n}</strong></td><td style="color:var(--or)">${c.c}</td><td style="font-weight:700">${c.t}</td><td style="color:var(--gr)">${c.pl}</td><td>${c.w.size}</td></tr>`).join('')}</table></div></div>`;}
+  else{const bd={};_rep.forEach(p=>{const d=p.captured_at.slice(0,10);if(!bd[d])bd[d]={d,t:0,pl:0,w:new Set()};bd[d].t++;if(p.vehicle_number)bd[d].pl++;if(p.member_id)bd[d].w.add(p.member_id);});html=`<div class="card"><div class="st">📅 Daily</div><div style="overflow-x:auto"><table class="tbl"><tr><th>Date</th><th>Photos</th><th>Plates</th><th>Workers</th></tr>${Object.values(bd).sort((a,b)=>b.d.localeCompare(a.d)).map(d=>`<tr><td style="font-weight:700">${new Date(d.d).toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'})}</td><td style="color:var(--or);font-weight:700">${d.t}</td><td style="color:var(--gr)">${d.pl}</td><td>${d.w.size}</td></tr>`).join('')}</table></div></div>`;}
+  const tu=_rep.filter(p=>p.upload_status==='uploaded').length;
+  document.getElementById('report-out').innerHTML=`<div class="kpi-grid">${kpi('Total Photos',_rep.length,'var(--or)')+kpi('Plates',_rep.filter(p=>p.vehicle_number).length,'var(--gr)')+kpi('Uploaded',tu,'var(--bl)')+kpi('Pending',_rep.length-tu,'#F59E0B')}</div>`+html;
+}
+function exportCSV(){
+  if(!_rep.length){alert('Generate karo pehle');return;}
+  const h=['Worker','Phone','Campaign','Code','Vehicle','Lat','Lng','Address','Pincode','Date','Time','GPS','Upload'];
+  const r=_rep.map(p=>[p.fc_team_members?.name||'',p.fc_team_members?.phone||'',p.fc_campaigns?.name||'',p.fc_campaigns?.campaign_code||'',p.vehicle_number||'',p.latitude||'',p.longitude||'',(p.address||'').replace(/,/g,' '),p.pincode||'',new Date(p.captured_at).toLocaleDateString('en-IN'),new Date(p.captured_at).toLocaleTimeString('en-IN'),p.gps_mode||'',p.upload_status||'']);
+  const csv=[h,...r].map(x=>x.map(v=>'"'+v+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`report_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+}
+async function sendWA(){
+  const today=new Date().toISOString().slice(0,10);const prog=await db('GET',`fc_daily_progress?assignment_date=eq.${today}`);
+  if(!prog?.length){alert('Koi assignment nahi aaj');return;}
+  let msg='*Prajapati Field Cam — Daily Summary*\n📅 '+new Date().toLocaleDateString('en-IN')+'\n\n';
+  prog.forEach(r=>{msg+='👤 *'+r.member_name+'*\n📋 '+r.campaign_name+'\n✅ '+r.vehicles_done+' done | ⏳ '+r.vehicles_pending+' pending | '+r.progress_pct+'%\n\n';});
+  const d=prog.reduce((s,r)=>s+parseInt(r.vehicles_done||0),0),p=prog.reduce((s,r)=>s+parseInt(r.vehicles_pending||0),0);
+  msg+='*TOTAL: '+d+' done, '+p+' pending*';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+// LIVE
+async function loadLive(){
+  const data=await db('GET','fc_photos?select=member_id,latitude,longitude,address,city,captured_at,gps_mode,vehicle_number,fc_team_members(name,phone)&latitude=not.is.null&order=captured_at.desc&limit=200');
+  const lat={};(data||[]).forEach(p=>{if(!lat[p.member_id])lat[p.member_id]=p;});
+  const locs=Object.values(lat);
+  document.getElementById('live-list').innerHTML=locs.length?`<div style="overflow-x:auto"><table class="tbl"><tr><th>Worker</th><th>Location</th><th>GPS</th><th>Vehicle</th><th>Last Seen</th><th>Map</th></tr>${locs.map(p=>`<tr><td><strong>${p.fc_team_members?.name||'—'}</strong><br><span style="font-size:10px">${p.fc_team_members?.phone||''}</span></td><td style="font-size:11px">${p.address||'—'}<br><span style="color:var(--or);font-size:10px">${p.latitude?.toFixed(5)}, ${p.longitude?.toFixed(5)}</span></td><td><span class="bdg ${p.gps_mode==='manual'?'bdg-o':'bdg-g'}">${p.gps_mode}</span></td><td style="font-family:monospace;color:var(--or)">${p.vehicle_number||'—'}</td><td style="font-size:11px">${new Date(p.captured_at).toLocaleString('en-IN')}</td><td><a href="https://maps.google.com/?q=${p.latitude},${p.longitude}" target="_blank" style="color:var(--bl)">🗺️</a></td></tr>`).join('')}</table></div>`:'<div style="color:var(--tx2);text-align:center;padding:40px">No location data</div>';
+}
+
+// BRANDING
+function toggleBrand(){
+  document.getElementById('br-agency').style.display=document.getElementById('br-type').value==='agency'?'':'none';
+  if(document.getElementById('br-type').value==='prajapati'){document.getElementById('br-name').value='Prajapati Advertising';document.getElementById('br-web').value='www.prajapatiadvertising.com';}
+  else if(document.getElementById('br-type').value==='clean'){document.getElementById('br-name').value='';document.getElementById('br-web').value='';}
+}
+async function saveBrand(){
+  const r=await db('POST','fc_branding',{branding_type:document.getElementById('br-type').value,company_name:document.getElementById('br-name').value,website:document.getElementById('br-web').value,stamp_color:document.getElementById('br-color').value,agency_name:document.getElementById('br-aname')?.value||null,agency_website:document.getElementById('br-aweb')?.value||null});
+  if(r){alert('✅ Branding saved!');loadBrand();}
+}
+async function loadBrand(){
+  const data=await db('GET','fc_branding?select=id,branding_type,company_name,website,stamp_color,agency_name,created_at&order=created_at.desc');
+  document.getElementById('brand-list').innerHTML=`<div class="card"><div class="st">All Brandings</div>${(data||[]).map(b=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--br)"><div><strong style="color:${b.stamp_color||'var(--or)'}">${b.company_name||'Clean'}</strong><span class="bdg ${b.branding_type==='prajapati'?'bdg-o':b.branding_type==='clean'?'bdg-r':'bdg-g'}" style="margin-left:8px">${b.branding_type}</span>${b.agency_name?'<div style="font-size:11px;color:var(--gr)">Agency: '+b.agency_name+'</div>':''}</div><span style="font-size:11px;color:var(--tx2)">${new Date(b.created_at).toLocaleDateString('en-IN')}</span></div>`).join('')}</div>`;
+}
+
+// INIT
+async function initSelectors(){
+  const [mem,camp]=await Promise.all([db('GET','fc_team_members?select=id,name,phone&status=eq.active&order=name'),db('GET','fc_campaigns?select=id,name,campaign_code&status=eq.active&order=name')]);
+  ['ph-camp','pdf-camp'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">All Campaigns</option>'+(camp||[]).map(c=>`<option value="${c.id}">${c.name} [${c.campaign_code}]</option>`).join('');});
+  const pm=document.getElementById('ph-mem');if(pm)pm.innerHTML='<option value="">All Workers</option>'+(mem||[]).map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  document.getElementById('ph-date').value=new Date().toISOString().slice(0,10);
+}
+loadDash();initSelectors();
+</script>
+</body>
+</html>

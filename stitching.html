@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stitching · Prajapati ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+.role-tabs.stitch .role-tab.active { background: var(--stitch); color: white; }
+.role-tabs.stitch .role-tab:hover { color: var(--stitch); }
+.role-tabs.stitch .role-tab.active:hover { color: white; }
+.btn.primary.stitch { background: var(--stitch); }
+.btn.primary.stitch:hover { background: #DB2777; box-shadow: 0 8px 18px rgba(236,72,153,0.3); }
+
+.bulk-card {
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: 16px; padding: 28px; margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.bulk-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 100%; height: 4px;
+  background: linear-gradient(90deg, var(--stitch), #F472B6);
+}
+
+.bulk-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+.bulk-head h2 { font-size: 22px; font-weight: 800; color: var(--nav); display: inline-flex; align-items: center; gap: 12px; }
+.bulk-head h2 .icon-bg {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--stitch-soft); color: var(--stitch);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.bulk-total {
+  background: linear-gradient(135deg, var(--stitch-soft), #FFE4F1);
+  border: 1px solid var(--stitch);
+  padding: 10px 18px; border-radius: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.bulk-total .lbl { font-size: 11px; font-weight: 700; color: var(--stitch); letter-spacing: 0.05em; text-transform: uppercase; }
+.bulk-total .val { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; color: var(--ink); }
+
+.bulk-top { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 18px; }
+@media (max-width: 760px) { .bulk-top { grid-template-columns: 1fr; } }
+
+.form-field input:focus, .form-field select:focus { border-color: var(--stitch)!important; box-shadow: 0 0 0 3px rgba(236,72,153,0.1)!important; }
+
+.type-toggle-bar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; background: var(--soft);
+  border-radius: 10px; margin-bottom: 18px; flex-wrap: wrap;
+}
+.type-toggle-bar .lbl { font-size: 12px; font-weight: 700; color: var(--ink-2); }
+.type-btn {
+  padding: 8px 16px; border-radius: 8px;
+  font-size: 12px; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer; border: 1px solid var(--line);
+  background: var(--white); color: var(--mute);
+  transition: all 0.15s;
+}
+.type-btn:hover { transform: translateY(-1px); }
+.type-btn.regular.active { background: var(--green); color: white; border-color: var(--green); }
+.type-btn.ot.active { background: var(--amber); color: white; border-color: var(--amber); }
+.type-toggle-bar .helper { font-size: 11px; color: var(--mute); margin-left: auto; }
+
+.bulk-table-wrap {
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: 12px; overflow: hidden; margin-bottom: 18px; overflow-x: auto;
+}
+.bulk-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
+.bulk-table thead th {
+  text-align: left; padding: 12px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--mute); background: var(--soft);
+  border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+.bulk-table thead th.center { text-align: center; }
+.bulk-table thead th.right { text-align: right; }
+.bulk-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.bulk-table tbody tr:last-child td { border-bottom: none; }
+.bulk-table tbody tr:hover td { background: rgba(236,72,153,0.04); }
+.bulk-table .row-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--mute); text-align: center; width: 36px; }
+.bulk-table input, .bulk-table select {
+  padding: 8px 10px; background: var(--white);
+  border: 1px solid var(--line); border-radius: 7px;
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  width: 100%;
+}
+.bulk-table input:focus, .bulk-table select:focus { outline: none; border-color: var(--stitch); }
+.bulk-table input.qty { font-family: 'JetBrains Mono', monospace; font-weight: 800; text-align: center; width: 70px; }
+.bulk-table input.amount { font-family: 'JetBrains Mono', monospace; font-weight: 800; text-align: right; width: 90px; background: var(--soft); }
+
+.bulk-table .type-mini {
+  display: inline-flex; padding: 5px 12px; border-radius: 6px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+  cursor: pointer; user-select: none; border: 1px solid transparent;
+  transition: all 0.15s; align-items: center; gap: 4px;
+}
+.bulk-table .type-mini:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+.type-mini.regular { background: var(--green-soft); color: var(--green-dk); border-color: var(--green); }
+.type-mini.ot { background: var(--amber-soft); color: var(--amber); border-color: var(--amber); }
+.type-mini::before { content: '🔄'; font-size: 9px; opacity: 0.6; }
+
+.bulk-actions { display: flex; gap: 10px; margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
+.bulk-actions .btn { padding: 13px 20px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+
+    <header class="topbar" id="topbar"></header>
+
+    <div class="page">
+
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Stitching <em style="color:var(--stitch)">Department</em></h1>
+          <div class="page-sub">Bulk entry · 7 masters · ₹15 regular / ₹20 OT</div>
+        </div>
+      </div>
+
+      <div class="role-tabs stitch">
+        <button class="role-tab active" data-view="bulk">📝 Bulk Entry</button>
+        <button class="role-tab" data-view="dashboard">📊 Manager Dashboard</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-mini"><div class="label">Today's PCS</div><div class="num" id="stat-today">—</div></div>
+        <div class="stat-mini"><div class="label">Today's ₹</div><div class="num" id="stat-amt">—</div></div>
+        <div class="stat-mini"><div class="label">Active Masters</div><div class="num">7</div></div>
+        <div class="stat-mini"><div class="label">This Week</div><div class="num" id="stat-week">—</div></div>
+        <div class="stat-mini"><div class="label">Outstanding</div><div class="num" id="stat-pending">—</div></div>
+      </div>
+
+      <!-- VIEW 1: BULK ENTRY -->
+      <div class="view-section active" data-view="bulk">
+
+        <div class="bulk-card">
+          <div class="bulk-head">
+            <h2><div class="icon-bg">✂️</div> Bulk Stitch Entry</h2>
+            <div class="bulk-total">
+              <span class="lbl">Total:</span>
+              <span class="val" id="bulk-total">₹0</span>
+            </div>
+          </div>
+
+          <div class="bulk-top">
+            <div class="form-field">
+              <label>Work Order *</label>
+              <select id="bulk-order" required>
+                <option value="">— Select Order —</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Default Date</label>
+              <input type="date" id="bulk-date" value="">
+            </div>
+          </div>
+
+          <div class="type-toggle-bar">
+            <span class="lbl">Bulk apply:</span>
+            <button class="type-btn regular active" onclick="applyBulkType('regular')">🟢 All Regular</button>
+            <button class="type-btn ot" onclick="applyBulkType('ot')">🟡 All OT</button>
+            <span class="helper">💡 Ya neeche table mein <strong>Regular/OT badge</strong> click karke per-row toggle karo</span>
+          </div>
+
+          <div class="bulk-table-wrap">
+            <table class="bulk-table">
+              <thead>
+                <tr>
+                  <th class="center">#</th>
+                  <th>Master *</th>
+                  <th>Location</th>
+                  <th class="center">Qty *</th>
+                  <th>Date</th>
+                  <th>Type 👆</th>
+                  <th class="right">₹ Amt</th>
+                </tr>
+              </thead>
+              <tbody id="bulk-tbody">
+                <!-- Rows generated dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="bulk-actions">
+            <button type="button" class="btn ghost" style="flex:1" onclick="resetBulk()">🔄 Reset</button>
+            <button type="button" id="submit-btn" class="btn primary stitch" style="flex:2" onclick="submitBulk()">
+              ✨ Sab Submit Karo (0 entries · ₹0)
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VIEW 2: MANAGER DASHBOARD -->
+      <div class="view-section" data-view="dashboard">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">All <em style="color:var(--stitch)">Stitch Entries</em></div>
+            <button class="btn ghost" style="padding:6px 12px;font-size:11px" onclick="loadManager()">🔄 Refresh</button>
+          </div>
+          <div id="manager-list">
+            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="lib-config.js"></script>
+<script src="lib-auth.js"></script>
+<script src="lib-ui.js"></script>
+<script>
+const session = AUTH.requireModule('stitching');
+if (!session) throw new Error('Not logged in');
+
+document.getElementById('sidebar').innerHTML = UI.renderSidebar('stitching');
+document.getElementById('topbar').innerHTML = UI.renderTopbar('Stitching', { searchPlaceholder: 'Search master, order, location...' });
+
+document.getElementById('bulk-date').value = new Date().toISOString().slice(0, 10);
+
+let masters = [];
+let orders = [];
+
+async function loadMasters() {
+  const { data } = await sb()
+    .from('prajapati_stitching_masters')
+    .select('*')
+    .eq('status', 'active')
+    .order('master_id');
+  masters = data || [];
+  buildBulkRows();
+}
+
+async function loadOrders() {
+  const { data } = await sb()
+    .from('prajapati_work_orders')
+    .select('id, wo_number, client_name, total_value, status')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  orders = data || [];
+  
+  const sel = document.getElementById('bulk-order');
+  sel.innerHTML = '<option value="">— Select Order —</option>';
+  orders.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.id;
+    opt.dataset.number = o.wo_number || '';
+    opt.textContent = `${o.wo_number || 'WO-' + o.id.slice(0,6)} · ${o.client_name || 'Client'}`;
+    sel.appendChild(opt);
+  });
+}
+
+function buildBulkRows() {
+  const tbody = document.getElementById('bulk-tbody');
+  tbody.innerHTML = '';
+  masters.forEach((m, idx) => {
+    const tr = document.createElement('tr');
+    tr.dataset.masterId = m.id;
+    tr.innerHTML = `
+      <td class="row-num">${idx + 1}</td>
+      <td><strong style="font-size:13px">${m.full_name}</strong><div style="font-size:10px;color:var(--mute);font-family:'JetBrains Mono',monospace">${m.master_id}</div></td>
+      <td><input type="text" class="row-loc" placeholder="City/Area"></td>
+      <td><input type="number" class="qty row-qty" value="0" min="0"></td>
+      <td><input type="date" class="row-date" value="${new Date().toISOString().slice(0, 10)}"></td>
+      <td><button type="button" class="type-mini regular" onclick="toggleRowType(this)">Regular</button></td>
+      <td><input type="text" class="amount" value="₹0" readonly></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Wire qty inputs
+  tbody.querySelectorAll('.row-qty').forEach(i => i.addEventListener('input', updateBulkTotal));
+  updateBulkTotal();
+}
+
+function toggleRowType(btn) {
+  if (btn.classList.contains('regular')) {
+    btn.classList.remove('regular');
+    btn.classList.add('ot');
+    btn.textContent = 'OT';
+  } else {
+    btn.classList.remove('ot');
+    btn.classList.add('regular');
+    btn.textContent = 'Regular';
+  }
+  updateBulkTotal();
+}
+
+function applyBulkType(type) {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.type-btn.${type}`).classList.add('active');
+  document.querySelectorAll('.bulk-table .type-mini').forEach(b => {
+    b.classList.remove('regular', 'ot');
+    b.classList.add(type);
+    b.textContent = type === 'regular' ? 'Regular' : 'OT';
+  });
+  updateBulkTotal();
+}
+
+function updateBulkTotal() {
+  let total = 0;
+  let count = 0;
+  document.querySelectorAll('#bulk-tbody tr').forEach(tr => {
+    const qty = parseInt(tr.querySelector('.row-qty').value) || 0;
+    const isOT = tr.querySelector('.type-mini.ot');
+    const rate = isOT ? 20 : 15;
+    const amt = qty * rate;
+    tr.querySelector('.amount').value = '₹' + amt;
+    total += amt;
+    if (qty > 0) count++;
+  });
+  document.getElementById('bulk-total').textContent = '₹' + total.toLocaleString('en-IN');
+  document.getElementById('submit-btn').textContent = `✨ Sab Submit Karo (${count} entries · ₹${total.toLocaleString('en-IN')})`;
+}
+
+async function submitBulk() {
+  const orderSel = document.getElementById('bulk-order');
+  const orderOpt = orderSel.options[orderSel.selectedIndex];
+  
+  if (!orderSel.value) {
+    UI.toast('⚠️ Pehle order select karo', 'warning');
+    return;
+  }
+
+  const entries = [];
+  document.querySelectorAll('#bulk-tbody tr').forEach(tr => {
+    const qty = parseInt(tr.querySelector('.row-qty').value) || 0;
+    if (qty <= 0) return;
+    const isOT = !!tr.querySelector('.type-mini.ot');
+    const rate = isOT ? 20 : 15;
+    entries.push({
+      entry_date: tr.querySelector('.row-date').value || new Date().toISOString().slice(0, 10),
+      work_order_id: orderSel.value,
+      wo_number: orderOpt.dataset.number,
+      master_id: tr.dataset.masterId,
+      master_name: tr.querySelector('strong').textContent,
+      location: tr.querySelector('.row-loc').value || null,
+      qty: qty,
+      type: isOT ? 'ot' : 'regular',
+      rate_per_piece: rate,
+      amount: qty * rate
+    });
+  });
+
+  if (entries.length === 0) {
+    UI.toast('⚠️ Koi qty enter nahi kiya', 'warning');
+    return;
+  }
+
+  try {
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Saving...';
+
+    const { error } = await sb().from('prajapati_stitching_entries').insert(entries);
+    if (error) throw error;
+
+    UI.toast(`✅ ${entries.length} entries saved!`, 'success');
+    resetBulk();
+    await loadStats();
+  } catch (err) {
+    UI.toast('❌ Save failed: ' + err.message, 'error');
+  } finally {
+    document.getElementById('submit-btn').disabled = false;
+    updateBulkTotal();
+  }
+}
+
+function resetBulk() {
+  document.querySelectorAll('#bulk-tbody .row-qty').forEach(i => i.value = 0);
+  document.querySelectorAll('#bulk-tbody .row-loc').forEach(i => i.value = '');
+  applyBulkType('regular');
+  updateBulkTotal();
+}
+
+async function loadStats() {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+
+    const [todayData, weekData, pendingData] = await Promise.all([
+      sb().from('prajapati_stitching_entries').select('qty, amount').eq('entry_date', today),
+      sb().from('prajapati_stitching_entries').select('qty').gte('entry_date', weekAgo),
+      sb().from('prajapati_stitching_entries').select('amount').eq('payment_status', 'pending')
+    ]);
+
+    const todayPcs = (todayData.data || []).reduce((s, x) => s + (x.qty || 0), 0);
+    const todayAmt = (todayData.data || []).reduce((s, x) => s + (Number(x.amount) || 0), 0);
+    const weekPcs = (weekData.data || []).reduce((s, x) => s + (x.qty || 0), 0);
+    const pendingAmt = (pendingData.data || []).reduce((s, x) => s + (Number(x.amount) || 0), 0);
+
+    document.getElementById('stat-today').textContent = todayPcs;
+    document.getElementById('stat-amt').textContent = UI.fmtINR(todayAmt);
+    document.getElementById('stat-week').textContent = weekPcs;
+    document.getElementById('stat-pending').textContent = UI.fmtINR(pendingAmt);
+  } catch (e) { console.error(e); }
+}
+
+async function loadManager() {
+  const list = document.getElementById('manager-list');
+  try {
+    const { data } = await sb()
+      .from('prajapati_stitching_entries')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    
+    if (!data || data.length === 0) {
+      UI.showEmpty(list, 'No entries yet');
+      return;
+    }
+
+    list.innerHTML = `
+      <table class="data-table">
+        <thead><tr>
+          <th>Date</th><th>Master</th><th>Order</th><th>Location</th><th>Type</th><th class="right">Qty</th><th class="right">Amount</th><th>Pay Status</th>
+        </tr></thead>
+        <tbody>
+          ${data.map(r => `
+            <tr>
+              <td>${UI.fmtDate(r.entry_date)}</td>
+              <td><strong>${r.master_name}</strong></td>
+              <td><span class="ord">${r.wo_number || '—'}</span></td>
+              <td>${r.location || '—'}</td>
+              <td><span class="pill ${r.type === 'ot' ? 'pill-warning' : 'pill-success'}">${r.type}</span></td>
+              <td class="right mono">${r.qty}</td>
+              <td class="right mono">${UI.fmtINRfull(r.amount)}</td>
+              <td><span class="pill ${r.payment_status === 'paid' ? 'pill-success' : 'pill-warning'}">${r.payment_status}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    UI.showError(list, e.message);
+  }
+}
+
+document.querySelectorAll('.role-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+    document.querySelector(`.view-section[data-view="${tab.dataset.view}"]`).classList.add('active');
+    if (tab.dataset.view === 'dashboard') loadManager();
+  });
+});
+
+loadMasters();
+loadOrders();
+loadStats();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,328 @@
+/* ════════════════════════════════════════════════════════════════ */
+/* PRAJAPATI ERP - THEME CSS */
+/* Colors, Typography, Layout, and Components */
+/* ════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Colors */
+  --accent: #1246C8;
+  --accent-light: #E3F2FD;
+  --blue-soft: #e3f2fd;
+  --red-soft: #ffebee;
+  --red-dk: #c62828;
+  --amber: #ffa726;
+  --green-dk: #2e7d32;
+  
+  /* Text Colors */
+  --ink: #1a1a1a;
+  --ink-2: #424242;
+  --mute: #757575;
+  
+  /* Backgrounds */
+  --soft: #f5f5f5;
+  --line: #e0e0e0;
+  --bg: #ffffff;
+  
+  /* Typography */
+  --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: var(--font-primary);
+  background: var(--soft);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+/* ════════════════════════════════════════════════════════════════ */
+/* LAYOUT */
+/* ════════════════════════════════════════════════════════════════ */
+
+.app-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--soft);
+}
+
+.sidebar {
+  background: var(--bg);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topbar {
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.page {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ════════════════════════════════════════════════════════════════ */
+/* BUTTONS */
+/* ════════════════════════════════════════════════════════════════ */
+
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-primary);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: #0a2e8f;
+  box-shadow: 0 2px 8px rgba(18, 70, 200, 0.2);
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.btn.ghost:hover:not(:disabled) {
+  background: var(--soft);
+}
+
+.btn.secondary {
+  background: var(--soft);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.btn.secondary:hover:not(:disabled) {
+  background: #efefef;
+}
+
+.btn.success {
+  background: var(--green-dk);
+  color: white;
+}
+
+.btn.success:hover:not(:disabled) {
+  background: #1b5e20;
+}
+
+.btn.danger {
+  background: var(--red-dk);
+  color: white;
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: #ad1457;
+}
+
+/* ════════════════════════════════════════════════════════════════ */
+/* FORM ELEMENTS */
+/* ════════════════════════════════════════════════════════════════ */
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-primary);
+  transition: all 0.2s;
+  background: white;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(18, 70, 200, 0.1);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ════════════════════════════════════════════════════════════════ */
+/* SCROLLBAR */
+/* ════════════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--soft);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bdbdbd;
+}
+
+/* ════════════════════════════════════════════════════════════════ */
+/* RESPONSIVE */
+/* ════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 100vh;
+    z-index: 999;
+    display: none;
+    flex-direction: column;
+  }
+
+  .sidebar.active {
+    display: flex;
+  }
+
+  .main {
+    width: 100%;
+  }
+
+  .page {
+    padding: 16px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════ */
+/* UTILITIES */
+/* ════════════════════════════════════════════════════════════════ */
+
+.hidden {
+  display: none !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-muted {
+  color: var(--mute);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.gap-8 {
+  gap: 8px;
+}
+
+.gap-12 {
+  gap: 12px;
+}
+
+.gap-16 {
+  gap: 16px;
+}
+
+.p-12 {
+  padding: 12px;
+}
+
+.p-16 {
+  padding: 16px;
+}
+
+.p-20 {
+  padding: 20px;
+}
+
+.m-0 {
+  margin: 0;
+}
+
+.mt-8 {
+  margin-top: 8px;
+}
+
+.mt-12 {
+  margin-top: 12px;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mb-8 {
+  margin-bottom: 8px;
+}
+
+.mb-12 {
+  margin-bottom: 12px;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}

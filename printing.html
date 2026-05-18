@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Printing · Prajapati ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+.role-tabs.print .role-tab.active { background: var(--print); color: white; }
+.role-tabs.print .role-tab:hover { color: var(--print); }
+.role-tabs.print .role-tab.active:hover { color: white; }
+
+.btn.primary.print { background: var(--print); }
+.btn.primary.print:hover { background: #D97706; box-shadow: 0 8px 18px rgba(245,158,11,0.3); }
+
+.entry-card {
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: 16px; padding: 28px; margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.entry-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 100%; height: 4px;
+  background: linear-gradient(90deg, var(--print), #FBBF24);
+}
+.entry-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
+.entry-head h2 { font-size: 20px; font-weight: 800; color: var(--nav); display: inline-flex; align-items: center; gap: 10px; }
+.entry-head h2 .icon-bg {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--print-soft); color: var(--print);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+.entry-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 760px) { .entry-form-grid { grid-template-columns: 1fr; } }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--print)!important; box-shadow: 0 0 0 3px rgba(245,158,11,0.1)!important; }
+
+.qty-card {
+  background: linear-gradient(135deg, var(--print-soft), #FFFBEB);
+  border: 1px solid var(--print);
+  border-radius: 12px; padding: 16px;
+  display: flex; align-items: center; gap: 16px; margin-top: 18px;
+}
+.qty-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--white); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.qty-info .lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--print); }
+.qty-info .total { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; color: var(--ink); margin-top: 2px; }
+.qty-info .progress-strip { height: 6px; background: rgba(245,158,11,0.2); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+.qty-info .progress-strip .fill { height: 100%; background: var(--print); border-radius: 999px; }
+
+.entry-submit { display: flex; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+.entry-submit .btn { flex: 1; padding: 13px 20px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+
+    <header class="topbar" id="topbar"></header>
+
+    <div class="page">
+
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Printing <em style="color:var(--print)">Department</em></h1>
+          <div class="page-sub">Daily print job entry · Live progress tracking</div>
+        </div>
+      </div>
+
+      <!-- Role tabs -->
+      <div class="role-tabs print">
+        <button class="role-tab active" data-view="operator">🖨️ Operator View</button>
+        <button class="role-tab" data-view="manager">👨‍💼 Manager Dashboard</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-mini"><div class="label">Today's PCS</div><div class="num" id="stat-today">—</div></div>
+        <div class="stat-mini"><div class="label">This Week</div><div class="num" id="stat-week">—</div></div>
+        <div class="stat-mini"><div class="label">Active Orders</div><div class="num" id="stat-active">—</div></div>
+        <div class="stat-mini"><div class="label">My Entries</div><div class="num" id="stat-mine">—</div></div>
+        <div class="stat-mini"><div class="label">Approved</div><div class="num" id="stat-approved">—</div></div>
+      </div>
+
+      <!-- OPERATOR VIEW -->
+      <div class="view-section active" data-view="operator">
+
+        <div class="entry-card">
+          <div class="entry-head">
+            <h2><div class="icon-bg">🖨️</div> Today's Print Entry</h2>
+            <span style="font-size:12px;color:var(--mute);font-weight:600" id="today-label">📅 Today</span>
+          </div>
+
+          <div style="display:flex;gap:18px;padding:12px 16px;background:var(--soft);border-radius:10px;margin-bottom:18px;font-size:12px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink-2)">
+              <span style="color:var(--mute)">Operator:</span>
+              <strong id="op-name">—</strong>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink-2)">
+              <span style="color:var(--mute)">Date:</span>
+              <strong id="op-date">—</strong>
+            </div>
+          </div>
+
+          <form id="print-form">
+            <div class="entry-form-grid">
+              <div class="form-field">
+                <label>Order / Work Order *</label>
+                <select id="f-order" required>
+                  <option value="">— Select Order —</option>
+                </select>
+                <div class="helper">Manager assigns daily work</div>
+              </div>
+
+              <div class="form-field">
+                <label>Print Type *</label>
+                <select id="f-type" required>
+                  <option value="">— Select Type —</option>
+                  <option>Hood Panel (Auto Rickshaw)</option>
+                  <option>Back Panel</option>
+                  <option>Vinyl Sticker</option>
+                  <option>Flex Banner</option>
+                  <option>Wall Painting Sample</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label>PCS Completed Today *</label>
+                <input type="number" class="mono" id="f-pcs" placeholder="0" min="1" required>
+                <div class="helper">Aaj kitne pieces done?</div>
+              </div>
+
+              <div class="form-field">
+                <label>Notes / Issues</label>
+                <input type="text" id="f-notes" placeholder="Optional">
+                <div class="helper">Koi issue ya note?</div>
+              </div>
+            </div>
+
+            <div class="entry-submit">
+              <button type="button" class="btn ghost" onclick="resetForm()">🔄 Reset</button>
+              <button type="submit" class="btn primary print">✅ Submit Entry</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Recent submissions -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Recent <em style="color:var(--print)">Submissions</em></div>
+          </div>
+          <div id="recent-list">
+            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MANAGER VIEW -->
+      <div class="view-section" data-view="manager">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">All <em style="color:var(--print)">Print Entries</em></div>
+            <button class="btn ghost" style="padding:6px 12px;font-size:11px">📥 Export</button>
+          </div>
+          <div id="manager-list">
+            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="lib-config.js"></script>
+<script src="lib-auth.js"></script>
+<script src="lib-ui.js"></script>
+<script>
+const session = AUTH.requireModule('printing');
+if (!session) throw new Error('Not logged in');
+
+document.getElementById('sidebar').innerHTML = UI.renderSidebar('printing');
+document.getElementById('topbar').innerHTML = UI.renderTopbar('Printing', { searchPlaceholder: 'Search order, type...' });
+
+document.getElementById('op-name').textContent = session.name || session.phone;
+document.getElementById('op-date').textContent = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+document.getElementById('today-label').textContent = '📅 ' + new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+
+// Load orders into dropdown
+async function loadOrders() {
+  try {
+    const { data } = await sb()
+      .from('prajapati_work_orders')
+      .select('id, wo_number, client_name, total_value, status')
+      .order('created_at', { ascending: false })
+      .limit(50);
+    
+    const sel = document.getElementById('f-order');
+    sel.innerHTML = '<option value="">— Select Order —</option>';
+    (data || []).forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.id;
+      opt.dataset.number = o.wo_number || '';
+      opt.dataset.client = o.client_name || '';
+      opt.textContent = `${o.wo_number || 'WO-' + o.id.slice(0,6)} · ${o.client_name || 'Client'} (${(o.quantity || 0)} PCS)`;
+      sel.appendChild(opt);
+    });
+  } catch (e) {
+    UI.toast('Could not load orders: ' + e.message, 'error');
+  }
+}
+
+// Submit form
+document.getElementById('print-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const orderSel = document.getElementById('f-order');
+  const opt = orderSel.options[orderSel.selectedIndex];
+  
+  const payload = {
+    entry_date: new Date().toISOString().slice(0, 10),
+    work_order_id: orderSel.value || null,
+    wo_number: opt?.dataset.number || null,
+    client_name: opt?.dataset.client || null,
+    print_type: document.getElementById('f-type').value,
+    pcs_done: parseInt(document.getElementById('f-pcs').value),
+    operator_id: session.staffId || null,
+    operator_name: session.name || session.phone,
+    notes: document.getElementById('f-notes').value || null,
+    status: 'submitted'
+  };
+
+  try {
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = '⏳ Saving...';
+
+    const { error } = await sb().from('prajapati_printing_entries').insert(payload);
+    if (error) throw error;
+
+    UI.toast('✅ Print entry saved!', 'success');
+    resetForm();
+    await loadStats();
+    await loadRecent();
+  } catch (err) {
+    UI.toast('❌ Save failed: ' + err.message, 'error');
+  } finally {
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = false;
+    btn.innerHTML = '✅ Submit Entry';
+  }
+});
+
+function resetForm() {
+  document.getElementById('print-form').reset();
+}
+
+async function loadStats() {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+
+    const [todayData, weekData, mineData] = await Promise.all([
+      sb().from('prajapati_printing_entries').select('pcs_done').eq('entry_date', today),
+      sb().from('prajapati_printing_entries').select('pcs_done').gte('entry_date', weekAgo),
+      sb().from('prajapati_printing_entries').select('pcs_done, status').eq('operator_name', session.name || session.phone)
+    ]);
+
+    const todayPcs = (todayData.data || []).reduce((s, x) => s + (x.pcs_done || 0), 0);
+    const weekPcs = (weekData.data || []).reduce((s, x) => s + (x.pcs_done || 0), 0);
+    const minePcs = (mineData.data || []).length;
+    const approvedPcs = (mineData.data || []).filter(x => x.status === 'approved').length;
+
+    document.getElementById('stat-today').textContent = todayPcs;
+    document.getElementById('stat-week').textContent = weekPcs;
+    document.getElementById('stat-mine').textContent = minePcs;
+    document.getElementById('stat-approved').textContent = approvedPcs;
+
+    const { count } = await sb().from('prajapati_work_orders').select('*', { count: 'exact', head: true });
+    document.getElementById('stat-active').textContent = count || 0;
+  } catch (e) {
+    console.error('stats error', e);
+  }
+}
+
+async function loadRecent() {
+  const list = document.getElementById('recent-list');
+  try {
+    const { data } = await sb()
+      .from('prajapati_printing_entries')
+      .select('*')
+      .eq('operator_name', session.name || session.phone)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (!data || data.length === 0) {
+      UI.showEmpty(list, 'Koi entry abhi tak nahi. Pehli entry submit karo!');
+      return;
+    }
+
+    list.innerHTML = `
+      <table class="data-table">
+        <thead><tr>
+          <th>Date</th><th>Order</th><th>Client</th><th>Type</th><th class="right">PCS</th><th>Status</th>
+        </tr></thead>
+        <tbody>
+          ${data.map(r => `
+            <tr>
+              <td>${UI.fmtDateTime(r.created_at)}</td>
+              <td><span class="ord">${r.wo_number || '—'}</span></td>
+              <td>${r.client_name || '—'}</td>
+              <td>${r.print_type || '—'}</td>
+              <td class="right mono">${r.pcs_done}</td>
+              <td><span class="pill ${r.status === 'approved' ? 'pill-success' : r.status === 'rejected' ? 'pill-danger' : 'pill-info'}">${r.status}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    UI.showError(list, e.message);
+  }
+}
+
+async function loadManager() {
+  const list = document.getElementById('manager-list');
+  try {
+    const { data } = await sb()
+      .from('prajapati_printing_entries')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50);
+    
+    if (!data || data.length === 0) {
+      UI.showEmpty(list, 'No entries yet');
+      return;
+    }
+
+    list.innerHTML = `
+      <table class="data-table">
+        <thead><tr>
+          <th>Date</th><th>Operator</th><th>Order</th><th>Client</th><th>Type</th><th class="right">PCS</th><th>Status</th>
+        </tr></thead>
+        <tbody>
+          ${data.map(r => `
+            <tr>
+              <td>${UI.fmtDateTime(r.created_at)}</td>
+              <td><strong>${r.operator_name || '—'}</strong></td>
+              <td><span class="ord">${r.wo_number || '—'}</span></td>
+              <td>${r.client_name || '—'}</td>
+              <td>${r.print_type || '—'}</td>
+              <td class="right mono">${r.pcs_done}</td>
+              <td><span class="pill ${r.status === 'approved' ? 'pill-success' : r.status === 'rejected' ? 'pill-danger' : 'pill-info'}">${r.status}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    UI.showError(list, e.message);
+  }
+}
+
+// Tab switching
+document.querySelectorAll('.role-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+    document.querySelector(`.view-section[data-view="${tab.dataset.view}"]`).classList.add('active');
+    if (tab.dataset.view === 'manager') loadManager();
+  });
+});
+
+// Initial load
+loadOrders();
+loadStats();
+loadRecent();
+</script>
+
+</body>
+</html>

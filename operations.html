@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="erp-design.css">
+<script>
+(function(){var s=localStorage.getItem('erp_session');if(!s){window.location.href='login.html';return;}var p=JSON.parse(s);if(Date.now()>p.expiresAt){localStorage.removeItem('erp_session');window.location.href='login.html';}})();
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Operations — Prajapati Advertising</title>
+</head>
+<body>
+<div class="erp-topbar">
+  <a href="index.html" class="erp-logo">
+    <div class="erp-logo-mark">PA</div>
+    <div class="erp-logo-text">
+      <div class="erp-logo-name">Prajapati Advertising</div>
+      <div class="erp-logo-tag">Enterprise ERP</div>
+    </div>
+  </a>
+  <nav class="erp-nav">
+    <a href="index.html">🏠 Home</a>
+    <a href="sales-crm.html">💼 Sales</a>
+    <a href="operations.html" class="active">⚙️ Operations</a>
+    <a href="dispatch.html">🚚 Dispatch</a>
+    <a href="hr.html">👥 HR</a>
+    <a href="reports.html">📊 Reports</a>
+    <a href="settings.html">⚙️ Settings</a>
+  </nav>
+  <div class="erp-user">
+    <div id="_uname" style="text-align:right"><div class="erp-user-name" id="_un">—</div><div class="erp-user-role" id="_ur"></div></div>
+    <div class="erp-avatar" id="_uav">?</div>
+    <button class="erp-logout" onclick="localStorage.removeItem('erp_session');window.location.href='login.html'">Logout</button>
+  </div>
+</div>
+<script>
+(function(){var s=localStorage.getItem('erp_session');if(!s)return;var p=JSON.parse(s);var el=document.getElementById('_un');var er=document.getElementById('_ur');var ea=document.getElementById('_uav');if(el)el.textContent=p.name||'User';if(er)er.textContent=(p.role||'').replace(/_/g,' ').toUpperCase();if(ea)ea.textContent=(p.name||'U')[0].toUpperCase();})();
+</script>
+<div class="erp-page">
+  <!-- KPIs -->
+  <div class="g4" id="kpi-row" style="margin-bottom:16px"></div>
+
+  <!-- WORK ORDERS -->
+  <div id="tab-workorders">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700">📋 Work Orders</div>
+        <div style="display:flex;gap:8px">
+          <select id="wo-status-filter" class="inp" style="width:140px" onchange="loadWOs()">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="printing">Printing</option>
+            <option value="stitching">Stitching</option>
+            <option value="qc">QC</option>
+            <option value="dispatch">Ready</option>
+          </select>
+          <button class="btn btn-primary" onclick="openNewWO()">+ New WO</button>
+        </div>
+      </div>
+      <div id="wo-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- PRINTING -->
+  <div id="tab-printing" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700">🖨️ Print Jobs</div>
+        <button class="btn btn-primary" onclick="openNewPJ()">+ New Print Job</button>
+      </div>
+      <div id="pj-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- STITCHING -->
+  <div id="tab-stitching" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700">🧵 Stitching Jobs</div>
+        <button class="btn btn-primary" onclick="openNewSJ()">+ New Stitch Job</button>
+      </div>
+      <div id="sj-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- QC -->
+  <div id="tab-qc" style="display:none">
+    <div class="card">
+      <div style="font-size:15px;font-weight:700;margin-bottom:12px">✅ Quality Control</div>
+      <div id="qc-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- PAYROLL -->
+  <div id="tab-payroll" style="display:none">
+    <div class="card">
+      <div style="font-size:15px;font-weight:700;margin-bottom:4px">💰 Stitching Payroll</div>
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:12px">Rate: ₹15/piece | Workers: Md Dulare + team</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <select id="pay-worker" class="inp" style="width:200px">
+          <option value="">All Workers</option>
+          <option>Md Dulare</option>
+          <option>Rekha Prajapati</option>
+        </select>
+        <input id="pay-from" class="inp" type="date" style="width:150px">
+        <input id="pay-to" class="inp" type="date" style="width:150px">
+        <button class="btn btn-primary" onclick="loadPayroll()">Generate</button>
+        <button class="btn btn-g" onclick="exportPayroll()">📥 Export</button>
+      </div>
+      <div id="payroll-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WORK ORDER MODAL -->
+<div id="m-wo" class="modal-bg">
+<div class="modal">
+  <div class="mhdr">
+    <span id="wo-modal-title">📋 New Work Order</span>
+    <button onclick="closeM('m-wo')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <input type="hidden" id="wo-id">
+  <div class="g2">
+    <div class="fld"><label class="lbl">Client Name *</label><input id="wo-client" class="inp" placeholder="Client company name"></div>
+    <div class="fld"><label class="lbl">Campaign Name</label><input id="wo-campaign" class="inp" placeholder="Campaign name"></div>
+    <div class="fld"><label class="lbl">Media Type *</label>
+      <select id="wo-media" class="inp">
+        <option>Hood</option><option>Back Panel</option><option>Flex Banner</option>
+        <option>No Parking Board</option><option>Vinyl Sticker</option>
+      </select>
+    </div>
+    <div class="fld"><label class="lbl">Total Quantity *</label><input id="wo-qty" class="inp" type="number" placeholder="500"></div>
+    <div class="fld"><label class="lbl">Size</label><input id="wo-size" class="inp" placeholder="36x48 inches"></div>
+    <div class="fld"><label class="lbl">Material</label>
+      <select id="wo-material" class="inp"><option>Flex</option><option>Vinyl</option><option>Cloth</option><option>PVC</option></select>
+    </div>
+    <div class="fld"><label class="lbl">Priority</label>
+      <select id="wo-priority" class="inp">
+        <option value="normal">Normal</option>
+        <option value="high">High</option>
+        <option value="urgent">🔴 Urgent</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <div class="fld"><label class="lbl">Due Date</label><input id="wo-due" class="inp" type="date"></div>
+    <div class="fld"><label class="lbl">Printer Operator</label>
+      <select id="wo-printer" class="inp">
+        <option value="">— Assign Later —</option>
+        <option>Anurag Gautam</option>
+        <option>Ranjit Gautam</option>
+      </select>
+    </div>
+    <div class="fld"><label class="lbl">Designer</label>
+      <select id="wo-designer" class="inp">
+        <option value="">— Assign Later —</option>
+        <option>Mahima</option>
+        <option>Sushant Kadam</option>
+      </select>
+    </div>
+  </div>
+  <div class="fld"><label class="lbl">Notes</label><textarea id="wo-notes" class="inp" rows="2" placeholder="Special instructions..."></textarea></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="saveWO()">💾 Create Work Order</button>
+    <button class="btn" style="background:#e2e8f0;color:var(--tx)" onclick="closeM('m-wo')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- PRINT JOB MODAL -->
+<div id="m-pj" class="modal-bg">
+<div class="modal">
+  <div class="mhdr">
+    <span>🖨️ New Print Job</span>
+    <button onclick="closeM('m-pj')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <div class="g2">
+    <div class="fld"><label class="lbl">Work Order</label>
+      <select id="pj-wo" class="inp" onchange="fillPJFromWO()"><option value="">— Select WO —</option></select></div>
+    <div class="fld"><label class="lbl">Operator *</label>
+      <select id="pj-operator" class="inp">
+        <option>Anurag Gautam</option><option>Ranjit Gautam</option>
+      </select>
+    </div>
+    <div class="fld"><label class="lbl">Media Type</label>
+      <select id="pj-media" class="inp"><option>Hood</option><option>Back Panel</option><option>Flex Banner</option><option>No Parking Board</option></select></div>
+    <div class="fld"><label class="lbl">Qty Ordered</label><input id="pj-qty" class="inp" type="number" placeholder="500"></div>
+    <div class="fld"><label class="lbl">Size</label><input id="pj-size" class="inp" placeholder="36x48 inches"></div>
+    <div class="fld"><label class="lbl">Material</label>
+      <select id="pj-material" class="inp"><option>Flex</option><option>Vinyl</option><option>Cloth</option></select></div>
+    <div class="fld"><label class="lbl">Machine</label><input id="pj-machine" class="inp" placeholder="Machine 1"></div>
+    <div class="fld"><label class="lbl">Ink Used (liters)</label><input id="pj-ink" class="inp" type="number" step="0.1" placeholder="0.5"></div>
+    <div class="fld"><label class="lbl">Start Date/Time</label><input id="pj-start" class="inp" type="datetime-local"></div>
+    <div class="fld"><label class="lbl">Status</label>
+      <select id="pj-status" class="inp"><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select></div>
+  </div>
+  <div class="fld"><label class="lbl">Notes</label><textarea id="pj-notes" class="inp" rows="2"></textarea></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="savePJ()">💾 Save Print Job</button>
+    <button class="btn" style="background:#e2e8f0;color:var(--tx)" onclick="closeM('m-pj')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- STITCH JOB MODAL -->
+<div id="m-sj" class="modal-bg">
+<div class="modal">
+  <div class="mhdr">
+    <span>🧵 New Stitch Job</span>
+    <button onclick="closeM('m-sj')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <div class="g2">
+    <div class="fld"><label class="lbl">Work Order</label>
+      <select id="sj-wo" class="inp"><option value="">— Select WO —</option></select></div>
+    <div class="fld"><label class="lbl">Media Type</label>
+      <select id="sj-media" class="inp"><option>Hood</option><option>Back Panel</option><option>Flex Banner</option></select></div>
+    <div class="fld"><label class="lbl">Qty Received</label><input id="sj-qty" class="inp" type="number" placeholder="500"></div>
+    <div class="fld"><label class="lbl">Rate/Piece (₹)</label><input id="sj-rate" class="inp" type="number" value="15" oninput="calcStitch()"></div>
+  </div>
+  <!-- Workers -->
+  <div style="font-size:12px;font-weight:700;margin:12px 0 8px;color:var(--tx)">Workers Entry</div>
+  <div id="sj-workers"></div>
+  <button onclick="addWorker()" class="btn btn-b" style="margin-bottom:12px;padding:6px 12px;font-size:11px">+ Add Worker</button>
+  <div id="sj-total" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-bottom:12px;font-size:13px;font-weight:700"></div>
+  <div class="fld"><label class="lbl">Notes</label><textarea id="sj-notes" class="inp" rows="2"></textarea></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="saveSJ()">💾 Save Stitch Job</button>
+    <button class="btn" style="background:#e2e8f0;color:var(--tx)" onclick="closeM('m-sj')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- UPDATE STATUS MODAL -->
+<div id="m-status" class="modal-bg">
+<div class="modal" style="max-width:420px">
+  <div class="mhdr">
+    <span>🔄 Update Status</span>
+    <button onclick="closeM('m-status')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <input type="hidden" id="upd-id"><input type="hidden" id="upd-table">
+  <div class="fld"><label class="lbl">New Status</label>
+    <select id="upd-status" class="inp">
+      <option value="pending">⏳ Pending</option>
+      <option value="in_progress">🔄 In Progress</option>
+      <option value="completed">✅ Completed</option>
+      <option value="qc_fail">❌ QC Failed</option>
+    </select>
+  </div>
+  <div class="fld"><label class="lbl">Qty Done (for print/stitch)</label>
+    <input id="upd-qty" class="inp" type="number" placeholder="Optional"></div>
+  <div class="fld"><label class="lbl">Notes</label>
+    <textarea id="upd-notes" class="inp" rows="2"></textarea></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="saveStatus()">✅ Update</button>
+    <button class="btn" style="background:#e2e8f0;color:var(--tx)" onclick="closeM('m-status')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<script>
+const SU='https://shafygjbffffjhwhmcgo.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE';
+async function db(m,p,b){
+  try{const r=await fetch(SU+'/rest/v1/'+p,{method:m,headers:{apikey:SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json',Prefer:['POST','PATCH'].includes(m)?'return=representation':''},body:b?JSON.stringify(b):undefined});if(!r.ok){console.error(r.status,await r.text());return null;}const t=await r.text();return t?JSON.parse(t):null;}catch(e){console.error(e);return null;}
+}
+async function rpc(fn,p){const r=await fetch(SU+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'},body:JSON.stringify(p||{})});const t=await r.text();return t?JSON.parse(t):null;}
+
+let _wos=[];
+function openM(id){document.getElementById(id).classList.add('show');document.getElementById(id).style.display='flex';}
+function closeM(id){document.getElementById(id).classList.remove('show');document.getElementById(id).style.display='none';}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg'))closeM(e.target.id);});
+
+function showTab(name,el){
+  document.querySelectorAll('[id^=tab-]').forEach(x=>x.style.display='none');
+  document.querySelectorAll('.subnav a').forEach(x=>x.classList.remove('act'));
+  document.getElementById('tab-'+name).style.display='';
+  el.classList.add('act');
+  const fns={workorders:loadWOs,printing:loadPJs,stitching:loadSJs,qc:loadQC,payroll:loadPayroll};
+  if(fns[name])fns[name]();
+}
+
+function fmt(n){return '₹'+parseFloat(n||0).toLocaleString('en-IN',{minimumFractionDigits:0});}
+function statusBdg(s){
+  const map={pending:'bdg-am',in_progress:'bdg-b',completed:'bdg-g',qc_fail:'bdg-r',dispatch:'bdg-p',delivered:'bdg-g'};
+  return `<span class="bdg ${map[s]||'bdg-am'}">${s?.replace('_',' ')||'—'}</span>`;
+}
+function priBdg(p){
+  const map={urgent:'bdg-r',high:'bdg-o',normal:'bdg-b',low:'bdg-am'};
+  return `<span class="bdg ${map[p]||'bdg-b'}">${p||'normal'}</span>`;
+}
+
+// ═══ KPIs ═══
+async function loadKPIs(){
+  const [wos,pjs,sjs]=await Promise.all([
+    db('GET','prajapati_work_orders?select=id,status'),
+    db('GET','prajapati_print_jobs?select=id,status,qty_printed'),
+    db('GET','prajapati_stitch_jobs?select=id,status,qty_stitched,total_payable,payment_status'),
+  ]);
+  const pending=(wos||[]).filter(w=>w.status==='pending').length;
+  const active=(wos||[]).filter(w=>!['delivered','completed'].includes(w.status)&&w.status!=='pending').length;
+  const totalStitched=(sjs||[]).reduce((s,j)=>s+(j.qty_stitched||0),0);
+  const pendingPay=(sjs||[]).filter(j=>j.payment_status==='unpaid').reduce((s,j)=>s+(j.total_payable||0),0);
+  document.getElementById('kpi-row').innerHTML=
+    kpi('Pending WOs',pending,'var(--am)')+
+    kpi('Active WOs',active,'var(--bl)')+
+    kpi('Pieces Stitched',totalStitched.toLocaleString(),'var(--gr)')+
+    kpi('Payroll Due',fmt(pendingPay),'var(--re)');
+}
+function kpi(l,v,c){return `<div class="kpi" style="color:${c}"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx2);margin-bottom:4px">${l}</div><div style="font-size:22px;font-weight:900">${v}</div></div>`;}
+
+// ═══ WORK ORDERS ═══
+async function loadWOs(){
+  const sf=document.getElementById('wo-status-filter')?.value;
+  let q='prajapati_work_orders?select=*&order=created_at.desc';
+  if(sf)q+='&status=eq.'+sf;
+  const data=await db('GET',q);_wos=data||[];
+  // Update WO dropdowns
+  const opts='<option value="">— Select WO —</option>'+_wos.map(w=>`<option value="${w.id}">${w.wo_number} — ${w.client_name}</option>`).join('');
+  ['pj-wo','sj-wo'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+
+  document.getElementById('wo-list').innerHTML=_wos.length?`
+    <table class="tbl">
+    <tr><th>WO #</th><th>Client</th><th>Campaign</th><th>Media</th><th>Qty</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr>
+    ${_wos.map(w=>`<tr>
+      <td style="font-family:monospace;font-weight:700;color:var(--nav)">${w.wo_number}</td>
+      <td><strong>${w.client_name||'—'}</strong></td>
+      <td style="font-size:11px">${w.campaign_name||'—'}</td>
+      <td><span class="bdg bdg-b">${w.media_type||'—'}</span></td>
+      <td style="font-weight:700">${w.total_qty||0}</td>
+      <td>${priBdg(w.priority)}</td>
+      <td>
+        <div class="pipeline" style="min-width:280px">
+          ${['pending','design','printing','stitching','qc','dispatch'].map(s=>`<div class="pipe-step ${w.status===s?'active':['dispatch','delivered'].includes(w.status)&&['pending','design','printing','stitching','qc'].includes(s)?'done':w.status!=='pending'&&['pending'].includes(s)?'done':'pending'}">${s}</div>`).join('')}
+        </div>
+      </td>
+      <td style="font-size:11px;color:${w.due_date&&new Date(w.due_date)<new Date()?'var(--re)':'var(--tx2)'}">${w.due_date?new Date(w.due_date).toLocaleDateString('en-IN'):'—'}</td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-b" style="padding:3px 8px;font-size:10px" onclick="editWO('${w.id}')">✏️</button>
+        <button class="btn btn-primary" style="padding:3px 8px;font-size:10px" onclick="nextStage('${w.id}','${w.status}')">Next →</button>
+        <button class="btn btn-o" style="padding:3px 8px;font-size:10px" onclick="woToPrint('${w.id}')">🖨️</button>
+      </td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No work orders</div>';
+}
+
+const stages=['pending','design','printing','stitching','qc','dispatch','delivered'];
+async function nextStage(id,current){
+  const idx=stages.indexOf(current);
+  if(idx<stages.length-1){
+    const next=stages[idx+1];
+    await db('PATCH','prajapati_work_orders?id=eq.'+id,{status:next,updated_at:new Date().toISOString()});
+    loadWOs();loadKPIs();
+  }
+}
+
+function openNewWO(){
+  document.getElementById('wo-modal-title').textContent='📋 New Work Order';
+  document.getElementById('wo-id').value='';
+  ['wo-client','wo-campaign','wo-size','wo-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('wo-qty').value='';
+  document.getElementById('wo-priority').value='normal';
+  document.getElementById('wo-media').value='Hood';
+  document.getElementById('wo-due').value='';
+  openM('m-wo');
+}
+
+function editWO(id){
+  const w=_wos.find(x=>x.id===id);if(!w)return;
+  document.getElementById('wo-modal-title').textContent='✏️ Edit Work Order';
+  document.getElementById('wo-id').value=w.id;
+  document.getElementById('wo-client').value=w.client_name||'';
+  document.getElementById('wo-campaign').value=w.campaign_name||'';
+  document.getElementById('wo-media').value=w.media_type||'Hood';
+  document.getElementById('wo-qty').value=w.total_qty||'';
+  document.getElementById('wo-size').value=w.size||'';
+  document.getElementById('wo-material').value=w.material||'Flex';
+  document.getElementById('wo-priority').value=w.priority||'normal';
+  document.getElementById('wo-due').value=w.due_date||'';
+  document.getElementById('wo-printer').value=w.printer_id||'';
+  document.getElementById('wo-designer').value=w.designer_id||'';
+  document.getElementById('wo-notes').value=w.notes||'';
+  openM('m-wo');
+}
+
+async function saveWO(){
+  const client=document.getElementById('wo-client').value.trim();
+  const qty=parseInt(document.getElementById('wo-qty').value);
+  if(!client||!qty){alert('Client aur Quantity required!');return;}
+  const id=document.getElementById('wo-id').value;
+  const payload={client_name:client,campaign_name:document.getElementById('wo-campaign').value,media_type:document.getElementById('wo-media').value,total_qty:qty,size:document.getElementById('wo-size').value,material:document.getElementById('wo-material').value,priority:document.getElementById('wo-priority').value,due_date:document.getElementById('wo-due').value||null,printer_id:document.getElementById('wo-printer').value,designer_id:document.getElementById('wo-designer').value,notes:document.getElementById('wo-notes').value,updated_at:new Date().toISOString()};
+  if(id){await db('PATCH','prajapati_work_orders?id=eq.'+id,payload);alert('✅ Updated!');}
+  else{payload.wo_number=await rpc('next_wo_number');payload.status='pending';const r=await db('POST','prajapati_work_orders',payload);if(r)alert('✅ WO '+payload.wo_number+' created!');}
+  closeM('m-wo');loadWOs();loadKPIs();
+}
+
+function woToPrint(wid){
+  document.getElementById('pj-wo').value=wid;fillPJFromWO();openM('m-pj');
+  showTab('printing',document.querySelectorAll('.subnav a')[1]);
+}
+
+// ═══ PRINT JOBS ═══
+async function loadPJs(){
+  const data=await db('GET','prajapati_print_jobs?select=*&order=created_at.desc');
+  document.getElementById('pj-list').innerHTML=data?.length?`
+    <table class="tbl">
+    <tr><th>Job #</th><th>Operator</th><th>Media</th><th>Qty</th><th>Printed</th><th>Rejected</th><th>Ink</th><th>Status</th><th>Actions</th></tr>
+    ${data.map(j=>`<tr>
+      <td style="font-family:monospace;font-weight:700;color:var(--bl)">${j.job_number||'—'}</td>
+      <td><strong>${j.operator_name||'—'}</strong></td>
+      <td><span class="bdg bdg-b">${j.media_type||'—'}</span></td>
+      <td style="font-weight:700">${j.qty_ordered||0}</td>
+      <td style="color:var(--gr);font-weight:700">${j.qty_printed||0}</td>
+      <td style="color:${j.qty_rejected>0?'var(--re)':'var(--tx2)'}">${j.qty_rejected||0}</td>
+      <td style="font-size:11px">${j.ink_used_liters||0}L</td>
+      <td>${statusBdg(j.status)}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-b" style="padding:3px 8px;font-size:10px" onclick="updStatus('${j.id}','prajapati_print_jobs')">🔄 Update</button>
+        <button class="btn btn-g" style="padding:3px 8px;font-size:10px" onclick="toStitch('${j.id}')">→ Stitch</button>
+      </td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No print jobs</div>';
+}
+
+function fillPJFromWO(){
+  const wid=document.getElementById('pj-wo').value;
+  const w=_wos.find(x=>x.id===wid);if(!w)return;
+  document.getElementById('pj-media').value=w.media_type||'Hood';
+  document.getElementById('pj-qty').value=w.total_qty||'';
+  document.getElementById('pj-size').value=w.size||'';
+  document.getElementById('pj-material').value=w.material||'Flex';
+  if(w.printer_id)document.getElementById('pj-operator').value=w.printer_id;
+  document.getElementById('pj-start').value=new Date().toISOString().slice(0,16);
+}
+
+async function savePJ(){
+  const op=document.getElementById('pj-operator').value;
+  const qty=parseInt(document.getElementById('pj-qty').value);
+  if(!op||!qty){alert('Operator aur Qty required!');return;}
+  const jnum=await rpc('next_pj_number');
+  const payload={job_number:jnum,work_order_id:document.getElementById('pj-wo').value||null,operator_name:op,media_type:document.getElementById('pj-media').value,qty_ordered:qty,size:document.getElementById('pj-size').value,material:document.getElementById('pj-material').value,machine:document.getElementById('pj-machine').value,ink_used_liters:parseFloat(document.getElementById('pj-ink').value)||0,started_at:document.getElementById('pj-start').value||null,status:document.getElementById('pj-status').value,notes:document.getElementById('pj-notes').value};
+  const r=await db('POST','prajapati_print_jobs',payload);
+  if(r){alert('✅ Print Job '+jnum+' created!');closeM('m-pj');loadPJs();loadKPIs();}
+}
+
+function toStitch(pjid){
+  document.getElementById('sj-workers').innerHTML='';
+  addWorker();openM('m-sj');
+}
+
+// ═══ STITCH JOBS ═══
+let _stitchWorkers=[];
+function addWorker(){
+  const div=document.createElement('div');
+  div.style.cssText='display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center';
+  div.innerHTML=`
+    <select class="inp sw-name" style="font-size:12px" onchange="calcStitch()">
+      <option value="">— Select Worker —</option>
+      <option>Md Dulare</option>
+      <option>Rekha Prajapati</option>
+      <option>Other Worker</option>
+    </select>
+    <input class="inp sw-qty" type="number" placeholder="Qty" oninput="calcStitch()" style="font-size:12px">
+    <div class="sw-amt" style="font-weight:700;color:var(--gr);text-align:right;font-size:12px">₹0</div>
+    <button onclick="this.parentElement.remove();calcStitch()" style="background:var(--re);color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer">✕</button>`;
+  document.getElementById('sj-workers').appendChild(div);
+  // Date field
+  const dateDiv=document.createElement('div');
+  dateDiv.style.cssText='grid-column:1/-1;margin-bottom:4px';
+  dateDiv.innerHTML='<input class="inp sw-date" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="font-size:11px;max-width:160px">';
+  div.appendChild(dateDiv);
+}
+
+function calcStitch(){
+  const rate=parseFloat(document.getElementById('sj-rate').value)||15;
+  let total=0;
+  document.querySelectorAll('#sj-workers>div').forEach(row=>{
+    const qty=parseFloat(row.querySelector('.sw-qty')?.value)||0;
+    const amt=qty*rate;
+    const amtEl=row.querySelector('.sw-amt');
+    if(amtEl)amtEl.textContent='₹'+amt.toLocaleString('en-IN');
+    total+=amt;
+  });
+  document.getElementById('sj-total').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span>Total Payable</span>
+      <span style="font-size:18px;color:var(--gr)">${fmt(total)}</span>
+    </div>
+    <div style="font-size:11px;color:var(--tx2);margin-top:4px">Rate: ₹${rate}/piece</div>`;
+}
+
+function openNewSJ(){
+  document.getElementById('sj-workers').innerHTML='';document.getElementById('sj-total').innerHTML='';
+  document.getElementById('sj-rate').value=15;addWorker();openM('m-sj');
+}
+
+async function saveSJ(){
+  const rate=parseFloat(document.getElementById('sj-rate').value)||15;
+  const workers=[];let totalQty=0,totalAmt=0;
+  document.querySelectorAll('#sj-workers>div').forEach(row=>{
+    const name=row.querySelector('.sw-name')?.value;
+    const qty=parseFloat(row.querySelector('.sw-qty')?.value)||0;
+    const date=row.querySelector('.sw-date')?.value;
+    if(name&&qty>0){
+      const amt=qty*rate;workers.push({worker_name:name,qty,amount:amt,date});
+      totalQty+=qty;totalAmt+=amt;
+    }
+  });
+  if(!workers.length){alert('Worker entry required!');return;}
+  const jnum=await rpc('next_sj_number');
+  const payload={job_number:jnum,work_order_id:document.getElementById('sj-wo').value||null,media_type:document.getElementById('sj-media').value,qty_received:parseInt(document.getElementById('sj-qty').value)||totalQty,qty_stitched:totalQty,rate_per_piece:rate,total_payable:totalAmt,worker_entries:workers,status:'completed',payment_status:'unpaid',notes:document.getElementById('sj-notes').value};
+  const r=await db('POST','prajapati_stitch_jobs',payload);
+  if(r){alert('✅ Stitch Job saved! Payable: '+fmt(totalAmt));closeM('m-sj');loadSJs();loadKPIs();}
+}
+
+async function loadSJs(){
+  const data=await db('GET','prajapati_stitch_jobs?select=*&order=created_at.desc');
+  document.getElementById('sj-list').innerHTML=data?.length?`
+    <table class="tbl">
+    <tr><th>Job #</th><th>Media</th><th>Qty</th><th>Rate</th><th>Payable</th><th>Payment</th><th>Workers</th><th>Actions</th></tr>
+    ${data.map(j=>`<tr>
+      <td style="font-family:monospace;font-weight:700;color:var(--pu)">${j.job_number||'—'}</td>
+      <td><span class="bdg bdg-b">${j.media_type||'—'}</span></td>
+      <td style="font-weight:700">${j.qty_stitched||0}</td>
+      <td>₹${j.rate_per_piece||15}/pc</td>
+      <td style="font-weight:700;color:var(--gr)">${fmt(j.total_payable)}</td>
+      <td><span class="bdg bdg-${j.payment_status==='paid'?'g':j.payment_status==='partial'?'b':'r'}">${j.payment_status}</span></td>
+      <td style="font-size:11px">${(j.worker_entries||[]).map(w=>w.worker_name+' ('+w.qty+')').join(', ')}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-g" style="padding:3px 8px;font-size:10px" onclick="markStitchPaid('${j.id}')">✓ Paid</button>
+        <button class="btn btn-b" style="padding:3px 8px;font-size:10px" onclick="viewWorkers('${JSON.stringify(j.worker_entries||[]).replace(/'/g,\'')}')">👥</button>
+      </td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No stitch jobs</div>';
+}
+
+async function markStitchPaid(id){
+  if(!confirm('Mark as paid?'))return;
+  await db('PATCH','prajapati_stitch_jobs?id=eq.'+id,{payment_status:'paid',payment_date:new Date().toISOString().slice(0,10)});
+  loadSJs();loadKPIs();
+}
+
+// STATUS UPDATE
+function updStatus(id,table){
+  document.getElementById('upd-id').value=id;
+  document.getElementById('upd-table').value=table;
+  document.getElementById('upd-qty').value='';
+  document.getElementById('upd-notes').value='';
+  openM('m-status');
+}
+async function saveStatus(){
+  const id=document.getElementById('upd-id').value;
+  const table=document.getElementById('upd-table').value;
+  const status=document.getElementById('upd-status').value;
+  const qty=parseInt(document.getElementById('upd-qty').value);
+  const payload={status,notes:document.getElementById('upd-notes').value,updated_at:new Date().toISOString()};
+  if(qty>0){
+    if(table==='prajapati_print_jobs')payload.qty_printed=qty;
+    if(table==='prajapati_stitch_jobs')payload.qty_stitched=qty;
+  }
+  if(status==='completed')payload.completed_at=new Date().toISOString();
+  await db('PATCH',table+'?id=eq.'+id,payload);
+  closeM('m-status');
+  if(table.includes('print'))loadPJs();
+  else if(table.includes('stitch')){loadSJs();loadKPIs();}
+  else loadWOs();
+}
+
+// QC
+async function loadQC(){
+  const data=await db('GET','prajapati_work_orders?select=id,wo_number,client_name,media_type,total_qty,qc_status,status&order=created_at.desc');
+  document.getElementById('qc-list').innerHTML=data?.length?`
+    <table class="tbl">
+    <tr><th>WO #</th><th>Client</th><th>Media</th><th>Qty</th><th>QC Status</th><th>Actions</th></tr>
+    ${data.map(w=>`<tr>
+      <td style="font-family:monospace;font-weight:700">${w.wo_number}</td>
+      <td><strong>${w.client_name}</strong></td>
+      <td><span class="bdg bdg-b">${w.media_type}</span></td>
+      <td>${w.total_qty}</td>
+      <td>${statusBdg(w.qc_status||'pending')}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-g" style="padding:3px 8px;font-size:10px" onclick="doQC('${w.id}','pass')">✅ Pass</button>
+        <button class="btn btn-r" style="padding:3px 8px;font-size:10px" onclick="doQC('${w.id}','fail')">❌ Fail</button>
+      </td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No QC pending</div>';
+}
+async function doQC(id,result){
+  await db('PATCH','prajapati_work_orders?id=eq.'+id,{qc_status:result==='pass'?'completed':'qc_fail',status:result==='pass'?'dispatch':'stitching'});
+  loadQC();loadWOs();loadKPIs();
+  alert(result==='pass'?'✅ QC Passed! Ready for dispatch.':'❌ QC Failed. Back to stitching.');
+}
+
+// PAYROLL
+async function loadPayroll(){
+  const worker=document.getElementById('pay-worker')?.value;
+  const from=document.getElementById('pay-from')?.value;
+  const to=document.getElementById('pay-to')?.value;
+  let q='prajapati_stitch_jobs?select=*&order=created_at.desc';
+  if(from)q+='&created_at=gte.'+from;
+  if(to)q+='&created_at=lte.'+to+'T23:59:59';
+  const data=await db('GET',q);
+  if(!data?.length){document.getElementById('payroll-out').innerHTML='<div style="color:var(--tx2);padding:20px;text-align:center">No data</div>';return;}
+
+  // Flatten worker entries
+  const workerMap={};
+  data.forEach(job=>{
+    (job.worker_entries||[]).forEach(entry=>{
+      if(worker&&entry.worker_name!==worker)return;
+      if(!workerMap[entry.worker_name])workerMap[entry.worker_name]={name:entry.worker_name,entries:[],totalQty:0,totalAmt:0,paid:0,unpaid:0};
+      workerMap[entry.worker_name].entries.push({...entry,job_number:job.job_number,payment_status:job.payment_status});
+      workerMap[entry.worker_name].totalQty+=entry.qty;
+      workerMap[entry.worker_name].totalAmt+=entry.amount;
+      if(job.payment_status==='paid')workerMap[entry.worker_name].paid+=entry.amount;
+      else workerMap[entry.worker_name].unpaid+=entry.amount;
+    });
+  });
+
+  const workers=Object.values(workerMap);
+  if(!workers.length){document.getElementById('payroll-out').innerHTML='<div style="color:var(--tx2);padding:20px;text-align:center">No records</div>';return;}
+
+  let html=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:16px">`;
+  workers.forEach(w=>{
+    html+=`<div class="card" style="border-left:3px solid var(--gr)">
+      <div style="font-size:15px;font-weight:700;margin-bottom:8px">👤 ${w.name}</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px">
+        <span>Total pieces</span><span style="font-weight:700">${w.totalQty.toLocaleString()}</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px">
+        <span>Total earned</span><span style="font-weight:700;color:var(--gr)">${fmt(w.totalAmt)}</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px">
+        <span>Paid</span><span style="color:var(--gr)">${fmt(w.paid)}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700">
+        <span>Pending</span><span style="color:var(--re)">${fmt(w.unpaid)}</span></div>
+    </div>`;
+  });
+  html+='</div>';
+
+  // Summary table
+  const totalUnpaid=workers.reduce((s,w)=>s+w.unpaid,0);
+  html+=`<div class="card">
+    <div style="font-size:13px;font-weight:700;margin-bottom:8px">Summary Table</div>
+    <table class="tbl"><tr><th>Worker</th><th>Pieces</th><th>Rate</th><th>Total</th><th>Paid</th><th>Pending</th></tr>
+    ${workers.map(w=>`<tr>
+      <td><strong>${w.name}</strong></td>
+      <td style="font-weight:700">${w.totalQty.toLocaleString()}</td>
+      <td>₹15/pc</td>
+      <td style="color:var(--gr);font-weight:700">${fmt(w.totalAmt)}</td>
+      <td style="color:var(--gr)">${fmt(w.paid)}</td>
+      <td style="color:var(--re);font-weight:700">${fmt(w.unpaid)}</td>
+    </tr>`).join('')}
+    <tr style="background:#f0fdf4;font-weight:700">
+      <td>TOTAL</td>
+      <td>${workers.reduce((s,w)=>s+w.totalQty,0).toLocaleString()}</td>
+      <td>—</td>
+      <td style="color:var(--gr)">${fmt(workers.reduce((s,w)=>s+w.totalAmt,0))}</td>
+      <td style="color:var(--gr)">${fmt(workers.reduce((s,w)=>s+w.paid,0))}</td>
+      <td style="color:var(--re)">${fmt(totalUnpaid)}</td>
+    </tr>
+    </table>
+  </div>`;
+  document.getElementById('payroll-out').innerHTML=html;
+}
+
+let _payrollData=null;
+async function exportPayroll(){
+  await loadPayroll();
+  alert('Export feature — CSV download coming next!');
+}
+
+// INIT
+const today=new Date().toISOString().slice(0,10);
+const firstDay=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().slice(0,10);
+document.getElementById('pay-from').value=firstDay;
+document.getElementById('pay-to').value=today;
+loadKPIs();loadWOs();
+</script>
+</body>
+</html>

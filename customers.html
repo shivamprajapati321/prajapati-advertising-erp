@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Customers · Prajapati ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+.cust-toolbar {
+  display: flex; gap: 12px; align-items: center;
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
+}
+.cust-search { flex: 1; }
+.cust-search input {
+  width: 100%; padding: 9px 14px;
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+}
+
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.stat-card { background: white; border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.stat-card .lbl { font-size: 10px; font-weight: 800; color: var(--mute); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.stat-card .val { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; color: var(--ink); }
+
+.customers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.cust-card {
+  background: white; border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px;
+  transition: all 0.15s;
+}
+.cust-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.cust-head { display: flex; justify-content: space-between; align-items: start; gap: 8px; margin-bottom: 10px; }
+.cust-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 800; color: var(--accent);
+  background: var(--blue-soft); padding: 2px 7px; border-radius: 5px;
+}
+.cust-name { font-size: 15px; font-weight: 800; color: var(--ink); margin: 4px 0 2px; }
+.cust-company { font-size: 12px; color: var(--mute); font-weight: 700; }
+.cust-meta { font-size: 11px; color: var(--ink-2); margin-top: 8px; line-height: 1.6; font-weight: 600; }
+.cust-meta-row { display: flex; align-items: center; gap: 6px; }
+.cust-actions { display: flex; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+.cust-actions .btn-mini { flex: 1; }
+.retainer-badge {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: white; padding: 2px 7px; border-radius: 99px;
+  font-size: 9px; font-weight: 800; letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 1000;
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: white; border-radius: 14px;
+  max-width: 700px; width: 100%; max-height: 90vh;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.modal-head { padding: 18px 24px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+.modal-head h2 { font-size: 16px; font-weight: 800; color: var(--nav); }
+.modal-close { cursor: pointer; padding: 4px 10px; font-size: 16px; color: var(--mute); }
+.modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 14px 24px; border-top: 1px solid var(--line); display: flex; gap: 10px; justify-content: flex-end; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid .full { grid-column: 1 / -1; }
+.fld label { display: block; font-size: 11px; font-weight: 800; color: var(--mute); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 5px; }
+.fld input, .fld select, .fld textarea {
+  width: 100%; padding: 8px 11px; font-size: 13px; font-weight: 600;
+  border: 1px solid var(--line); border-radius: 7px;
+}
+
+.empty-state { padding: 60px 20px; text-align: center; color: var(--mute); font-weight: 600; font-size: 13px; }
+.empty-state .icon { font-size: 50px; margin-bottom: 14px; opacity: 0.3; }
+
+@media (max-width: 700px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <header class="topbar" id="topbar"></header>
+    <div class="page">
+      
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--nav);margin:0">👥 Customers</h1>
+          <div style="font-size:13px;color:var(--mute);font-weight:600;margin-top:2px">Master database of all customers</div>
+        </div>
+        <button class="btn primary" onclick="openAddCustomer()">+ Add Customer</button>
+      </div>
+
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card"><div class="lbl">Total Customers</div><div class="val" id="s-total">-</div></div>
+        <div class="stat-card"><div class="lbl">Active</div><div class="val" id="s-active" style="color:var(--green-dk)">-</div></div>
+        <div class="stat-card"><div class="lbl">⭐ Retainer</div><div class="val" id="s-retainer" style="color:#F59E0B">-</div></div>
+        <div class="stat-card"><div class="lbl">📧 With Email</div><div class="val" id="s-email">-</div></div>
+      </div>
+
+      <div class="cust-toolbar">
+        <div class="cust-search">
+          <input type="text" id="search" placeholder="🔍 Search by name, phone, email, company, GSTIN..." oninput="filterCustomers()">
+        </div>
+        <select id="type-filter" onchange="filterCustomers()" style="padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:12px;font-weight:700">
+          <option value="">All Types</option>
+          <option value="business">Business</option>
+          <option value="individual">Individual</option>
+        </select>
+        <select id="status-filter" onchange="filterCustomers()" style="padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:12px;font-weight:700">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="retainer">⭐ Retainer Only</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
+      <div id="customers-list">
+        <div style="text-align:center;padding:40px;color:var(--mute)">⏳ Loading customers...</div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Customer Modal -->
+<div class="modal-overlay" id="customer-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="cust-modal-title">+ Add Customer</h2>
+      <div class="modal-close" onclick="closeCustomerModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="c-id">
+      
+      <div style="font-size:12px;font-weight:800;color:var(--accent);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px">📋 Identity</div>
+      <div class="form-grid" style="margin-bottom:18px">
+        <div class="fld">
+          <label>Name *</label>
+          <input type="text" id="c-name" required>
+        </div>
+        <div class="fld">
+          <label>Company / Business</label>
+          <input type="text" id="c-company">
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:800;color:var(--accent);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px">📞 Contact</div>
+      <div class="form-grid" style="margin-bottom:18px">
+        <div class="fld">
+          <label>Phone (WhatsApp) *</label>
+          <input type="tel" id="c-phone">
+        </div>
+        <div class="fld">
+          <label>Alt Phone</label>
+          <input type="tel" id="c-phone-alt">
+        </div>
+        <div class="fld full">
+          <label>Email</label>
+          <input type="email" id="c-email">
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:800;color:var(--accent);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px">📍 Address</div>
+      <div class="form-grid" style="margin-bottom:18px">
+        <div class="fld full">
+          <label>Address Line 1</label>
+          <input type="text" id="c-addr1">
+        </div>
+        <div class="fld">
+          <label>City</label>
+          <input type="text" id="c-city">
+        </div>
+        <div class="fld">
+          <label>State</label>
+          <input type="text" id="c-state">
+        </div>
+        <div class="fld">
+          <label>Pincode</label>
+          <input type="text" id="c-pincode">
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:800;color:var(--accent);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px">💼 Tax & Type</div>
+      <div class="form-grid" style="margin-bottom:18px">
+        <div class="fld">
+          <label>GSTIN</label>
+          <input type="text" id="c-gstin" style="font-family:'JetBrains Mono',monospace">
+        </div>
+        <div class="fld">
+          <label>PAN</label>
+          <input type="text" id="c-pan" style="font-family:'JetBrains Mono',monospace">
+        </div>
+        <div class="fld">
+          <label>Customer Type</label>
+          <select id="c-type">
+            <option value="business">Business</option>
+            <option value="individual">Individual</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label>Category</label>
+          <input type="text" id="c-category" placeholder="e.g. Real Estate, Healthcare">
+        </div>
+        <div class="fld">
+          <label>⭐ Retainer Customer?</label>
+          <select id="c-retainer">
+            <option value="false">No</option>
+            <option value="true">Yes - Recurring revenue</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label>Status</label>
+          <select id="c-active">
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+        <div class="fld full">
+          <label>Notes</label>
+          <textarea id="c-notes" rows="2"></textarea>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost" onclick="closeCustomerModal()">Cancel</button>
+      <button class="btn primary" id="save-customer-btn" onclick="saveCustomer()">💾 Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="lib-config.js"></script>
+<script src="lib-auth.js"></script>
+<script src="lib-ui.js"></script>
+<script src="lib-whatsapp.js"></script>
+<script>
+const session = AUTH.requireModule('customers');
+if (!session) throw new Error('No access');
+
+document.getElementById('sidebar').innerHTML = UI.renderSidebar('customers');
+document.getElementById('topbar').innerHTML = UI.renderTopbar('Customers');
+
+let allCustomers = [];
+let editingId = null;
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function loadCustomers() {
+  try {
+    const { data, error } = await sb()
+      .from('prajapati_customers')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    allCustomers = data || [];
+    
+    // Update stats
+    document.getElementById('s-total').textContent = allCustomers.length;
+    document.getElementById('s-active').textContent = allCustomers.filter(c => c.is_active).length;
+    document.getElementById('s-retainer').textContent = allCustomers.filter(c => c.is_retainer).length;
+    document.getElementById('s-email').textContent = allCustomers.filter(c => c.email).length;
+    
+    renderCustomers(allCustomers);
+  } catch (e) {
+    console.error(e);
+    document.getElementById('customers-list').innerHTML = `<div style="padding:30px;color:var(--red-dk);text-align:center">❌ ${e.message}</div>`;
+  }
+}
+
+function filterCustomers() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const typeFilter = document.getElementById('type-filter').value;
+  const statusFilter = document.getElementById('status-filter').value;
+  
+  let filtered = allCustomers;
+  
+  if (q) {
+    filtered = filtered.filter(c => {
+      const haystack = `${c.name||''} ${c.company||''} ${c.phone||''} ${c.email||''} ${c.gstin||''} ${c.city||''}`.toLowerCase();
+      return haystack.includes(q);
+    });
+  }
+  
+  if (typeFilter) filtered = filtered.filter(c => c.customer_type === typeFilter);
+  
+  if (statusFilter === 'active') filtered = filtered.filter(c => c.is_active);
+  else if (statusFilter === 'inactive') filtered = filtered.filter(c => !c.is_active);
+  else if (statusFilter === 'retainer') filtered = filtered.filter(c => c.is_retainer);
+  
+  renderCustomers(filtered);
+}
+
+function renderCustomers(customers) {
+  const container = document.getElementById('customers-list');
+  if (customers.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">👥</div>
+        <div style="font-size:16px;font-weight:800;color:var(--ink);margin-bottom:6px">No customers found</div>
+        <div>Add your first customer or adjust filters</div>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = `<div class="customers-grid">${customers.map(c => `
+    <div class="cust-card">
+      <div class="cust-head">
+        <div style="flex:1">
+          <span class="cust-code">${escapeHtml(c.customer_code || 'NEW')}</span>
+          ${c.is_retainer ? '<span class="retainer-badge" style="margin-left:6px">⭐ Retainer</span>' : ''}
+          <div class="cust-name">${escapeHtml(c.name)}</div>
+          ${c.company ? `<div class="cust-company">${escapeHtml(c.company)}</div>` : ''}
+        </div>
+      </div>
+      <div class="cust-meta">
+        ${c.phone ? `<div class="cust-meta-row">📱 ${escapeHtml(c.phone)}</div>` : ''}
+        ${c.email ? `<div class="cust-meta-row">✉️ ${escapeHtml(c.email)}</div>` : ''}
+        ${c.city ? `<div class="cust-meta-row">📍 ${escapeHtml(c.city)}${c.state ? ', ' + escapeHtml(c.state) : ''}</div>` : ''}
+        ${c.gstin ? `<div class="cust-meta-row" style="font-family:'JetBrains Mono',monospace;font-size:10px">GSTIN: ${escapeHtml(c.gstin)}</div>` : ''}
+      </div>
+      <div class="cust-actions">
+        <button class="btn-mini" onclick="openEditCustomer('${c.id}')">✏️ Edit</button>
+        ${c.phone ? `<button class="btn-mini success" onclick="sendWhatsApp('${c.id}')" style="background:#25D366;color:white;border-color:#25D366">💬 WhatsApp</button>` : ''}
+        <button class="btn-mini" onclick="viewHistory('${c.id}')">📊 History</button>
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+
+function openAddCustomer() {
+  editingId = null;
+  document.getElementById('cust-modal-title').textContent = '+ Add Customer';
+  ['c-id','c-name','c-company','c-phone','c-phone-alt','c-email','c-addr1','c-city','c-state','c-pincode','c-gstin','c-pan','c-category','c-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('c-type').value = 'business';
+  document.getElementById('c-retainer').value = 'false';
+  document.getElementById('c-active').value = 'true';
+  document.getElementById('customer-modal').classList.add('active');
+}
+
+function openEditCustomer(id) {
+  const c = allCustomers.find(x => x.id === id);
+  if (!c) return;
+  editingId = id;
+  document.getElementById('cust-modal-title').textContent = `✏️ Edit: ${c.name}`;
+  document.getElementById('c-id').value = c.id;
+  document.getElementById('c-name').value = c.name || '';
+  document.getElementById('c-company').value = c.company || '';
+  document.getElementById('c-phone').value = c.phone || '';
+  document.getElementById('c-phone-alt').value = c.phone_alt || '';
+  document.getElementById('c-email').value = c.email || '';
+  document.getElementById('c-addr1').value = c.address_line1 || '';
+  document.getElementById('c-city').value = c.city || '';
+  document.getElementById('c-state').value = c.state || '';
+  document.getElementById('c-pincode').value = c.pincode || '';
+  document.getElementById('c-gstin').value = c.gstin || '';
+  document.getElementById('c-pan').value = c.pan || '';
+  document.getElementById('c-type').value = c.customer_type || 'business';
+  document.getElementById('c-category').value = c.category || '';
+  document.getElementById('c-retainer').value = c.is_retainer ? 'true' : 'false';
+  document.getElementById('c-active').value = c.is_active ? 'true' : 'false';
+  document.getElementById('c-notes').value = c.notes || '';
+  document.getElementById('customer-modal').classList.add('active');
+}
+
+function closeCustomerModal() {
+  document.getElementById('customer-modal').classList.remove('active');
+}
+
+async function saveCustomer() {
+  const payload = {
+    name: document.getElementById('c-name').value.trim(),
+    company: document.getElementById('c-company').value.trim() || null,
+    phone: document.getElementById('c-phone').value.trim() || null,
+    phone_alt: document.getElementById('c-phone-alt').value.trim() || null,
+    email: document.getElementById('c-email').value.trim() || null,
+    address_line1: document.getElementById('c-addr1').value.trim() || null,
+    city: document.getElementById('c-city').value.trim() || null,
+    state: document.getElementById('c-state').value.trim() || null,
+    pincode: document.getElementById('c-pincode').value.trim() || null,
+    gstin: document.getElementById('c-gstin').value.trim().toUpperCase() || null,
+    pan: document.getElementById('c-pan').value.trim().toUpperCase() || null,
+    customer_type: document.getElementById('c-type').value,
+    category: document.getElementById('c-category').value.trim() || null,
+    is_retainer: document.getElementById('c-retainer').value === 'true',
+    is_active: document.getElementById('c-active').value === 'true',
+    notes: document.getElementById('c-notes').value.trim() || null,
+    created_by: session.staffId,
+    created_by_name: session.name,
+    updated_at: new Date().toISOString()
+  };
+  
+  if (!payload.name) {
+    UI.toast('⚠️ Name required', 'warning');
+    return;
+  }
+  
+  const btn = document.getElementById('save-customer-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving...';
+  
+  try {
+    let result;
+    if (editingId) {
+      result = await sb().from('prajapati_customers').update(payload).eq('id', editingId);
+    } else {
+      result = await sb().from('prajapati_customers').insert(payload);
+    }
+    if (result.error) throw result.error;
+    
+    UI.toast(editingId ? '✅ Customer updated' : '✅ Customer added', 'success');
+    closeCustomerModal();
+    await loadCustomers();
+  } catch (e) {
+    UI.toast('❌ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Save Customer';
+  }
+}
+
+async function sendWhatsApp(customerId) {
+  const c = allCustomers.find(x => x.id === customerId);
+  if (!c || !c.phone) return;
+  
+  const defaultMsg = `Namaste ${c.name}!\n\n[Type your message here]\n\n— Prajapati Advertising`;
+  
+  // ⭐ Use dual-option chooser modal
+  WA.showSendChooser({
+    phone: c.phone,
+    message: defaultMsg,
+    customerName: c.name,
+    sessionInfo: {
+      staffId: session.staffId,
+      name: session.name,
+      customerId: c.id,
+      customerName: c.name,
+      messageType: 'text'
+    }
+  });
+}
+
+async function viewHistory(customerId) {
+  const c = allCustomers.find(x => x.id === customerId);
+  if (!c) return;
+  
+  // Quick fetch quotes + invoices for this customer
+  const [quotes, invoices, messages] = await Promise.all([
+    sb().from('prajapati_quotations').select('quote_number, grand_total, status, created_at').eq('customer_phone', c.phone).order('created_at', {ascending: false}).limit(10),
+    sb().from('prajapati_invoices').select('invoice_number, grand_total, payment_status, created_at').eq('customer_phone', c.phone).order('created_at', {ascending: false}).limit(10),
+    sb().from('prajapati_whatsapp_log').select('*').eq('customer_id', c.id).order('created_at', {ascending: false}).limit(10)
+  ]);
+  
+  const totalQuoted = (quotes.data || []).reduce((s,q) => s + Number(q.grand_total||0), 0);
+  const totalInvoiced = (invoices.data || []).reduce((s,i) => s + Number(i.grand_total||0), 0);
+  
+  alert(`📊 ${c.name} - History\n\n` +
+    `📝 Quotes: ${(quotes.data || []).length} (₹${totalQuoted.toLocaleString('en-IN')})\n` +
+    `🧾 Invoices: ${(invoices.data || []).length} (₹${totalInvoiced.toLocaleString('en-IN')})\n` +
+    `💬 WhatsApp messages: ${(messages.data || []).length}\n\n` +
+    ((quotes.data || []).slice(0, 3).map(q => `• ${q.quote_number} - ₹${Number(q.grand_total).toLocaleString('en-IN')}`).join('\n')) +
+    '\n\n(Detail view coming soon)');
+}
+
+document.getElementById('customer-modal').addEventListener('click', e => {
+  if (e.target.id === 'customer-modal') closeCustomerModal();
+});
+
+loadCustomers();
+</script>
+
+</body>
+</html>

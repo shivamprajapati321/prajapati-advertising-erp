@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Face Attendance — Prajapati Advertising</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="erp-design.css">
+<script>
+(function(){
+  var s=localStorage.getItem('erp_session');
+  if(!s){window.location.href='login.html';return;}
+  var p=JSON.parse(s);
+  if(Date.now()>p.expiresAt){localStorage.removeItem('erp_session');window.location.href='login.html';return;}
+  if(p.role==='execution'){window.location.href='index.html';}
+})();
+</script>
+<style>
+.cam-box{position:relative;border-radius:14px;overflow:hidden;background:#0a0e1f;aspect-ratio:4/3;max-width:380px;margin:0 auto}
+#vid,#enr-vid{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+.oval{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);width:150px;height:180px;border:3px solid rgba(255,255,255,.4);border-radius:50%;pointer-events:none;transition:all .3s}
+.oval.ready{border-color:#FF6B00}
+.oval.scan{border-color:#3b82f6;animation:pulse-ring 1.2s ease-in-out infinite}
+.oval.ok{border-color:#22c55e;box-shadow:0 0 0 8px rgba(34,197,94,.15)}
+.oval.fail{border-color:#ef4444;box-shadow:0 0 0 8px rgba(239,68,68,.15)}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.4)}50%{box-shadow:0 0 0 10px rgba(59,130,246,0)}}
+.cam-lbl{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.65);color:#fff;font-size:11px;padding:5px 14px;border-radius:20px;white-space:nowrap}
+.result-ok{background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-top:12px;animation:slideUp .3s ease}
+.result-fail{background:#fef2f2;border:1.5px solid #fca5a5;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-top:12px;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.staff-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;margin-bottom:6px;cursor:pointer;transition:all .15s}
+.staff-item:hover{border-color:#0B1957;background:#f8faff}
+.staff-item.sel{border-color:#22c55e;background:#f0fdf4}
+.staff-item.done{border-color:#86efac;background:#f0fdf4;opacity:.75;pointer-events:none}
+.av-circle{width:38px;height:38px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0B1957;flex-shrink:0;overflow:hidden}
+.av-circle img{width:100%;height:100%;object-fit:cover}
+.tabs-bar{display:flex;gap:4px;background:#f1f5f9;border-radius:10px;padding:4px;width:fit-content;margin-bottom:20px}
+.tb{padding:8px 18px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:none;color:#64748b;font-family:inherit;transition:all .2s}
+.tb.on{background:#fff;color:#0B1957;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.kpi-mini{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;text-align:center}
+.kpi-mini .v{font-size:26px;font-weight:800;color:#0B1957}
+.kpi-mini .l{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.bg-g{background:#dcfce7;color:#166534}
+.bg-r{background:#fee2e2;color:#991b1b}
+.bg-a{background:#fef3c7;color:#b45309}
+.bg-b{background:#dbeafe;color:#1d4ed8}
+.bg-gray{background:#f1f5f9;color:#475569}
+canvas{display:none}
+</style>
+</head>
+<body>
+
+<div class="erp-topbar">
+  <a href="index.html" class="erp-logo">
+    <div class="erp-logo-mark">PA</div>
+    <div class="erp-logo-text">
+      <div class="erp-logo-name">Prajapati Advertising</div>
+      <div class="erp-logo-tag">Enterprise ERP</div>
+    </div>
+  </a>
+  <nav class="erp-nav">
+    <a href="index.html">🏠 Home</a>
+    <a href="hr.html">👥 HR</a>
+    <a href="face-attendance.html" class="active">📸 Face Attendance</a>
+  </nav>
+  <div class="erp-user">
+    <div style="text-align:right">
+      <div class="erp-user-name" id="_un">—</div>
+      <div class="erp-user-role" id="_ur"></div>
+    </div>
+    <div class="erp-avatar" id="_uav">?</div>
+    <button class="erp-logout" onclick="localStorage.removeItem('erp_session');window.location.href='login.html'">Logout</button>
+  </div>
+</div>
+
+<div class="erp-page" style="max-width:1100px">
+  <div class="erp-page-hdr">
+    <div>
+      <div class="erp-page-title">📸 Face Attendance</div>
+      <div class="erp-page-sub" id="hdr-sub">Camera se automatic attendance — Execution staff excluded</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="location.href='hr.html'">← HR</button>
+      <button class="btn btn-primary" onclick="setTab('enroll')">👤 Enroll Faces</button>
+    </div>
+  </div>
+
+  <div class="tabs-bar">
+    <button class="tb on" id="t-mark" onclick="setTab('mark')">📸 Mark Attendance</button>
+    <button class="tb" id="t-enroll" onclick="setTab('enroll')">👤 Enroll Staff</button>
+    <button class="tb" id="t-log" onclick="setTab('log')">📋 Today's Log</button>
+    <button class="tb" id="t-report" onclick="setTab('report')">📊 Monthly Report</button>
+  </div>
+
+  <!-- MARK TAB -->
+  <div id="tab-mark">
+    <div style="display:grid;grid-template-columns:400px 1fr;gap:20px;align-items:start">
+      <div>
+        <div class="cam-box">
+          <video id="vid" autoplay playsinline muted></video>
+          <canvas id="snap"></canvas>
+          <div class="oval ready" id="oval"></div>
+          <div class="cam-lbl" id="cam-lbl">📷 Starting camera...</div>
+        </div>
+        <button class="btn btn-primary" id="scan-btn" onclick="doScan()"
+          style="width:100%;margin-top:12px;padding:13px;font-size:14px;border-radius:10px">
+          📸 Scan Face & Mark Attendance
+        </button>
+        <div id="scan-result"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px">
+          <div class="kpi-mini"><div class="v" id="k-tot">—</div><div class="l">Total</div></div>
+          <div class="kpi-mini"><div class="v" style="color:#22c55e" id="k-pres">0</div><div class="l">Present</div></div>
+          <div class="kpi-mini"><div class="v" style="color:#ef4444" id="k-rem">—</div><div class="l">Remaining</div></div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:#0B1957">Staff Status — <span id="dt-lbl"></span></div>
+          <button class="btn btn-ghost btn-sm" onclick="loadMarkData()">🔄</button>
+        </div>
+        <input class="inp" placeholder="🔍 Search..." oninput="filterMark(this.value)" style="margin-bottom:10px" id="m-search">
+        <div id="staff-list" style="max-height:480px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENROLL TAB -->
+  <div id="tab-enroll" style="display:none">
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#92400e">
+      💡 <b>How to enroll:</b> Right side se staff name select karo → Camera ke saamne aao → Capture → Save. Ek baar enroll ke baad face se attendance automatic mark hogi.
+    </div>
+    <div style="display:grid;grid-template-columns:400px 1fr;gap:20px;align-items:start">
+      <div>
+        <div class="cam-box">
+          <video id="enr-vid" autoplay playsinline muted></video>
+          <canvas id="enr-snap"></canvas>
+          <div class="oval ready" id="enr-oval"></div>
+          <div class="cam-lbl" id="enr-lbl">→ Staff select karo pehle</div>
+        </div>
+        <div id="enr-preview-wrap" style="display:none;margin-top:12px">
+          <img id="enr-img" alt="Captured" style="width:100%;border-radius:12px;border:2px solid #22c55e">
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn btn-ghost" style="flex:1" onclick="retake()">🔄 Retake</button>
+            <button class="btn btn-primary" style="flex:1;background:#22c55e" onclick="saveEnroll()">✅ Save Face</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="cap-btn" onclick="captureEnroll()"
+          style="width:100%;margin-top:12px;padding:12px;font-size:14px" disabled>
+          📸 Capture Face Photo
+        </button>
+        <div id="enr-msg"></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:700;color:#0B1957">Select Staff</div>
+          <span style="font-size:11px;color:#94a3b8" id="enr-count"></span>
+        </div>
+        <input class="inp" placeholder="Search..." oninput="filterEnroll(this.value)" style="margin-bottom:10px" id="e-search">
+        <div id="enroll-list" style="max-height:480px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div id="tab-log" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div style="font-size:14px;font-weight:700">📋 Attendance Log</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="log-dt" type="date" class="inp" style="width:160px" onchange="loadLog()">
+          <button class="btn btn-ghost" onclick="bulkAbsent()">Mark Remaining → Absent</button>
+          <button class="btn btn-ghost" onclick="exportLog()">📥 Export CSV</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px" id="log-pills"></div>
+      <div id="log-tbl" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- REPORT TAB -->
+  <div id="tab-report" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div style="font-size:14px;font-weight:700">📊 Monthly Attendance Report</div>
+        <div style="display:flex;gap:8px">
+          <input id="rpt-mo" type="month" class="inp" style="width:160px" onchange="loadReport()">
+          <button class="btn btn-ghost" onclick="exportReport()">📥 Export</button>
+        </div>
+      </div>
+      <div id="rpt-tbl" style="overflow-x:auto"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SU = 'https://shafygjbffffjhwhmcgo.supabase.co';
+const SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE';
+const today = new Date().toISOString().slice(0,10);
+const nowTime = () => new Date().toTimeString().slice(0,5);
+
+let allStaff = [], attMap = {};
+let enrollSelId = null, enrollPhoto = null;
+let scanning = false;
+let mStream = null, eStream = null;
+
+// ── INIT ──────────────────────────────────────────────────────
+(function(){
+  const s = localStorage.getItem('erp_session');
+  if (!s) return;
+  const p = JSON.parse(s);
+  document.getElementById('_un').textContent = p.name || '—';
+  document.getElementById('_ur').textContent = (p.role||'').replace(/_/g,' ').toUpperCase();
+  document.getElementById('_uav').textContent = (p.name||'U')[0].toUpperCase();
+})();
+
+document.getElementById('hdr-sub').textContent =
+  'Aaj: ' + new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'}) + ' | Execution staff excluded';
+document.getElementById('dt-lbl').textContent =
+  new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+
+// ── DB ────────────────────────────────────────────────────────
+async function db(m, p, b) {
+  const r = await fetch(SU+'/rest/v1/'+p, {
+    method: m,
+    headers: { apikey:SK, 'Authorization':'Bearer '+SK, 'Content-Type':'application/json',
+      Prefer: ['POST','PATCH'].includes(m) ? 'return=representation' : '' },
+    body: b ? JSON.stringify(b) : undefined
+  });
+  const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+
+async function upsertAtt(data) {
+  return fetch(SU+'/rest/v1/prajapati_attendance', {
+    method: 'POST',
+    headers: { apikey:SK, 'Authorization':'Bearer '+SK, 'Content-Type':'application/json', 'Prefer':'resolution=merge-duplicates' },
+    body: JSON.stringify(data)
+  });
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+function setTab(name) {
+  ['mark','enroll','log','report'].forEach(n => {
+    document.getElementById('tab-'+n).style.display = n===name ? '' : 'none';
+    document.getElementById('t-'+n).classList.toggle('on', n===name);
+  });
+  if (name==='mark')   { startCam('vid','m'); loadMarkData(); }
+  if (name==='enroll') { startCam('enr-vid','e'); loadEnrollData(); }
+  if (name==='log')    { document.getElementById('log-dt').value=today; loadLog(); }
+  if (name==='report') { document.getElementById('rpt-mo').value=today.slice(0,7); loadReport(); }
+}
+
+// ── CAMERA ────────────────────────────────────────────────────
+async function startCam(vid, type) {
+  try {
+    const ref = type==='m' ? 'mStream' : 'eStream';
+    if (window[ref]) window[ref].getTracks().forEach(t=>t.stop());
+    window[ref] = await navigator.mediaDevices.getUserMedia({
+      video: {width:640,height:480,facingMode:'user'}, audio:false
+    });
+    document.getElementById(vid).srcObject = window[ref];
+    if (type==='m') {
+      document.getElementById('cam-lbl').textContent = '✅ Ready — Chehra frame mein laao';
+      document.getElementById('oval').className = 'oval ready';
+    } else {
+      document.getElementById('enr-lbl').textContent = '✅ Ready — Staff select karo →';
+    }
+  } catch(e) {
+    const lbl = type==='m' ? 'cam-lbl' : 'enr-lbl';
+    document.getElementById(lbl).textContent = '❌ Camera access denied — Allow karo browser mein';
+  }
+}
+
+function frame(vid, can) {
+  const v = document.getElementById(vid);
+  const c = document.getElementById(can);
+  c.width = v.videoWidth||640; c.height = v.videoHeight||480;
+  const ctx = c.getContext('2d');
+  ctx.save(); ctx.scale(-1,1); ctx.drawImage(v,-c.width,0,c.width,c.height); ctx.restore();
+  return c.toDataURL('image/jpeg',0.85).split(',')[1];
+}
+
+// ── MARK ATTENDANCE ───────────────────────────────────────────
+async function loadMarkData() {
+  const [s, a] = await Promise.all([
+    db('GET','prajapati_staff?select=*&status=eq.active&role=neq.execution&order=department,name'),
+    db('GET','prajapati_attendance?select=staff_id,status,check_in,attendance_method&date=eq.'+today)
+  ]);
+  allStaff = s||[];
+  attMap = {};
+  (a||[]).forEach(x => attMap[x.staff_id] = x);
+  renderMarkList(allStaff);
+  const p = Object.values(attMap).filter(x=>x.status==='present').length;
+  document.getElementById('k-tot').textContent = allStaff.length;
+  document.getElementById('k-pres').textContent = p;
+  document.getElementById('k-rem').textContent = allStaff.length - p;
+}
+
+function renderMarkList(data) {
+  document.getElementById('staff-list').innerHTML = data.map(s => {
+    const a = attMap[s.id];
+    const init = s.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const photoSrc = s.face_photo
+      ? (s.face_photo.startsWith('data:') ? s.face_photo : 'data:image/jpeg;base64,'+s.face_photo)
+      : null;
+    return `<div class="staff-item ${a?'done':''}">
+      <div class="av-circle">
+        ${photoSrc ? `<img src="${photoSrc}" alt="">` : init}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</div>
+        <div style="font-size:10px;color:#94a3b8">${s.department||''} · ${(s.role||'').replace(/_/g,' ')}</div>
+      </div>
+      ${a
+        ? `<div style="text-align:right;flex-shrink:0">
+            <div class="badge bg-g">✅ ${a.status}</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px">${a.check_in||''} · ${a.attendance_method==='face'?'📸':'✍️'}</div>
+           </div>`
+        : `<div style="text-align:right;flex-shrink:0">
+            ${s.face_photo
+              ? '<div style="font-size:9px;color:#22c55e;margin-bottom:3px">📷 enrolled</div>'
+              : '<div style="font-size:9px;color:#f59e0b;margin-bottom:3px">⚠️ not enrolled</div>'}
+            <div style="display:flex;gap:3px">
+              <button onclick="manMark('${s.id}','${s.name.replace(/'/g,"\\'")}','present')" style="font-size:9px;padding:2px 7px;background:#22c55e;color:#fff;border:none;border-radius:4px;cursor:pointer">P</button>
+              <button onclick="manMark('${s.id}','${s.name.replace(/'/g,"\\'")}','absent')" style="font-size:9px;padding:2px 7px;background:#ef4444;color:#fff;border:none;border-radius:4px;cursor:pointer">A</button>
+              <button onclick="manMark('${s.id}','${s.name.replace(/'/g,"\\'")}','half_day')" style="font-size:9px;padding:2px 7px;background:#f59e0b;color:#fff;border:none;border-radius:4px;cursor:pointer">H</button>
+            </div>
+           </div>`
+      }
+    </div>`;
+  }).join('') || '<div style="color:#94a3b8;padding:20px;text-align:center">No staff found</div>';
+}
+
+function filterMark(q) {
+  const ql = q.toLowerCase();
+  renderMarkList(allStaff.filter(s => s.name?.toLowerCase().includes(ql)||s.department?.toLowerCase().includes(ql)));
+}
+
+async function manMark(id, name, status) {
+  await upsertAtt({staff_id:id,staff_name:name,date:today,status,check_in:nowTime(),attendance_method:'manual',marked_by:'Manual'});
+  loadMarkData();
+}
+
+// ── FACE SCAN ─────────────────────────────────────────────────
+async function doScan() {
+  if (scanning) return;
+  scanning = true;
+  const btn = document.getElementById('scan-btn');
+  btn.disabled = true; btn.textContent = '⏳ Scanning face...';
+  document.getElementById('oval').className = 'oval scan';
+  document.getElementById('cam-lbl').textContent = '🔍 Face scan ho raha hai...';
+  document.getElementById('scan-result').innerHTML = '';
+
+  try {
+    const capturedB64 = frame('vid','snap');
+    const enrolled = allStaff.filter(s => s.face_photo && !attMap[s.id]);
+    if (!enrolled.length) {
+      showScanResult(false, null, 'Sab staff already marked hain ya koi enrolled nahi!');
+      return;
+    }
+
+    // Build content for Claude Vision
+    const content = [];
+    const batch = enrolled.slice(0, 8); // Max 8 per call
+
+    content.push({
+      type:'text',
+      text:`You are an employee face recognition system for attendance marking.
+
+ENROLLED STAFF LIST:
+${batch.map((s,i)=>`${i+1}. ${s.name} | Dept: ${s.department||'—'} | Role: ${s.role||'—'}`).join('\n')}
+
+Below are reference photos of enrolled staff (one per person), followed by the CAPTURED photo from the camera.
+
+Your task: Identify if the person in the CAPTURED photo matches any enrolled staff member.
+
+Respond ONLY with valid JSON (no markdown):
+{"matched":true/false,"index":0_based_number_or_null,"confidence":0_to_100,"name":"matched_name_or_null","reason":"brief explanation"}`
+    });
+
+    batch.forEach((s,i) => {
+      const b64 = s.face_photo.startsWith('data:') ? s.face_photo.split(',')[1] : s.face_photo;
+      content.push({type:'text', text:`Reference ${i+1}: ${s.name}`});
+      content.push({type:'image', source:{type:'base64',media_type:'image/jpeg',data:b64}});
+    });
+
+    content.push({type:'text', text:'CAPTURED PHOTO (identify this person):'});
+    content.push({type:'image', source:{type:'base64',media_type:'image/jpeg',data:capturedB64}});
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:300,
+        messages:[{role:'user',content}]
+      })
+    });
+
+    const data = await resp.json();
+    const txt = data.content?.[0]?.text || '{}';
+    const result = JSON.parse(txt.replace(/```json|```/g,'').trim());
+
+    if (result.matched && result.index !== null && result.confidence >= 75) {
+      const matched = batch[result.index];
+      await upsertAtt({
+        staff_id:matched.id, staff_name:matched.name,
+        date:today, status:'present', check_in:nowTime(),
+        attendance_method:'face', marked_by:'Face Recognition'
+      });
+      attMap[matched.id] = {status:'present',check_in:nowTime(),attendance_method:'face'};
+      document.getElementById('oval').className = 'oval ok';
+      showScanResult(true, matched, result.confidence);
+      const p = Object.values(attMap).filter(x=>x.status==='present').length;
+      document.getElementById('k-pres').textContent = p;
+      document.getElementById('k-rem').textContent = allStaff.length - p;
+      renderMarkList(allStaff);
+    } else {
+      document.getElementById('oval').className = 'oval fail';
+      showScanResult(false, null, result.reason || `Confidence ${result.confidence||0}% — Match nahi hua. Dobara try karo ya manually mark karo.`);
+    }
+  } catch(e) {
+    document.getElementById('oval').className = 'oval fail';
+    showScanResult(false, null, 'Error: ' + e.message + ' — Manual mark karo');
+    console.error(e);
+  } finally {
+    scanning = false;
+    btn.disabled = false; btn.textContent = '📸 Scan Face & Mark Attendance';
+    setTimeout(() => {
+      document.getElementById('oval').className = 'oval ready';
+      document.getElementById('cam-lbl').textContent = '✅ Ready — Chehra frame mein laao';
+    }, 4000);
+  }
+}
+
+function showScanResult(ok, staff, info) {
+  const el = document.getElementById('scan-result');
+  if (ok && staff) {
+    el.innerHTML = `<div class="result-ok">
+      <div style="width:48px;height:48px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">✅</div>
+      <div><div style="font-size:16px;font-weight:800;color:#166534">${staff.name}</div>
+      <div style="font-size:12px;color:#15803d;margin-top:2px">${staff.department||''} · Present · ${nowTime()}</div>
+      <div style="font-size:11px;color:#86efac;margin-top:3px">Match confidence: ${info}%</div></div>
+    </div>`;
+  } else {
+    el.innerHTML = `<div class="result-fail">
+      <div style="width:48px;height:48px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">❌</div>
+      <div><div style="font-size:14px;font-weight:700;color:#991b1b">Face Match Failed</div>
+      <div style="font-size:12px;color:#b91c1c;margin-top:2px">${info}</div></div>
+    </div>`;
+  }
+}
+
+// ── ENROLL ────────────────────────────────────────────────────
+async function loadEnrollData() {
+  if (!allStaff.length) {
+    allStaff = await db('GET','prajapati_staff?select=*&status=eq.active&role=neq.execution&order=department,name') || [];
+  }
+  const en = allStaff.filter(s=>s.face_photo).length;
+  document.getElementById('enr-count').textContent = en+'/'+allStaff.length+' enrolled';
+  renderEnrollList(allStaff);
+}
+
+function renderEnrollList(data) {
+  document.getElementById('enroll-list').innerHTML = data.map(s => {
+    const has = !!s.face_photo;
+    const init = s.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const photoSrc = has ? (s.face_photo.startsWith('data:')?s.face_photo:'data:image/jpeg;base64,'+s.face_photo) : null;
+    return `<div class="staff-item ${enrollSelId===s.id?'sel':''}" onclick="selEnroll('${s.id}')">
+      <div class="av-circle">${photoSrc?`<img src="${photoSrc}" alt="">`:init}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700">${s.name}</div>
+        <div style="font-size:10px;color:#94a3b8">${s.department||''}</div>
+      </div>
+      <span class="badge ${has?'bg-g':'bg-a'}">${has?'✅ Enrolled':'⚠️ Pending'}</span>
+    </div>`;
+  }).join('');
+}
+
+function filterEnroll(q) {
+  const ql = q.toLowerCase();
+  renderEnrollList(allStaff.filter(s=>s.name?.toLowerCase().includes(ql)||s.department?.toLowerCase().includes(ql)));
+}
+
+function selEnroll(id) {
+  enrollSelId = id;
+  enrollPhoto = null;
+  const s = allStaff.find(x=>x.id===id);
+  document.getElementById('enr-lbl').textContent = `📷 ${s?.name} — Capture karo`;
+  document.getElementById('cap-btn').disabled = false;
+  document.getElementById('enr-preview-wrap').style.display = 'none';
+  document.getElementById('cap-btn').style.display = '';
+  document.getElementById('enr-msg').innerHTML = '';
+  renderEnrollList(allStaff);
+}
+
+function captureEnroll() {
+  if (!enrollSelId) { alert('Staff select karo!'); return; }
+  enrollPhoto = frame('enr-vid','enr-snap');
+  document.getElementById('enr-img').src = 'data:image/jpeg;base64,'+enrollPhoto;
+  document.getElementById('enr-preview-wrap').style.display = '';
+  document.getElementById('cap-btn').style.display = 'none';
+}
+
+function retake() {
+  enrollPhoto = null;
+  document.getElementById('enr-preview-wrap').style.display = 'none';
+  document.getElementById('cap-btn').style.display = '';
+}
+
+async function saveEnroll() {
+  if (!enrollSelId||!enrollPhoto) return;
+  await db('PATCH','prajapati_staff?id=eq.'+enrollSelId,{
+    face_photo: enrollPhoto,
+    face_enrolled_at: new Date().toISOString()
+  });
+  const s = allStaff.find(x=>x.id===enrollSelId);
+  if (s) s.face_photo = enrollPhoto;
+  const en = allStaff.filter(x=>x.face_photo).length;
+  document.getElementById('enr-count').textContent = en+'/'+allStaff.length+' enrolled';
+  document.getElementById('enr-msg').innerHTML =
+    `<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:13px;color:#166534">✅ ${s?.name} enrolled successfully!</div>`;
+  enrollSelId=null; enrollPhoto=null;
+  document.getElementById('enr-preview-wrap').style.display='none';
+  document.getElementById('cap-btn').style.display='';
+  document.getElementById('cap-btn').disabled=true;
+  document.getElementById('enr-lbl').textContent='→ Staff select karo';
+  renderEnrollList(allStaff);
+}
+
+// ── LOG ───────────────────────────────────────────────────────
+async function loadLog() {
+  const dt = document.getElementById('log-dt').value||today;
+  const [st,at] = await Promise.all([
+    db('GET','prajapati_staff?select=id,name,department,role&status=eq.active&role=neq.execution&order=department,name'),
+    db('GET','prajapati_attendance?select=*&date=eq.'+dt)
+  ]);
+  const am={};(at||[]).forEach(a=>am[a.staff_id]=a);
+  const total=(st||[]).length, present=Object.values(am).filter(a=>a.status==='present').length;
+  document.getElementById('log-pills').innerHTML =
+    `<span class="badge bg-g" style="padding:5px 14px">✅ Present: ${present}</span>
+     <span class="badge bg-r" style="padding:5px 14px">❌ Absent: ${Object.values(am).filter(a=>a.status==='absent').length}</span>
+     <span class="badge bg-gray" style="padding:5px 14px">Total: ${total}</span>
+     <span class="badge bg-b" style="padding:5px 14px">📸 Face: ${Object.values(am).filter(a=>a.attendance_method==='face').length}</span>`;
+
+  document.getElementById('log-tbl').innerHTML =
+    `<table style="width:100%;border-collapse:collapse;font-size:12px">
+      <tr style="background:#f8fafc">
+        <th style="padding:9px 12px;text-align:left;font-size:9px;color:#94a3b8;text-transform:uppercase;border-bottom:1px solid #e2e8f0">Name</th>
+        <th style="padding:9px 12px;text-align:left;font-size:9px;color:#94a3b8;text-transform:uppercase;border-bottom:1px solid #e2e8f0">Department</th>
+        <th style="padding:9px 12px;text-align:center;font-size:9px;color:#94a3b8;text-transform:uppercase;border-bottom:1px solid #e2e8f0">Status</th>
+        <th style="padding:9px 12px;text-align:center;font-size:9px;color:#94a3b8;text-transform:uppercase;border-bottom:1px solid #e2e8f0">Time</th>
+        <th style="padding:9px 12px;text-align:center;font-size:9px;color:#94a3b8;text-transform:uppercase;border-bottom:1px solid #e2e8f0">Method</th>
+        <th style="padding:9px 12px;text-align:center;font-size:9px;color:#94a3b8;text-transform:uppercase;border-bottom:1px solid #e2e8f0">Override</th>
+      </tr>
+      ${(st||[]).map(s=>{
+        const a=am[s.id];const st2=a?.status||'not_marked';
+        const bc={present:'bg-g',absent:'bg-r',half_day:'bg-a',not_marked:'bg-gray'}[st2]||'bg-gray';
+        return `<tr style="border-bottom:1px solid #f8fafc">
+          <td style="padding:9px 12px;font-weight:600;color:#0f172a">${s.name}</td>
+          <td style="padding:9px 12px;color:#64748b;font-size:11px">${s.department||'—'}</td>
+          <td style="padding:9px 12px;text-align:center"><span class="badge ${bc}">${st2.replace('_',' ')}</span></td>
+          <td style="padding:9px 12px;text-align:center;font-family:monospace;font-size:11px">${a?.check_in||'—'}</td>
+          <td style="padding:9px 12px;text-align:center;font-size:11px">${a?.attendance_method==='face'?'📸 Face':a?.attendance_method||'—'}</td>
+          <td style="padding:9px 12px;text-align:center">
+            <div style="display:flex;gap:3px;justify-content:center">
+              <button onclick="qMark('${s.id}','${s.name.replace(/'/g,"\\'")}','present','${dt}')" style="font-size:9px;padding:2px 7px;background:#22c55e;color:#fff;border:none;border-radius:4px;cursor:pointer">P</button>
+              <button onclick="qMark('${s.id}','${s.name.replace(/'/g,"\\'")}','absent','${dt}')" style="font-size:9px;padding:2px 7px;background:#ef4444;color:#fff;border:none;border-radius:4px;cursor:pointer">A</button>
+              <button onclick="qMark('${s.id}','${s.name.replace(/'/g,"\\'")}','half_day','${dt}')" style="font-size:9px;padding:2px 7px;background:#f59e0b;color:#fff;border:none;border-radius:4px;cursor:pointer">H</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('')}
+    </table>`;
+}
+
+async function qMark(id, name, status, dt) {
+  await upsertAtt({staff_id:id,staff_name:name,date:dt,status,attendance_method:'manual',marked_by:'Override'});
+  loadLog();
+}
+
+async function bulkAbsent() {
+  const dt = document.getElementById('log-dt').value||today;
+  if (!confirm('Aaj ke unmarked staff ko Absent mark karein?')) return;
+  const [st,at] = await Promise.all([
+    db('GET','prajapati_staff?select=id,name&status=eq.active&role=neq.execution'),
+    db('GET','prajapati_attendance?select=staff_id&date=eq.'+dt)
+  ]);
+  const marked = new Set((at||[]).map(a=>a.staff_id));
+  const recs = (st||[]).filter(s=>!marked.has(s.id)).map(s=>({
+    staff_id:s.id,staff_name:s.name,date:dt,status:'absent',attendance_method:'bulk',marked_by:'Bulk'
+  }));
+  if (!recs.length) { alert('Sab marked hain!'); return; }
+  await fetch(SU+'/rest/v1/prajapati_attendance',{
+    method:'POST',headers:{apikey:SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+    body:JSON.stringify(recs)
+  });
+  alert('✅ '+recs.length+' staff Absent marked');
+  loadLog();
+}
+
+function exportLog() {
+  const rows=[['Name','Dept','Status','Time','Method']];
+  document.querySelectorAll('#log-tbl tr:not(:first-child)').forEach(tr=>{
+    const c=[...tr.querySelectorAll('td')];
+    if(c.length>=5)rows.push(c.slice(0,5).map(x=>x.textContent.trim()));
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+v+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='attendance_'+(document.getElementById('log-dt').value||today)+'.csv';
+  a.click();
+}
+
+// ── REPORT ────────────────────────────────────────────────────
+async function loadReport() {
+  const mo = document.getElementById('rpt-mo').value||today.slice(0,7);
+  const [st,at] = await Promise.all([
+    db('GET','prajapati_staff?select=id,name,department&status=eq.active&role=neq.execution&order=department,name'),
+    db('GET',`prajapati_attendance?select=*&date=gte.${mo}-01&date=lte.${mo}-31`)
+  ]);
+  const d=new Date(mo+'-01');
+  const wd=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  const am={};(at||[]).forEach(a=>{if(!am[a.staff_id])am[a.staff_id]={};am[a.staff_id][a.date]=a.status;});
+  document.getElementById('rpt-tbl').innerHTML=`
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <tr style="background:#f8fafc">
+        <th style="padding:9px 12px;text-align:left;border-bottom:1px solid #e2e8f0;font-size:9px;color:#94a3b8;text-transform:uppercase">Name</th>
+        <th style="padding:9px 12px;text-align:left;border-bottom:1px solid #e2e8f0;font-size:9px;color:#94a3b8;text-transform:uppercase">Dept</th>
+        <th style="padding:9px 6px;text-align:center;border-bottom:1px solid #e2e8f0;font-size:9px;color:#22c55e;text-transform:uppercase">Present</th>
+        <th style="padding:9px 6px;text-align:center;border-bottom:1px solid #e2e8f0;font-size:9px;color:#ef4444;text-transform:uppercase">Absent</th>
+        <th style="padding:9px 6px;text-align:center;border-bottom:1px solid #e2e8f0;font-size:9px;color:#f59e0b;text-transform:uppercase">Half</th>
+        <th style="padding:9px 6px;text-align:center;border-bottom:1px solid #e2e8f0;font-size:9px;color:#94a3b8;text-transform:uppercase">📸 Face</th>
+        <th style="padding:9px 12px;text-align:center;border-bottom:1px solid #e2e8f0;font-size:9px;color:#94a3b8;text-transform:uppercase">Attendance %</th>
+      </tr>
+      ${(st||[]).map(s=>{
+        const sa=am[s.id]||{};
+        const p=Object.values(sa).filter(v=>v==='present').length;
+        const a=Object.values(sa).filter(v=>v==='absent').length;
+        const h=Object.values(sa).filter(v=>v==='half_day').length;
+        const faceCount=(at||[]).filter(x=>x.staff_id===s.id&&x.attendance_method==='face').length;
+        const pct=wd>0?Math.round((p+h*0.5)/wd*100):0;
+        const pc=pct>=80?'bg-g':pct>=60?'bg-a':'bg-r';
+        return `<tr style="border-bottom:1px solid #f8fafc">
+          <td style="padding:9px 12px;font-weight:600;color:#0f172a">${s.name}</td>
+          <td style="padding:9px 12px;color:#94a3b8;font-size:11px">${s.department||'—'}</td>
+          <td style="padding:9px 6px;text-align:center;font-weight:700;color:#22c55e">${p}</td>
+          <td style="padding:9px 6px;text-align:center;font-weight:700;color:#ef4444">${a}</td>
+          <td style="padding:9px 6px;text-align:center;color:#f59e0b">${h}</td>
+          <td style="padding:9px 6px;text-align:center;font-size:11px;color:#0284c7">${faceCount?'📸 '+faceCount:'—'}</td>
+          <td style="padding:9px 12px;text-align:center"><span class="badge ${pc}">${pct}%</span></td>
+        </tr>`;
+      }).join('')}
+    </table>`;
+}
+
+function exportReport() { alert('Monthly report export — CSV coming!'); }
+
+// ── START ─────────────────────────────────────────────────────
+startCam('vid','m');
+loadMarkData();
+document.getElementById('log-dt').value = today;
+</script>
+</body>
+</html>

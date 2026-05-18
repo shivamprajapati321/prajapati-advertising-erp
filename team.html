@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Team Management · Prajapati ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+.dept-tabs {
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: 12px; padding: 6px;
+  display: inline-flex; gap: 4px;
+  margin-bottom: 22px; flex-wrap: wrap;
+}
+.dept-tab {
+  padding: 8px 16px; border-radius: 8px;
+  font-size: 12px; font-weight: 700; color: var(--mute);
+  cursor: pointer; transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 6px;
+  border: none; background: none;
+}
+.dept-tab:hover { color: var(--accent); }
+.dept-tab.active { background: var(--accent); color: white; }
+.dept-tab .count { background: rgba(255,255,255,0.25); padding: 1px 7px; border-radius: 99px; font-size: 10px; }
+.dept-tab:not(.active) .count { background: var(--soft); }
+
+.team-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.team-card {
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: 14px; padding: 18px;
+  position: relative; transition: all 0.15s;
+}
+.team-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(11,25,87,0.08); border-color: var(--accent); }
+.team-card.inactive { opacity: 0.55; }
+.team-card.inactive::before { content: 'INACTIVE'; position: absolute; top: 8px; right: 12px; font-size: 9px; font-weight: 800; color: var(--red-dk); background: var(--red-soft); padding: 2px 7px; border-radius: 4px; letter-spacing: 0.05em; }
+
+.tc-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.tc-avatar {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--blue-soft); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800;
+}
+.tc-info { flex: 1; min-width: 0; }
+.tc-name { font-size: 15px; font-weight: 800; color: var(--ink); margin-bottom: 2px; line-height: 1.2; }
+.tc-empcode { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--mute); font-weight: 700; }
+
+.tc-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 800;
+  margin-bottom: 8px;
+}
+.tc-pill.admin { background: linear-gradient(135deg, var(--gold), #FBBF24); color: var(--nav-deep); }
+.tc-pill.sales { background: var(--blue-soft); color: var(--accent); }
+.tc-pill.printing { background: var(--print-soft); color: var(--print); }
+.tc-pill.stitching { background: var(--stitch-soft); color: var(--stitch); }
+.tc-pill.execution { background: var(--execute-soft); color: var(--execute-dk); }
+.tc-pill.dispatch { background: var(--dispatch-soft); color: var(--dispatch); }
+.tc-pill.operations_manager { background: var(--blue-soft); color: var(--accent); }
+.tc-pill.designer { background: #FCE7F3; color: #BE185D; }
+.tc-pill.designer_head { background: linear-gradient(135deg, #FCE7F3, #F5D0FE); color: #9333EA; }
+.tc-pill.staff { background: var(--soft); color: var(--mute); }
+
+.tc-meta { font-size: 12px; color: var(--mute); margin-bottom: 12px; line-height: 1.4; font-weight: 600; }
+.tc-meta strong { color: var(--ink); font-weight: 800; }
+.tc-meta-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+.tc-meta-row .ico-mini { font-size: 12px; opacity: 0.6; width: 16px; }
+
+.tc-actions { display: flex; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.tc-actions .btn-mini {
+  flex: 1; padding: 7px 10px;
+  border-radius: 7px; font-size: 11px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  border: 1px solid var(--line); background: white; color: var(--ink);
+}
+.tc-actions .btn-mini:hover { border-color: var(--accent); color: var(--accent); }
+.tc-actions .btn-mini.danger:hover { border-color: var(--red); color: var(--red-dk); background: var(--red-soft); }
+.tc-actions .btn-mini.success { background: var(--green-soft); color: var(--green-dk); border-color: var(--green); }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(11,25,87,0.65); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 100; padding: 20px;
+}
+.modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: white; border-radius: 16px;
+  width: 100%; max-width: 540px; max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+  animation: slideUp 0.25s;
+}
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-head {
+  padding: 20px 24px; border-bottom: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-head h2 { font-size: 18px; font-weight: 800; color: var(--nav); }
+.modal-close { width: 30px; height: 30px; border-radius: 8px; background: var(--soft); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.modal-close:hover { background: var(--red-soft); color: var(--red-dk); }
+.modal-body { padding: 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--line); display: flex; gap: 8px; justify-content: flex-end; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid .full { grid-column: 1 / -1; }
+.form-field-mini { display: flex; flex-direction: column; }
+.form-field-mini label { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mute); margin-bottom: 6px; }
+.form-field-mini input, .form-field-mini select {
+  padding: 10px 12px; background: var(--white);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 13px; font-weight: 600; color: var(--ink);
+}
+.form-field-mini input:focus, .form-field-mini select:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+.form-helper { font-size: 11px; color: var(--mute); margin-top: 4px; font-weight: 600; }
+
+/* Extra Access section */
+.extra-access-section {
+  margin-top: 18px; padding: 16px;
+  background: linear-gradient(135deg, var(--blue-soft), #EEF4FF);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+}
+.eas-head {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.eas-icon {
+  font-size: 24px; width: 40px; height: 40px;
+  background: white; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.eas-title { font-size: 14px; font-weight: 800; color: var(--nav); }
+.eas-sub { font-size: 11px; color: var(--mute); font-weight: 600; margin-top: 2px; }
+
+.eas-current {
+  background: rgba(255,255,255,0.7); padding: 10px 12px;
+  border-radius: 8px; margin-bottom: 12px;
+}
+.eas-current-lbl { font-size: 10px; font-weight: 700; color: var(--mute); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
+.eas-current-modules {
+  font-size: 12px; color: var(--ink); font-weight: 600;
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.eas-current-modules .mod-tag {
+  background: var(--green-soft); color: var(--green-dk);
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-weight: 700;
+}
+
+.eas-cb-lbl {
+  font-size: 11px; font-weight: 700; color: var(--ink-2);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.eas-cb-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+@media (max-width: 480px) { .eas-cb-grid { grid-template-columns: 1fr; } }
+.eas-cb {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; background: white;
+  border: 1px solid var(--line); border-radius: 7px;
+  font-size: 12px; font-weight: 600; color: var(--ink);
+  cursor: pointer; transition: all 0.15s;
+}
+.eas-cb:hover { border-color: var(--accent); background: var(--blue-soft); }
+.eas-cb input[type="checkbox"] {
+  width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent);
+}
+.eas-cb.default-mod {
+  background: linear-gradient(135deg, #ECFDF5, white);
+  border-color: var(--green);
+}
+.eas-cb.default-mod::after {
+  content: '★ default'; font-size: 9px; color: var(--green-dk);
+  margin-left: auto; font-weight: 800;
+}
+.eas-cb.admin-cb { border-color: var(--gold); background: linear-gradient(135deg, #FFFBEB, white); }
+.warn-badge {
+  font-size: 9px; background: var(--gold-soft); color: var(--gold);
+  padding: 1px 6px; border-radius: 3px; margin-left: auto;
+  font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+}
+
+@media (max-width: 700px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .team-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+
+    <header class="topbar" id="topbar"></header>
+
+    <div class="page">
+
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Team <em>Management</em></h1>
+          <div class="page-sub">Add team members · Department-wise access · Role-based permissions</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" onclick="loadTeam()">🔄 Refresh</button>
+          <button class="btn primary" onclick="openAddModal()">+ Add Team Member</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-mini"><div class="label">Total Members</div><div class="num" id="stat-total">—</div></div>
+        <div class="stat-mini"><div class="label">Active</div><div class="num" id="stat-active">—</div></div>
+        <div class="stat-mini"><div class="label">Operations</div><div class="num" id="stat-ops">—</div></div>
+        <div class="stat-mini"><div class="label">Sales</div><div class="num" id="stat-sales">—</div></div>
+        <div class="stat-mini"><div class="label">Field</div><div class="num" id="stat-field">—</div></div>
+      </div>
+
+      <!-- Department filter tabs -->
+      <div class="dept-tabs" id="dept-tabs">
+        <button class="dept-tab active" data-dept="all">All <span class="count" id="cnt-all">0</span></button>
+        <button class="dept-tab" data-dept="Admin">👑 Admin <span class="count" id="cnt-admin">0</span></button>
+        <button class="dept-tab" data-dept="Sales">📊 Sales <span class="count" id="cnt-sales">0</span></button>
+        <button class="dept-tab" data-dept="Operations">🏭 Operations <span class="count" id="cnt-ops">0</span></button>
+        <button class="dept-tab" data-dept="Execution">🛺 Field <span class="count" id="cnt-exec">0</span></button>
+        <button class="dept-tab" data-dept="Creative">🎨 Creative <span class="count" id="cnt-creative">0</span></button>
+        <button class="dept-tab" data-dept="Logistics">🚚 Logistics <span class="count" id="cnt-logistics">0</span></button>
+      </div>
+
+      <!-- Team grid -->
+      <div id="team-grid">
+        <div style="text-align:center;padding:60px;color:var(--mute);font-weight:600">⏳ Loading team...</div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- TARGET MODAL -->
+<div class="modal-overlay" id="target-modal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <h2 id="target-modal-title">🎯 Set Monthly Targets</h2>
+      <div class="modal-close" onclick="closeTargetModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="t-staff-id">
+      <input type="hidden" id="t-staff-name">
+      
+      <div style="background:linear-gradient(135deg,var(--blue-soft),white);border-radius:10px;padding:14px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px">Setting Targets For</div>
+        <div id="t-staff-display" style="font-size:18px;font-weight:800;color:var(--ink)"></div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field-mini">
+          <label>Year *</label>
+          <select id="t-year">
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+          </select>
+        </div>
+        <div class="form-field-mini">
+          <label>Month *</label>
+          <select id="t-month">
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+      </div>
+      
+      <div style="height:1px;background:var(--line);margin:18px 0"></div>
+      
+      <div style="font-size:12px;font-weight:800;color:var(--accent);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:12px">📊 Targets</div>
+      
+      <div class="form-grid">
+        <div class="form-field-mini full">
+          <label>💰 Revenue Target (₹) *</label>
+          <input type="number" id="t-revenue" min="0" step="10000" placeholder="e.g. 500000">
+          <div style="font-size:10px;color:var(--mute);margin-top:3px;font-weight:600">Monthly revenue/sales target in rupees</div>
+        </div>
+        <div class="form-field-mini">
+          <label>🎯 Leads Target</label>
+          <input type="number" id="t-leads" min="0" step="1" placeholder="30">
+        </div>
+        <div class="form-field-mini">
+          <label>📝 Quotes Target</label>
+          <input type="number" id="t-quotes" min="0" step="1" placeholder="20">
+        </div>
+        <div class="form-field-mini">
+          <label>🧾 Invoices Target</label>
+          <input type="number" id="t-invoices" min="0" step="1" placeholder="10">
+        </div>
+        <div class="form-field-mini">
+          <label>📈 Conversion %</label>
+          <input type="number" id="t-conversion" min="0" max="100" step="1" placeholder="35">
+        </div>
+        <div class="form-field-mini full">
+          <label>📝 Notes</label>
+          <textarea id="t-notes" rows="2" placeholder="e.g. Diwali season - aggressive target"></textarea>
+        </div>
+      </div>
+
+      <div id="t-existing-msg" style="display:none;margin-top:14px;padding:10px;background:var(--amber-soft);color:var(--amber-dk);border-radius:8px;font-size:12px;font-weight:700"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost" onclick="closeTargetModal()">Cancel</button>
+      <button class="btn primary" onclick="saveTarget()" id="t-save-btn">💾 Save Target</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="member-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modal-title">+ Add Team Member</h2>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <form id="member-form" onsubmit="event.preventDefault(); saveMember();">
+        <input type="hidden" id="m-id">
+        
+        <div class="form-grid">
+          <div class="form-field-mini full">
+            <label>Full Name *</label>
+            <input type="text" id="m-name" required placeholder="e.g. Md Rashid">
+          </div>
+
+          <div class="form-field-mini">
+            <label>Employee Code *</label>
+            <input type="text" id="m-empcode" required placeholder="USR020">
+            <div class="form-helper">Unique ID e.g. USR015</div>
+          </div>
+
+          <div class="form-field-mini">
+            <label>Phone (WhatsApp) *</label>
+            <input type="tel" id="m-phone" required placeholder="9876543210" maxlength="10" pattern="[6-9][0-9]{9}">
+            <div class="form-helper">10 digits only (no +91)</div>
+          </div>
+
+          <div class="form-field-mini">
+            <label>Department *</label>
+            <select id="m-department" required onchange="updateRoleOptions()">
+              <option value="">— Select —</option>
+              <option value="Admin">Admin</option>
+              <option value="Sales">Sales</option>
+              <option value="Operations">Operations (Print/Stitch)</option>
+              <option value="Execution">Execution (Field)</option>
+              <option value="Logistics">Logistics (Dispatch)</option>
+              <option value="Creative">Creative (Design)</option>
+            </select>
+          </div>
+
+          <div class="form-field-mini">
+            <label>Role *</label>
+            <select id="m-role" required>
+              <option value="">— Select Department First —</option>
+            </select>
+            <div class="form-helper" id="role-helper">Determines what they can access</div>
+          </div>
+
+          <div class="form-field-mini">
+            <label>Designation</label>
+            <input type="text" id="m-designation" placeholder="e.g. Sr. Field Executive">
+          </div>
+
+          <div class="form-field-mini">
+            <label>Joining Date</label>
+            <input type="date" id="m-joining">
+          </div>
+
+          <div class="form-field-mini">
+            <label>Salary Type</label>
+            <select id="m-salary-type">
+              <option value="monthly">Monthly</option>
+              <option value="daily">Daily</option>
+              <option value="piece_rate">Piece Rate</option>
+            </select>
+          </div>
+
+          <div class="form-field-mini">
+            <label>Email (optional)</label>
+            <input type="email" id="m-email" placeholder="name@example.com">
+          </div>
+
+          <div class="form-field-mini full">
+            <label>Status</label>
+            <select id="m-status">
+              <option value="active">✅ Active (can login)</option>
+              <option value="inactive">🚫 Inactive (cannot login)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Module Access section (admin full control) -->
+        <div class="extra-access-section">
+          <div class="eas-head">
+            <span class="eas-icon">🔓</span>
+            <div>
+              <div class="eas-title">Module Access (Admin Control)</div>
+              <div class="eas-sub">Tick all modules user should access · Override defaults if needed</div>
+            </div>
+          </div>
+          
+          <div class="eas-current" id="eas-current">
+            <div class="eas-current-lbl">Primary role suggests these defaults:</div>
+            <div class="eas-current-modules" id="eas-primary-list">
+              <span style="color:var(--mute);font-style:italic">Select role to see default modules</span>
+            </div>
+          </div>
+
+          <div class="eas-checkboxes">
+            <div class="eas-cb-lbl">Final access list (★ = role's default · admin can edit):</div>
+            <div class="eas-cb-grid">
+              <label class="eas-cb"><input type="checkbox" value="dashboard" data-mod="dashboard"> 🏠 Dashboard</label>
+              <label class="eas-cb"><input type="checkbox" value="orders" data-mod="orders"> 📋 Orders</label>
+              <label class="eas-cb"><input type="checkbox" value="leads" data-mod="leads"> 🎯 Leads CRM</label>
+              <label class="eas-cb"><input type="checkbox" value="quotations" data-mod="quotations"> 📝 Quotations</label>
+              <label class="eas-cb"><input type="checkbox" value="invoices" data-mod="invoices"> 🧾 Invoices</label>
+              <label class="eas-cb"><input type="checkbox" value="printing" data-mod="printing"> 🖨️ Printing</label>
+              <label class="eas-cb"><input type="checkbox" value="stitching" data-mod="stitching"> ✂️ Stitching</label>
+              <label class="eas-cb"><input type="checkbox" value="execution" data-mod="execution"> 🛺 Execution</label>
+              <label class="eas-cb"><input type="checkbox" value="dispatch" data-mod="dispatch"> 🚚 Dispatch</label>
+              <label class="eas-cb"><input type="checkbox" value="reports" data-mod="reports"> 📊 Reports</label>
+              <label class="eas-cb admin-cb"><input type="checkbox" value="team" data-mod="team"> 👥 Team Mgmt <span class="warn-badge">grants admin powers</span></label>
+              <label class="eas-cb admin-cb"><input type="checkbox" value="settings" data-mod="settings"> ⚙️ Settings <span class="warn-badge">admin only</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;padding:14px;background:var(--blue-soft);border-radius:10px;font-size:12px;color:var(--ink);font-weight:600">
+          💡 <strong>Admin Full Control:</strong> Aap koi bhi module checkbox tick/untick kar sakte ho — chahe role ka default ho ya extra. Final saved list hi user ko milegi (default override karke). Phone number se WhatsApp OTP login hoga.
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn ghost" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn ghost" onclick="resetToRoleDefaults()" style="background:#FEF3C7;color:#92400E;border-color:#F59E0B">🔄 Reset to Role Defaults</button>
+      <button type="button" class="btn primary" id="save-btn" onclick="saveMember()">💾 Save Member</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="lib-config.js"></script>
+<script src="lib-auth.js"></script>
+<script src="lib-ui.js"></script>
+<script src="lib-dashboard.js"></script>
+<script>
+const session = AUTH.requireModule('team');
+if (!session) throw new Error('Not authorized');
+
+document.getElementById('sidebar').innerHTML = UI.renderSidebar('team');
+document.getElementById('topbar').innerHTML = UI.renderTopbar('Team Management', { searchPlaceholder: 'Search by name, phone, role...' });
+
+let allTeam = [];
+let currentDept = 'all';
+let editingId = null;
+
+// Role options per department
+const ROLE_OPTIONS = {
+  'Admin': [
+    { value: 'admin', label: '👑 Admin (Full access + Profit)' }
+  ],
+  'Sales': [
+    { value: 'sales', label: '📊 Sales' },
+    { value: 'hr_sales', label: '📊 HR + Sales (Rajendra type)' }
+  ],
+  'Operations': [
+    { value: 'operations_manager', label: '⚙️ Operations Manager (Ravi type)' },
+    { value: 'printing', label: '🖨️ Print Operator' },
+    { value: 'printing_manager', label: '🖨️ Print Manager' },
+    { value: 'stitching', label: '🧵 Stitch Master' },
+    { value: 'stitching_manager', label: '✂️ Stitch Manager' }
+  ],
+  'Execution': [
+    { value: 'execution', label: '👷 Field Member' },
+    { value: 'execution_manager', label: '🛺 Field Manager' }
+  ],
+  'Logistics': [
+    { value: 'dispatch', label: '🚚 Dispatch Manager' }
+  ],
+  'Creative': [
+    { value: 'designer', label: '🎨 Designer' },
+    { value: 'designer_head', label: '🎨 Design Head' }
+  ]
+};
+
+function updateRoleOptions() {
+  const dept = document.getElementById('m-department').value;
+  const sel = document.getElementById('m-role');
+  sel.innerHTML = '<option value="">— Select Role —</option>';
+  
+  const opts = ROLE_OPTIONS[dept] || [];
+  opts.forEach(opt => {
+    const o = document.createElement('option');
+    o.value = opt.value;
+    o.textContent = opt.label;
+    sel.appendChild(o);
+  });
+  
+  // Add listener to update primary modules display when role changes
+  sel.onchange = updatePrimaryModulesDisplay;
+}
+
+// Show what primary role gives access to + pre-check (but DON'T disable — admin has full control)
+function updatePrimaryModulesDisplay() {
+  const role = document.getElementById('m-role').value;
+  const primaryList = document.getElementById('eas-primary-list');
+  
+  if (!role || !ROLES[role]) {
+    primaryList.innerHTML = '<span style="color:var(--mute);font-style:italic">Select role to see default modules</span>';
+    document.querySelectorAll('.eas-cb').forEach(cb => {
+      cb.classList.remove('default-mod');
+      cb.querySelector('input').disabled = false;
+    });
+    return;
+  }
+  
+  const config = ROLES[role];
+  const primaryMods = config.modules || [];
+  
+  // Module display labels
+  const modLabels = {
+    dashboard: '🏠 Dashboard', orders: '📋 Orders',
+    leads: '🎯 Leads', quotations: '📝 Quotations', invoices: '🧾 Invoices',
+    printing: '🖨️ Printing', stitching: '✂️ Stitching',
+    execution: '🛺 Execution', dispatch: '🚚 Dispatch',
+    reports: '📊 Reports', team: '👥 Team Mgmt', settings: '⚙️ Settings'
+  };
+  
+  primaryList.innerHTML = primaryMods.map(m => 
+    `<span class="mod-tag">${modLabels[m] || m}</span>`
+  ).join('');
+  
+  // Check if any checkbox is currently checked (means user/edit mode has data)
+  const anyChecked = Array.from(document.querySelectorAll('.eas-cb input[type="checkbox"]'))
+    .some(cb => cb.checked);
+  
+  // Mark default modules visually + auto-tick them ONLY if all empty (new add mode)
+  document.querySelectorAll('.eas-cb').forEach(cb => {
+    const input = cb.querySelector('input');
+    const mod = input.dataset.mod;
+    
+    // Keep ALL checkboxes enabled — admin has full control
+    input.disabled = false;
+    
+    if (primaryMods.includes(mod)) {
+      cb.classList.add('default-mod');
+      // Auto-tick only when nothing is checked (i.e., new lead OR role just changed)
+      if (!anyChecked) input.checked = true;
+    } else {
+      cb.classList.remove('default-mod');
+    }
+  });
+}
+
+async function loadTeam() {
+  try {
+    const { data, error } = await sb()
+      .from('prajapati_staff')
+      .select('*')
+      .order('emp_code', { ascending: true });
+    
+    if (error) throw error;
+    allTeam = data || [];
+
+    // Update stats
+    document.getElementById('stat-total').textContent = allTeam.length;
+    document.getElementById('stat-active').textContent = allTeam.filter(m => m.status === 'active').length;
+    document.getElementById('stat-ops').textContent = allTeam.filter(m => m.department === 'Operations').length;
+    document.getElementById('stat-sales').textContent = allTeam.filter(m => m.department === 'Sales').length;
+    document.getElementById('stat-field').textContent = allTeam.filter(m => m.department === 'Execution').length;
+
+    // Update tab counts
+    document.getElementById('cnt-all').textContent = allTeam.length;
+    document.getElementById('cnt-admin').textContent = allTeam.filter(m => m.department === 'Admin').length;
+    document.getElementById('cnt-sales').textContent = allTeam.filter(m => m.department === 'Sales').length;
+    document.getElementById('cnt-ops').textContent = allTeam.filter(m => m.department === 'Operations').length;
+    document.getElementById('cnt-exec').textContent = allTeam.filter(m => m.department === 'Execution').length;
+    document.getElementById('cnt-creative').textContent = allTeam.filter(m => m.department === 'Creative').length;
+    document.getElementById('cnt-logistics').textContent = allTeam.filter(m => m.department === 'Logistics').length;
+
+    renderTeam();
+  } catch (e) {
+    UI.showError('#team-grid', 'Could not load team: ' + e.message);
+  }
+}
+
+function renderTeam() {
+  const grid = document.getElementById('team-grid');
+  let filtered = allTeam;
+  if (currentDept !== 'all') {
+    filtered = allTeam.filter(m => m.department === currentDept);
+  }
+
+  if (filtered.length === 0) {
+    UI.showEmpty(grid, 'No team members in this department');
+    return;
+  }
+
+  grid.className = 'team-grid';
+  grid.innerHTML = filtered.map(m => {
+    const roleConfig = getRoleConfig(m.role);
+    const isInactive = m.status !== 'active';
+    const initials = (m.name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    
+    return `
+      <div class="team-card ${isInactive ? 'inactive' : ''}">
+        <div class="tc-head">
+          <div class="tc-avatar">${initials}</div>
+          <div class="tc-info">
+            <div class="tc-name">${m.name || 'Unnamed'}</div>
+            <div class="tc-empcode">${m.emp_code || '—'}</div>
+          </div>
+        </div>
+        <div>
+          <span class="tc-pill ${m.role || 'staff'}">${roleConfig.icon} ${roleConfig.label}</span>
+        </div>
+        <div class="tc-meta">
+          <div class="tc-meta-row"><span class="ico-mini">📱</span> <span>+91 <strong>${m.phone || '—'}</strong></span></div>
+          <div class="tc-meta-row"><span class="ico-mini">🏢</span> <span>${m.department || '—'}</span></div>
+          ${m.designation ? `<div class="tc-meta-row"><span class="ico-mini">💼</span> <span>${m.designation}</span></div>` : ''}
+          ${m.joining_date ? `<div class="tc-meta-row"><span class="ico-mini">📅</span> <span>Joined ${UI.fmtDate(m.joining_date)}</span></div>` : ''}
+          ${(() => {
+            let extras = [];
+            if (m.custom_access) {
+              if (Array.isArray(m.custom_access)) extras = m.custom_access;
+              else if (typeof m.custom_access === 'string') {
+                try { extras = JSON.parse(m.custom_access); } 
+                catch (e) { extras = m.custom_access.split(',').map(s => s.trim()).filter(Boolean); }
+              }
+            }
+            const roleDefaults = (ROLES[m.role] || {}).modules || [];
+            const hasCustom = extras.length > 0;
+            const totalAccess = hasCustom ? extras.length : roleDefaults.length;
+            return `<div class="tc-meta-row" style="margin-top:4px;padding-top:6px;border-top:1px dashed var(--line)">
+              <span class="ico-mini">🔐</span> 
+              <span style="font-size:11px;font-weight:700;color:${hasCustom ? 'var(--amber)' : 'var(--green-dk)'}">
+                ${hasCustom ? `🔧 Custom: ${totalAccess} modules` : `✓ Role default: ${totalAccess} modules`}
+              </span>
+            </div>`;
+          })()}
+        </div>
+        <div class="tc-actions">
+          <button class="btn-mini" onclick="openEditModal('${m.id}')">✏️ Edit</button>
+          <button class="btn-mini" onclick="openTargetModal('${m.id}', '${escapeJsString(m.name)}')" style="background:#FEF3C7;color:#92400E;border-color:#F59E0B">🎯 Target</button>
+          ${isInactive 
+            ? `<button class="btn-mini success" onclick="toggleStatus('${m.id}', 'active')">✅ Activate</button>`
+            : `<button class="btn-mini danger" onclick="toggleStatus('${m.id}', 'inactive')">🚫 Disable</button>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = '+ Add Team Member';
+  document.getElementById('member-form').reset();
+  document.getElementById('m-id').value = '';
+  document.getElementById('m-status').value = 'active';
+  document.getElementById('m-salary-type').value = 'monthly';
+  document.getElementById('m-role').innerHTML = '<option value="">— Select Department First —</option>';
+  
+  // Reset extra access checkboxes
+  document.querySelectorAll('.eas-cb input[type="checkbox"]').forEach(cb => {
+    cb.checked = false;
+    cb.disabled = false;
+    cb.closest('.eas-cb').classList.remove('default-mod');
+  });
+  document.getElementById('eas-primary-list').innerHTML = '<span style="color:var(--mute);font-style:italic">Select role to see default modules</span>';
+  
+  document.getElementById('member-modal').classList.add('active');
+}
+
+function openEditModal(id) {
+  const m = allTeam.find(x => x.id === id);
+  if (!m) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = `✏️ Edit: ${m.name}`;
+  document.getElementById('m-id').value = m.id;
+  document.getElementById('m-name').value = m.name || '';
+  document.getElementById('m-empcode').value = m.emp_code || '';
+  document.getElementById('m-phone').value = (m.phone || '').replace(/[^0-9]/g, '').slice(-10);
+  document.getElementById('m-department').value = m.department || '';
+  updateRoleOptions();
+  document.getElementById('m-role').value = m.role || '';
+  document.getElementById('m-designation').value = m.designation || '';
+  document.getElementById('m-joining').value = m.joining_date || '';
+  document.getElementById('m-salary-type').value = m.salary_type || 'monthly';
+  document.getElementById('m-email').value = m.email || '';
+  document.getElementById('m-status').value = m.status || 'active';
+  
+  // STEP 1: Load saved custom_access (the FULL access list)
+  let savedAccess = null;
+  if (m.custom_access) {
+    if (Array.isArray(m.custom_access)) {
+      savedAccess = m.custom_access;
+    } else if (typeof m.custom_access === 'string') {
+      try {
+        savedAccess = JSON.parse(m.custom_access);
+      } catch (e) {
+        savedAccess = m.custom_access.split(',').map(s => s.trim()).filter(Boolean);
+      }
+    }
+  }
+  
+  // STEP 2: Pre-tick checkboxes BEFORE updatePrimaryModulesDisplay
+  // If savedAccess exists → use that exact list (admin-customized previously)
+  // Else → use role's default modules (will be auto-ticked by updatePrimaryModulesDisplay)
+  const roleConfig = ROLES[m.role] || {};
+  const defaultMods = roleConfig.modules || [];
+  const accessList = savedAccess && savedAccess.length > 0 ? savedAccess : defaultMods;
+  
+  document.querySelectorAll('.eas-cb input[type="checkbox"]').forEach(cb => {
+    cb.checked = accessList.includes(cb.dataset.mod);
+  });
+  
+  // STEP 3: Update visual indicators (★ default badges) — AFTER checkboxes set
+  // This won't auto-tick anymore because anyChecked will be true
+  updatePrimaryModulesDisplay();
+  
+  // Store original access state to detect "no changes" save
+  document.getElementById('m-id').dataset.originalAccess = JSON.stringify(accessList.slice().sort());
+  document.getElementById('m-id').dataset.hadCustomAccess = savedAccess ? 'yes' : 'no';
+  
+  document.getElementById('member-modal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('member-modal').classList.remove('active');
+  editingId = null;
+}
+
+// Helper to safely escape strings for use in HTML onclick attributes
+function escapeJsString(s) {
+  return String(s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TARGETS MANAGEMENT
+// ═══════════════════════════════════════════════════════════════
+async function openTargetModal(staffId, staffName) {
+  document.getElementById('t-staff-id').value = staffId;
+  document.getElementById('t-staff-name').value = staffName;
+  document.getElementById('t-staff-display').textContent = staffName;
+  
+  // Default to current month
+  const now = new Date();
+  document.getElementById('t-year').value = now.getFullYear();
+  document.getElementById('t-month').value = now.getMonth() + 1;
+  
+  // Try to load existing target
+  await loadExistingTarget();
+  
+  document.getElementById('target-modal').classList.add('active');
+}
+
+// Reload target when year/month changes
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const yearEl = document.getElementById('t-year');
+    const monthEl = document.getElementById('t-month');
+    if (yearEl) yearEl.addEventListener('change', loadExistingTarget);
+    if (monthEl) monthEl.addEventListener('change', loadExistingTarget);
+  }, 100);
+});
+
+async function loadExistingTarget() {
+  const staffId = document.getElementById('t-staff-id').value;
+  const year = parseInt(document.getElementById('t-year').value);
+  const month = parseInt(document.getElementById('t-month').value);
+  if (!staffId || !year || !month) return;
+  
+  try {
+    const { data } = await sb()
+      .from('prajapati_targets')
+      .select('*')
+      .eq('staff_id', staffId)
+      .eq('period_type', 'monthly')
+      .eq('period_year', year)
+      .eq('period_month', month)
+      .eq('is_active', true)
+      .maybeSingle();
+    
+    const msgEl = document.getElementById('t-existing-msg');
+    if (data) {
+      // Pre-fill existing
+      document.getElementById('t-revenue').value = data.revenue_target || '';
+      document.getElementById('t-leads').value = data.leads_target || '';
+      document.getElementById('t-quotes').value = data.quotes_target || '';
+      document.getElementById('t-invoices').value = data.invoices_target || '';
+      document.getElementById('t-conversion').value = data.conversion_rate_target || '';
+      document.getElementById('t-notes').value = data.notes || '';
+      msgEl.style.display = 'block';
+      msgEl.textContent = `✅ Existing target found - editing will update it`;
+    } else {
+      // Clear fields
+      ['t-revenue','t-leads','t-quotes','t-invoices','t-conversion','t-notes'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      // Pre-fill suggested defaults
+      const member = allTeam.find(m => m.id === staffId);
+      if (member) {
+        const role = member.role;
+        if (['admin', 'hr_sales', 'sales', 'operations_manager'].includes(role)) {
+          document.getElementById('t-revenue').value = role === 'admin' ? 1000000 : role === 'operations_manager' ? 750000 : 500000;
+          document.getElementById('t-leads').value = 30;
+          document.getElementById('t-quotes').value = 20;
+          document.getElementById('t-invoices').value = 10;
+          document.getElementById('t-conversion').value = 35;
+        }
+      }
+      msgEl.style.display = 'none';
+    }
+  } catch (e) {
+    console.warn('Load target error:', e);
+  }
+}
+
+function closeTargetModal() {
+  document.getElementById('target-modal').classList.remove('active');
+}
+
+async function saveTarget() {
+  const staffId = document.getElementById('t-staff-id').value;
+  const staffName = document.getElementById('t-staff-name').value;
+  const year = parseInt(document.getElementById('t-year').value);
+  const month = parseInt(document.getElementById('t-month').value);
+  
+  const revenue = parseFloat(document.getElementById('t-revenue').value);
+  if (!revenue || revenue <= 0) {
+    UI.toast('⚠️ Revenue target required', 'warning');
+    return;
+  }
+  
+  const targets = {
+    revenue: revenue,
+    leads: parseInt(document.getElementById('t-leads').value) || null,
+    quotes: parseInt(document.getElementById('t-quotes').value) || null,
+    invoices: parseInt(document.getElementById('t-invoices').value) || null,
+    conversion: parseFloat(document.getElementById('t-conversion').value) || null,
+    notes: document.getElementById('t-notes').value.trim() || null
+  };
+  
+  const btn = document.getElementById('t-save-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving...';
+  
+  try {
+    await DASH.setTarget(staffId, staffName, year, month, targets, session.staffId, session.name);
+    UI.toast(`✅ Target saved for ${staffName} - ${new Date(year, month-1).toLocaleString('en-US',{month:'long',year:'numeric'})}`, 'success');
+    closeTargetModal();
+  } catch (e) {
+    console.error(e);
+    UI.toast('❌ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Save Target';
+  }
+}
+
+// Close target modal on overlay click
+setTimeout(() => {
+  const tm = document.getElementById('target-modal');
+  if (tm) tm.addEventListener('click', e => { if (e.target.id === 'target-modal') closeTargetModal(); });
+}, 100);
+
+// Reset checkboxes to role defaults (clears custom access)
+function resetToRoleDefaults() {
+  const role = document.getElementById('m-role').value;
+  if (!role) {
+    UI.toast('⚠️ Select role first', 'warning');
+    return;
+  }
+  
+  const roleConfig = ROLES[role] || {};
+  const defaultMods = roleConfig.modules || [];
+  
+  if (!confirm(`Reset access to ${role} role defaults?\n\nUser will get: ${defaultMods.join(', ')}\n\nThis will clear any custom access.`)) return;
+  
+  document.querySelectorAll('.eas-cb input[type="checkbox"]').forEach(cb => {
+    cb.checked = defaultMods.includes(cb.dataset.mod);
+  });
+  
+  UI.toast(`✅ Reset to ${role} defaults — Save to apply`, 'success');
+}
+
+async function saveMember() {
+  // Gather ALL checked checkboxes — admin has full control
+  // This is the COMPLETE access list (replaces role defaults entirely)
+  const fullAccessList = [];
+  document.querySelectorAll('.eas-cb input[type="checkbox"]:checked').forEach(cb => {
+    fullAccessList.push(cb.dataset.mod);
+  });
+
+  const role = document.getElementById('m-role').value;
+  const roleConfig = ROLES[role] || {};
+  const defaultMods = (roleConfig.modules || []).slice().sort();
+  const sortedAccess = fullAccessList.slice().sort();
+  
+  // Smart logic: if checked access EXACTLY matches role defaults → save as null
+  // This way it'll use role defaults dynamically (future role changes auto-apply)
+  // If admin removed/added anything → save as explicit custom list
+  const matchesDefaults = JSON.stringify(sortedAccess) === JSON.stringify(defaultMods);
+  const customAccessToSave = (fullAccessList.length === 0 || matchesDefaults) ? null : fullAccessList;
+
+  const payload = {
+    name: document.getElementById('m-name').value.trim(),
+    emp_code: document.getElementById('m-empcode').value.trim(),
+    phone: document.getElementById('m-phone').value.trim(),
+    department: document.getElementById('m-department').value,
+    role: document.getElementById('m-role').value,
+    designation: document.getElementById('m-designation').value.trim() || null,
+    joining_date: document.getElementById('m-joining').value || null,
+    salary_type: document.getElementById('m-salary-type').value,
+    email: document.getElementById('m-email').value.trim() || null,
+    status: document.getElementById('m-status').value,
+    custom_access: customAccessToSave
+  };
+
+  // Validation
+  if (!payload.name || !payload.emp_code || !payload.phone || !payload.department || !payload.role) {
+    UI.toast('⚠️ Please fill all required fields (*)', 'warning');
+    return;
+  }
+  if (!/^[6-9]\d{9}$/.test(payload.phone)) {
+    UI.toast('⚠️ Valid 10-digit phone daalo (6-9 se start)', 'warning');
+    return;
+  }
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving...';
+
+  try {
+    let result;
+    if (editingId) {
+      result = await sb().from('prajapati_staff').update(payload).eq('id', editingId);
+    } else {
+      result = await sb().from('prajapati_staff').insert(payload);
+    }
+    
+    if (result.error) throw result.error;
+    
+    // Build informative success message
+    let msg = editingId ? '✅ Member updated!' : '✅ Member added! WhatsApp OTP login enabled.';
+    if (editingId) {
+      const accessSummary = customAccessToSave 
+        ? `Custom access (${customAccessToSave.length} modules)` 
+        : `Default ${role} role access`;
+      msg += `\n📋 ${accessSummary}`;
+      msg += '\n💡 User ko logout-login karna hoga changes apply hone ke liye';
+    }
+    
+    UI.toast(msg, 'success');
+    
+    // Show clear instructions for admin
+    if (editingId) {
+      console.log('========== ACCESS UPDATE ==========');
+      console.log('Member:', payload.name);
+      console.log('Role:', payload.role);
+      console.log('Custom Access:', customAccessToSave);
+      console.log('Effective Access:', customAccessToSave || ROLES[payload.role]?.modules || []);
+      console.log('=====================================');
+    }
+    
+    closeModal();
+    await loadTeam();
+  } catch (err) {
+    UI.toast('❌ Save failed: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Save Member';
+  }
+}
+
+async function toggleStatus(id, newStatus) {
+  const m = allTeam.find(x => x.id === id);
+  if (!m) return;
+  if (!confirm(`${newStatus === 'active' ? 'Activate' : 'Disable'} ${m.name}?\n\n${newStatus === 'inactive' ? '⚠️ They will no longer be able to login.' : '✅ They can login again.'}`)) return;
+
+  try {
+    const { error } = await sb().from('prajapati_staff').update({ status: newStatus }).eq('id', id);
+    if (error) throw error;
+    UI.toast(`✅ ${m.name} ${newStatus === 'active' ? 'activated' : 'disabled'}`, 'success');
+    await loadTeam();
+  } catch (e) {
+    UI.toast('❌ Failed: ' + e.message, 'error');
+  }
+}
+
+// Tab clicks
+document.querySelectorAll('.dept-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.dept-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentDept = tab.dataset.dept;
+    renderTeam();
+  });
+});
+
+// Close modal on overlay click
+document.getElementById('member-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'member-modal') closeModal();
+});
+
+loadTeam();
+</script>
+
+</body>
+</html>

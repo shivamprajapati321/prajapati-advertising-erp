@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Invoices · Prajapati ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+.inv-list {
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: 12px; overflow: hidden;
+}
+.inv-list table { width: 100%; border-collapse: collapse; }
+.inv-list th { background: var(--soft); font-size: 10px; font-weight: 800; color: var(--mute); letter-spacing: 0.06em; text-transform: uppercase; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+.inv-list td { padding: 12px; font-size: 12px; color: var(--ink); border-bottom: 1px solid var(--line); font-weight: 600; }
+.inv-list tr:hover { background: var(--cream); cursor: pointer; }
+
+.pay-status {
+  display: inline-flex; padding: 3px 9px; border-radius: 99px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.04em;
+}
+.pay-status.unpaid { background: var(--red-soft); color: var(--red-dk); }
+.pay-status.partial { background: var(--amber-soft); color: var(--amber); }
+.pay-status.paid { background: var(--green-soft); color: var(--green-dk); }
+.pay-status.overdue { background: #FEE2E2; color: #991B1B; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(11,25,87,0.65); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-overlay.active { display: flex; }
+.modal-q { background: white; border-radius: 16px; width: 100%; max-width: 900px; max-height: 95vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,0.3); }
+.modal-q .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 1; }
+.modal-q .modal-head h2 { font-size: 18px; font-weight: 800; color: var(--nav); }
+.modal-close { width: 30px; height: 30px; border-radius: 8px; background: var(--soft); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.modal-q .modal-body { padding: 22px; }
+.modal-q .modal-footer { padding: 14px 22px; border-top: 1px solid var(--line); display: flex; gap: 8px; justify-content: flex-end; position: sticky; bottom: 0; background: white; }
+
+.section-block { background: var(--soft); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+.section-block .sb-head { font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 10px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid .full { grid-column: 1 / -1; }
+.fld { display: flex; flex-direction: column; }
+.fld label { font-size: 10px; font-weight: 700; color: var(--mute); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+.fld input, .fld select, .fld textarea { padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; font-size: 12px; font-weight: 600; color: var(--ink); font-family: inherit; background: white; }
+.fld textarea { resize: vertical; min-height: 60px; }
+.fld input:focus, .fld select:focus, .fld textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+.toggle-pills { display: inline-flex; padding: 3px; background: white; border: 1px solid var(--line); border-radius: 8px; gap: 2px; }
+.toggle-pills button { padding: 6px 12px; font-size: 11px; font-weight: 800; border: none; background: none; cursor: pointer; border-radius: 6px; color: var(--mute); }
+.toggle-pills button.active { background: var(--accent); color: white; }
+
+.line-row { display: grid; gap: 6px; margin-bottom: 6px; align-items: start; grid-template-columns: 2fr 70px 60px 90px 80px 80px 80px auto; }
+.line-row input, .line-row select { padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--ink); font-family: inherit; background: white; }
+.line-row .amount-cell { padding: 7px 9px; background: var(--blue-soft); border-radius: 6px; font-size: 12px; font-weight: 800; color: var(--accent); font-family: 'JetBrains Mono', monospace; text-align: right; }
+.line-row .del-btn { background: var(--red-soft); color: var(--red-dk); border: none; border-radius: 6px; cursor: pointer; padding: 0 9px; font-size: 13px; font-weight: 800; }
+
+.svc-autocomplete { position: absolute; background: white; border: 1px solid var(--line); border-radius: 7px; max-height: 200px; overflow-y: auto; box-shadow: 0 8px 20px rgba(0,0,0,0.15); z-index: 10; min-width: 300px; display: none; }
+.svc-autocomplete.active { display: block; }
+.svc-suggest { padding: 8px 12px; cursor: pointer; font-size: 12px; border-bottom: 1px solid var(--line); }
+.svc-suggest:hover { background: var(--blue-soft); }
+.svc-suggest .ss-name { font-weight: 800; color: var(--ink); }
+.svc-suggest .ss-meta { font-size: 10px; color: var(--mute); margin-top: 2px; }
+
+.totals-box { background: white; border: 2px solid var(--accent); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+.totals-grid { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 13px; font-weight: 700; }
+.totals-grid .lbl { color: var(--ink-2); }
+.totals-grid .val { text-align: right; font-family: 'JetBrains Mono', monospace; color: var(--ink); }
+.totals-grid .grand-row { border-top: 2px solid var(--line); padding-top: 8px; margin-top: 6px; font-size: 16px; font-weight: 800; color: var(--nav); }
+.totals-grid .grand-row .val { font-size: 17px; color: var(--accent); }
+.tds-row { color: var(--red-dk); }
+.tds-row .val { color: var(--red-dk); }
+
+.balance-row { background: linear-gradient(135deg, var(--green-soft), white); padding: 8px; border-radius: 6px; margin-top: 8px; }
+.balance-row.has-balance { background: linear-gradient(135deg, #FEE2E2, white); }
+
+@media (max-width: 700px) { .form-grid, .line-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <header class="topbar" id="topbar"></header>
+    <div class="page">
+
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Tax <em>Invoices</em></h1>
+          <div class="page-sub">GST invoices · Payment tracking · Convert from quotation</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn ghost" onclick="loadInvoices()">🔄 Refresh</button>
+          <button class="btn ghost" onclick="openConvertFromQuote()">📋 Convert from Quote</button>
+          <button class="btn primary" onclick="openNewInvoiceModal()">+ New Invoice</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px">
+        <div class="stat-mini"><div class="label">Total Invoices</div><div class="num" id="stat-total">—</div></div>
+        <div class="stat-mini"><div class="label">Unpaid</div><div class="num" id="stat-unpaid" style="color:var(--red-dk)">—</div></div>
+        <div class="stat-mini"><div class="label">Paid</div><div class="num" id="stat-paid" style="color:var(--green-dk)">—</div></div>
+        <div class="stat-mini"><div class="label">Total Outstanding</div><div class="num" id="stat-outstanding" style="color:var(--red-dk)">—</div></div>
+        <div class="stat-mini"><div class="label">Total Revenue</div><div class="num" id="stat-revenue">—</div></div>
+      </div>
+      
+      <!-- Receipts dashboard -->
+      <div class="stats-row" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+        <div class="stat-mini" style="background:linear-gradient(135deg,var(--green-soft),white);border-color:var(--green)"><div class="label">💰 Today's Receipts</div><div class="num" id="stat-today-receipts" style="color:var(--green-dk)">—</div></div>
+        <div class="stat-mini" style="background:linear-gradient(135deg,var(--blue-soft),white);border-color:var(--accent)"><div class="label">📅 This Month's Receipts</div><div class="num" id="stat-month-receipts" style="color:var(--accent)">—</div></div>
+        <div class="stat-mini" style="background:linear-gradient(135deg,var(--amber-soft),white);border-color:var(--amber)"><div class="label">⚡ Total Advance Collected</div><div class="num" id="stat-advance" style="color:var(--amber)">—</div></div>
+      </div>
+
+      <!-- Filter -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+        <div class="toggle-pills" id="status-filter">
+          <button class="active" data-status="all">All</button>
+          <button data-status="unpaid">Unpaid</button>
+          <button data-status="partial">Partial</button>
+          <button data-status="paid">Paid</button>
+        </div>
+        <input type="text" id="search-input" oninput="renderInvoices()" placeholder="🔍 Search by invoice#, customer, phone..." 
+          style="padding:7px 12px;border:1px solid var(--line);border-radius:7px;font-size:12px;font-weight:600;font-family:inherit;width:280px">
+      </div>
+
+      <!-- List -->
+      <div class="inv-list">
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Due Date</th>
+              <th class="right">Total</th>
+              <th class="right">Balance</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="inv-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--mute)">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- INVOICE EDITOR MODAL -->
+<div class="modal-overlay" id="inv-modal">
+  <div class="modal-q">
+    <div class="modal-head">
+      <h2 id="inv-title">+ New Invoice</h2>
+      <div class="modal-close" onclick="closeInvModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="inv-id">
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;padding:12px;background:var(--blue-soft);border-radius:10px">
+        <div>
+          <div style="font-size:10px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px">GST Mode</div>
+          <div class="toggle-pills">
+            <button class="active" data-gst="true" onclick="setInvGstMode(true)">✅ With GST</button>
+            <button data-gst="false" onclick="setInvGstMode(false)">🚫 Without GST</button>
+          </div>
+        </div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:10px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px">Bank Account</div>
+          <select id="inv-bank-id" style="width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:7px;font-size:12px;font-weight:700;font-family:inherit;background:white">
+            <option value="">— Select bank —</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Customer -->
+      <div class="section-block">
+        <div class="sb-head">📋 Bill To Customer</div>
+        <div class="form-grid">
+          <div class="fld"><label>Customer Name *</label><input type="text" id="inv-cust-name" required></div>
+          <div class="fld"><label>Company / Business</label><input type="text" id="inv-cust-company"></div>
+          <div class="fld"><label>Phone</label><input type="tel" id="inv-cust-phone"></div>
+          <div class="fld"><label>Alt Phone</label><input type="tel" id="inv-cust-phone-alt"></div>
+          <div class="fld"><label>Email</label><input type="email" id="inv-cust-email"></div>
+          <div class="fld"><label>GSTIN</label><input type="text" id="inv-cust-gstin" style="font-family:'JetBrains Mono',monospace"></div>
+          <div class="fld full"><label>Address Line 1</label><input type="text" id="inv-cust-addr1"></div>
+          <div class="fld"><label>City</label><input type="text" id="inv-cust-city"></div>
+          <div class="fld"><label>State</label><input type="text" id="inv-cust-state"></div>
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="section-block">
+        <div class="sb-head">📅 Invoice Details</div>
+        <div class="form-grid">
+          <div class="fld"><label>Invoice Date *</label><input type="date" id="inv-date" required></div>
+          <div class="fld"><label>Due Date *</label><input type="date" id="inv-due-date" required></div>
+          <div class="fld"><label>Payment Terms</label><input type="text" id="inv-terms-name" value="Due on Receipt"></div>
+          <div class="fld"><label>Place of Supply</label><input type="text" id="inv-place" value="Maharashtra (27)"></div>
+        </div>
+      </div>
+
+      <!-- Line Items -->
+      <div class="section-block">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div class="sb-head" style="margin-bottom:0">📦 Line Items</div>
+          <button type="button" class="btn ghost" onclick="addItem()" style="padding:5px 10px;font-size:11px">+ Add Item</button>
+        </div>
+
+        <div class="line-row" style="background:var(--nav);color:white;padding:6px 0;border-radius:6px;margin-bottom:6px;font-size:10px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase">
+          <div style="padding:0 9px">Service / Description</div>
+          <div style="padding:0 9px;text-align:center">HSN/SAC</div>
+          <div style="padding:0 9px;text-align:center">Qty</div>
+          <div style="padding:0 9px;text-align:center">Unit</div>
+          <div style="padding:0 9px;text-align:right">Rate</div>
+          <div class="gst-col-hdr" style="padding:0 9px;text-align:right">CGST</div>
+          <div class="gst-col-hdr" style="padding:0 9px;text-align:right">SGST</div>
+          <div style="padding:0 9px;text-align:right">Amount</div>
+          <div></div>
+        </div>
+
+        <div id="line-items"></div>
+      </div>
+
+      <!-- Totals -->
+      <div class="totals-box">
+        <div class="totals-grid">
+          <div class="lbl">Sub Total:</div>
+          <div class="val" id="inv-subtotal">₹0</div>
+
+          <div class="lbl" style="display:flex;align-items:center;gap:6px">
+            Discount (%):
+            <input type="number" id="inv-discount-pct" value="0" min="0" max="100" step="0.5"
+              oninput="recalcInv()" style="width:55px;padding:3px 6px;border:1px solid var(--line);border-radius:4px;font-size:12px;text-align:center;font-family:inherit">
+          </div>
+          <div class="val" style="color:var(--red-dk)" id="inv-discount-amt">- ₹0</div>
+
+          <div class="lbl gst-row">CGST <span id="inv-cgst-pct-display">9</span>%:</div>
+          <div class="val gst-row" id="inv-cgst-amt">₹0</div>
+
+          <div class="lbl gst-row">SGST <span id="inv-sgst-pct-display">9</span>%:</div>
+          <div class="val gst-row" id="inv-sgst-amt">₹0</div>
+
+          <div class="lbl tds-row" style="display:flex;align-items:center;gap:6px">
+            <input type="checkbox" id="inv-apply-tds" checked onchange="recalcInv()" style="cursor:pointer">
+            <label for="inv-apply-tds" style="cursor:pointer;font-size:12px" id="inv-tds-label">Payment of contractors HUF/Indiv (1%)</label>
+          </div>
+          <div class="val tds-row" id="inv-tds-amt">- ₹0</div>
+
+          <div class="lbl grand-row">Total:</div>
+          <div class="val grand-row" id="inv-grand-total">₹0</div>
+
+          <div class="lbl" style="padding-top:6px">Payment Made:
+            <input type="number" id="inv-payment-made" value="0" min="0" step="100"
+              oninput="recalcInv()" style="width:120px;padding:5px 8px;border:1px solid var(--line);border-radius:4px;font-size:12px;text-align:right;font-family:'JetBrains Mono',monospace">
+          </div>
+          <div class="val" style="color:var(--red-dk);padding-top:6px" id="inv-payment-amt">- ₹0</div>
+
+          <div class="lbl" style="font-size:14px;font-weight:800;color:var(--green-dk);padding-top:6px">Balance Due:</div>
+          <div class="val" style="font-size:15px;font-weight:800;color:var(--green-dk);padding-top:6px" id="inv-balance">₹0</div>
+        </div>
+      </div>
+
+      <!-- Terms + Notes -->
+      <div class="section-block">
+        <div class="sb-head">📜 Notes & Terms</div>
+        <div class="form-grid">
+          <div class="fld full">
+            <label>Notes (visible on PDF)</label>
+            <textarea id="inv-notes" rows="3"></textarea>
+          </div>
+          <div class="fld full">
+            <label>Terms & Conditions</label>
+            <textarea id="inv-terms" rows="6"></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost" onclick="closeInvModal()">Cancel</button>
+      <button class="btn ghost" id="inv-payments-btn" onclick="openPaymentsModal()" style="display:none;background:#D1FAE5;color:#065F46;border-color:#10B981">💰 Payments & Receipts</button>
+      <button class="btn ghost" id="inv-pdf-btn" onclick="generateInvPDF()" style="display:none">🖨️ Print/PDF</button>
+      <button class="btn ghost" id="inv-whatsapp-btn" onclick="sendInvoiceViaWhatsApp()" style="display:none;background:#DCFCE7;color:#15803D;border-color:#22C55E">💬 Send WhatsApp</button>
+      <button class="btn primary" id="inv-save-btn" onclick="saveInvoice()">💾 Save Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONVERT FROM QUOTE MODAL -->
+<div class="modal-overlay" id="convert-modal">
+  <div class="modal-q" style="max-width:600px">
+    <div class="modal-head">
+      <h2>📋 Convert Quotation to Invoice</h2>
+      <div class="modal-close" onclick="document.getElementById('convert-modal').classList.remove('active')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="fld">
+        <label>Select Accepted Quotation</label>
+        <select id="convert-quote-id" style="padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-weight:600;font-family:inherit">
+          <option value="">— Select quote —</option>
+        </select>
+        <div style="font-size:11px;color:var(--mute);margin-top:6px;font-weight:600">Quote ke saare details automatically fill ho jayenge</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost" onclick="document.getElementById('convert-modal').classList.remove('active')">Cancel</button>
+      <button class="btn primary" onclick="doConvertFromQuote()">📋 Convert</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL (history + add) -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="modal-q" style="max-width:780px">
+    <div class="modal-head">
+      <h2 id="pay-modal-title">💰 Payments & Receipts</h2>
+      <div class="modal-close" onclick="closePayModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      
+      <!-- Invoice summary card -->
+      <div id="pay-invoice-summary" style="background:linear-gradient(135deg,var(--blue-soft),white);border-radius:10px;padding:16px;margin-bottom:18px"></div>
+
+      <!-- Add new payment button (top) -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);letter-spacing:0.04em;text-transform:uppercase">📜 Payment History</div>
+        <button class="btn primary" onclick="showAddPaymentForm()" id="pay-add-toggle-btn">+ Record Payment</button>
+      </div>
+
+      <!-- Payment list -->
+      <div id="pay-list" style="margin-bottom:18px"></div>
+
+      <!-- Add payment form (toggled) -->
+      <div id="pay-add-form" style="display:none;background:var(--soft);border-radius:10px;padding:16px;margin-top:14px">
+        <div style="font-size:12px;font-weight:800;color:var(--accent);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:12px">+ Record New Payment</div>
+        
+        <div class="form-grid">
+          <div class="fld">
+            <label>Amount (₹) *</label>
+            <input type="number" id="p-amount" min="0" step="100" required>
+            <div style="font-size:11px;color:var(--mute);margin-top:3px;font-weight:600" id="p-amount-helper"></div>
+          </div>
+          <div class="fld">
+            <label>Payment Date *</label>
+            <input type="date" id="p-date" required>
+          </div>
+          <div class="fld">
+            <label>Payment Method *</label>
+            <select id="p-method" required>
+              <option value="cash">💵 Cash</option>
+              <option value="upi">📱 UPI</option>
+              <option value="bank_transfer">🏦 Bank Transfer</option>
+              <option value="cheque">📝 Cheque</option>
+              <option value="card">💳 Card</option>
+              <option value="other">📌 Other</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label>Reference / Transaction ID</label>
+            <input type="text" id="p-reference" placeholder="UPI ID / Cheque # / Txn ID">
+          </div>
+          <div class="fld">
+            <label>Bank (received in)</label>
+            <select id="p-bank-id">
+              <option value="">— Default —</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label>Payment Type</label>
+            <select id="p-type">
+              <option value="advance">⚡ Advance</option>
+              <option value="partial" selected>💰 Partial</option>
+              <option value="full">✅ Full</option>
+              <option value="final">🏁 Final</option>
+            </select>
+          </div>
+          <div class="fld full">
+            <label>Notes</label>
+            <textarea id="p-notes" rows="2" placeholder="e.g. Advance payment 50% before work starts"></textarea>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+          <button class="btn ghost" onclick="hideAddPaymentForm()">Cancel</button>
+          <button class="btn primary" id="p-save-btn" onclick="savePayment()">💾 Save Payment</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost" onclick="closePayModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="lib-config.js"></script>
+<script src="lib-auth.js"></script>
+<script src="lib-ui.js"></script>
+<script src="lib-pdf.js"></script>
+<script src="lib-customer-search.js"></script>
+<script src="lib-whatsapp.js"></script>
+<script>
+const session = AUTH.requireModule('invoices');
+if (!session) throw new Error('Not authorized');
+
+document.getElementById('sidebar').innerHTML = UI.renderSidebar('invoices');
+document.getElementById('topbar').innerHTML = UI.renderTopbar('Invoices');
+
+let allInvoices = [];
+let allQuotes = [];
+let settings = {};
+let banks = [];
+let catalogue = [];
+let lineItems = [];
+let currentGstMode = true;
+let currentStatusFilter = 'all';
+let allPayments = [];
+
+async function init() {
+  const [sRes, bRes, cRes, iRes, qRes, pRes] = await Promise.all([
+    sb().from('prajapati_settings').select('*').limit(1).single(),
+    sb().from('prajapati_bank_accounts').select('*').eq('is_active', true).order('is_default', { ascending: false }),
+    sb().from('prajapati_service_catalogue').select('*').eq('is_active', true).order('service_name'),
+    sb().from('prajapati_invoices').select('*').order('created_at', { ascending: false }),
+    sb().from('prajapati_quotations').select('*').in('status', ['draft','sent','accepted']).order('created_at', { ascending: false }),
+    sb().from('prajapati_payments').select('*').eq('status', 'received').order('payment_date', { ascending: false })
+  ]);
+  
+  settings = sRes.data || {};
+  banks = bRes.data || [];
+  catalogue = cRes.data || [];
+  allInvoices = iRes.data || [];
+  allQuotes = qRes.data || [];
+  allPayments = pRes.data || [];
+  
+  // Bank dropdown
+  const bankSel = document.getElementById('inv-bank-id');
+  bankSel.innerHTML = '<option value="">— Select bank —</option>';
+  banks.forEach(b => {
+    const o = document.createElement('option');
+    o.value = b.id;
+    o.textContent = `${b.account_label} ${b.is_default ? '⭐' : ''}`;
+    if (b.is_default) o.selected = true;
+    bankSel.appendChild(o);
+  });
+  
+  // Convert quote dropdown
+  const convSel = document.getElementById('convert-quote-id');
+  convSel.innerHTML = '<option value="">— Select quote —</option>';
+  allQuotes.forEach(q => {
+    const o = document.createElement('option');
+    o.value = q.id;
+    o.textContent = `${q.quote_number} · ${q.customer_name} · ${UI.fmtINR(q.grand_total)}`;
+    convSel.appendChild(o);
+  });
+  
+  updateStats();
+  renderInvoices();
+  
+  // Attach customer search to invoice customer name field
+  if (typeof CUSTSEARCH !== 'undefined') {
+    CUSTSEARCH.attach({
+      inputEl: document.getElementById('inv-cust-name'),
+      placeholder: 'Type to search existing customers or add new...',
+      onSelect: (customer) => {
+        document.getElementById('inv-cust-name').value = customer.name || '';
+        document.getElementById('inv-cust-company').value = customer.company || '';
+        document.getElementById('inv-cust-phone').value = customer.phone || '';
+        document.getElementById('inv-cust-email').value = customer.email || '';
+        document.getElementById('inv-cust-gstin').value = customer.gstin || '';
+        document.getElementById('inv-cust-addr1').value = customer.address || '';
+        document.getElementById('inv-cust-city').value = customer.city || '';
+        document.getElementById('inv-cust-state').value = customer.state || '';
+        UI.toast(`✅ Loaded ${customer.name} (${customer.source})`, 'success');
+      }
+    });
+  }
+}
+
+async function loadInvoices() {
+  const [iRes, pRes] = await Promise.all([
+    sb().from('prajapati_invoices').select('*').order('created_at', { ascending: false }),
+    sb().from('prajapati_payments').select('*').eq('status', 'received').order('payment_date', { ascending: false })
+  ]);
+  allInvoices = iRes.data || [];
+  allPayments = pRes.data || [];
+  updateStats();
+  renderInvoices();
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = allInvoices.length;
+  document.getElementById('stat-unpaid').textContent = allInvoices.filter(i => i.payment_status === 'unpaid').length;
+  document.getElementById('stat-paid').textContent = allInvoices.filter(i => i.payment_status === 'paid').length;
+  
+  const outstanding = allInvoices.reduce((s, i) => s + (Number(i.balance_due) || 0), 0);
+  document.getElementById('stat-outstanding').textContent = UI.fmtINR(outstanding);
+  
+  const revenue = allInvoices.reduce((s, i) => s + (Number(i.payment_made) || 0), 0);
+  document.getElementById('stat-revenue').textContent = UI.fmtINR(revenue);
+  
+  // Receipts stats
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayReceipts = allPayments.filter(p => p.payment_date === todayStr).reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  document.getElementById('stat-today-receipts').textContent = UI.fmtINR(todayReceipts);
+  
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0,0,0,0);
+  const monthStartStr = monthStart.toISOString().slice(0, 10);
+  const monthReceipts = allPayments.filter(p => p.payment_date >= monthStartStr).reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  document.getElementById('stat-month-receipts').textContent = UI.fmtINR(monthReceipts);
+  
+  const totalAdvance = allPayments.filter(p => p.is_advance || p.payment_type === 'advance').reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  document.getElementById('stat-advance').textContent = UI.fmtINR(totalAdvance);
+}
+
+function renderInvoices() {
+  const search = document.getElementById('search-input').value.toLowerCase().trim();
+  const filtered = allInvoices.filter(i => {
+    if (currentStatusFilter !== 'all' && i.payment_status !== currentStatusFilter) return false;
+    if (search) {
+      const hay = `${i.invoice_number||''} ${i.customer_name||''} ${i.customer_company||''} ${i.customer_phone||''}`.toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+  
+  const tbody = document.getElementById('inv-tbody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--mute);font-style:italic">No invoices found</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = filtered.map(i => `
+    <tr onclick="openEditInvoice('${i.id}')">
+      <td><strong style="font-family:'JetBrains Mono',monospace;font-size:12px">${i.invoice_number || '—'}</strong></td>
+      <td><strong>${escapeHtml(i.customer_name)}</strong>${i.customer_company ? `<br><span style="color:var(--mute);font-size:11px">${escapeHtml(i.customer_company)}</span>` : ''}</td>
+      <td>${UI.fmtDate(i.invoice_date)}</td>
+      <td>${UI.fmtDate(i.due_date)}</td>
+      <td class="right" style="font-family:'JetBrains Mono',monospace;font-weight:800">${UI.fmtINR(i.grand_total)}</td>
+      <td class="right" style="font-family:'JetBrains Mono',monospace;font-weight:800;color:${Number(i.balance_due)>0?'var(--red-dk)':'var(--green-dk)'}">${UI.fmtINR(i.balance_due)}</td>
+      <td><span class="pay-status ${i.payment_status}">${i.payment_status}</span></td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn-mini" onclick="quickInvPDF('${i.id}')">🖨️ PDF</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+document.querySelectorAll('#status-filter button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#status-filter button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentStatusFilter = btn.dataset.status;
+    renderInvoices();
+  });
+});
+
+function escapeHtml(s) { return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ═══════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════
+function openNewInvoiceModal() {
+  document.getElementById('inv-title').textContent = '+ New Tax Invoice';
+  document.getElementById('inv-id').value = '';
+  ['inv-cust-name','inv-cust-company','inv-cust-phone','inv-cust-phone-alt','inv-cust-email','inv-cust-gstin','inv-cust-addr1','inv-cust-city','inv-cust-state'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inv-cust-state').value = 'Maharashtra';
+  document.getElementById('inv-place').value = `${settings.state || 'Maharashtra'} (${settings.state_code || '27'})`;
+  
+  const today = new Date();
+  document.getElementById('inv-date').value = today.toISOString().slice(0,10);
+  document.getElementById('inv-due-date').value = today.toISOString().slice(0,10);
+  document.getElementById('inv-terms-name').value = 'Due on Receipt';
+  
+  lineItems = [{ service_name: '', hsn_sac_code: '998361', quantity: 1, unit: 'PCS', rate: 0 }];
+  renderLineItems();
+  
+  document.getElementById('inv-discount-pct').value = '0';
+  document.getElementById('inv-payment-made').value = '0';
+  document.getElementById('inv-apply-tds').checked = true;
+  document.getElementById('inv-tds-label').textContent = settings.default_tds_label || 'Payment of contractors HUF/Indiv (1%)';
+  
+  document.getElementById('inv-terms').value = settings.invoice_terms || '';
+  document.getElementById('inv-notes').value = settings.invoice_note_unpaid || '';
+  
+  setInvGstMode(true);
+  document.getElementById('inv-pdf-btn').style.display = 'none';
+  document.getElementById('inv-whatsapp-btn').style.display = 'none';
+  document.getElementById('inv-modal').classList.add('active');
+  recalcInv();
+}
+
+async function openEditInvoice(id) {
+  const inv = allInvoices.find(x => x.id === id);
+  if (!inv) return;
+  
+  const { data: items } = await sb().from('prajapati_invoice_items').select('*').eq('invoice_id', id).order('item_order');
+  
+  document.getElementById('inv-title').textContent = `✏️ Invoice #${inv.invoice_number} — ${inv.customer_name}`;
+  document.getElementById('inv-id').value = inv.id;
+  
+  document.getElementById('inv-cust-name').value = inv.customer_name || '';
+  document.getElementById('inv-cust-company').value = inv.customer_company || '';
+  document.getElementById('inv-cust-phone').value = inv.customer_phone || '';
+  document.getElementById('inv-cust-phone-alt').value = inv.customer_phone_alt || '';
+  document.getElementById('inv-cust-email').value = inv.customer_email || '';
+  document.getElementById('inv-cust-gstin').value = inv.customer_gstin || '';
+  document.getElementById('inv-cust-addr1').value = inv.customer_address_line1 || '';
+  document.getElementById('inv-cust-city').value = inv.customer_city || '';
+  document.getElementById('inv-cust-state').value = inv.customer_state || '';
+  document.getElementById('inv-place').value = inv.place_of_supply || '';
+  
+  document.getElementById('inv-date').value = inv.invoice_date;
+  document.getElementById('inv-due-date').value = inv.due_date;
+  document.getElementById('inv-terms-name').value = inv.payment_terms || 'Due on Receipt';
+  
+  setInvGstMode(inv.is_gst);
+  document.getElementById('inv-bank-id').value = inv.bank_account_id || '';
+  
+  lineItems = (items || []).map(i => ({
+    service_name: i.service_name,
+    description: i.description || '',
+    hsn_sac_code: i.hsn_sac_code || '998361',
+    quantity: i.quantity,
+    unit: i.unit,
+    rate: i.rate,
+    image_url: i.image_url || null
+  }));
+  if (lineItems.length === 0) lineItems = [{ service_name: '', hsn_sac_code: '998361', quantity: 1, unit: 'PCS', rate: 0 }];
+  renderLineItems();
+  
+  document.getElementById('inv-discount-pct').value = inv.discount_percent || 0;
+  document.getElementById('inv-payment-made').value = inv.payment_made || 0;
+  document.getElementById('inv-apply-tds').checked = inv.apply_tds !== false;
+  
+  document.getElementById('inv-terms').value = inv.terms_conditions || settings.invoice_terms || '';
+  document.getElementById('inv-notes').value = inv.notes || '';
+  
+  document.getElementById('inv-pdf-btn').style.display = 'inline-flex';
+  document.getElementById('inv-whatsapp-btn').style.display = 'inline-flex';
+  window._currentInv = inv;
+  window._currentInvItems = items || [];
+  
+  document.getElementById('inv-modal').classList.add('active');
+  recalcInv();
+}
+
+function closeInvModal() { document.getElementById('inv-modal').classList.remove('active'); }
+
+function setInvGstMode(isGst) {
+  currentGstMode = isGst;
+  document.querySelectorAll('[data-gst]').forEach(b => b.classList.toggle('active', (b.dataset.gst === 'true') === isGst));
+  document.querySelectorAll('.gst-col-hdr, .gst-row').forEach(el => el.style.display = isGst ? '' : 'none');
+  recalcInv();
+  renderLineItems();
+}
+
+function renderLineItems() {
+  const container = document.getElementById('line-items');
+  container.innerHTML = lineItems.map((item, idx) => `
+    <div class="line-row">
+      <div style="position:relative">
+        <input type="text" placeholder="Service description" value="${escapeHtml(item.service_name || '')}"
+          oninput="onServiceInput(${idx}, this); updateItem(${idx}, 'service_name', this.value)"
+          onfocus="onServiceInput(${idx}, this)"
+          onblur="setTimeout(() => hideAutocomplete(), 200)"
+          autocomplete="off">
+        <div class="svc-autocomplete" id="auto-${idx}"></div>
+      </div>
+      <input type="text" value="${item.hsn_sac_code || '998361'}" 
+        onchange="updateItem(${idx}, 'hsn_sac_code', this.value)" 
+        style="font-family:'JetBrains Mono',monospace;text-align:center">
+      <input type="number" value="${item.quantity || 1}" min="0" step="1"
+        oninput="updateItem(${idx}, 'quantity', parseFloat(this.value)||0); recalcInv()" 
+        style="text-align:center">
+      <select onchange="updateItem(${idx}, 'unit', this.value)">
+        <option value="PCS" ${item.unit === 'PCS' ? 'selected' : ''}>PCS</option>
+        <option value="SQFT" ${item.unit === 'SQFT' ? 'selected' : ''}>SQFT</option>
+        <option value="KM" ${item.unit === 'KM' ? 'selected' : ''}>KM</option>
+        <option value="HRS" ${item.unit === 'HRS' ? 'selected' : ''}>HRS</option>
+        <option value="LOT" ${item.unit === 'LOT' ? 'selected' : ''}>LOT</option>
+      </select>
+      <input type="number" value="${item.rate || 0}" min="0" step="1"
+        oninput="updateItem(${idx}, 'rate', parseFloat(this.value)||0); recalcInv()" 
+        style="text-align:right;font-family:'JetBrains Mono',monospace">
+      <input type="text" class="gst-col-hdr" readonly value="${UI.fmtINR((item.quantity||0)*(item.rate||0)*0.09)}" 
+        style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--soft)">
+      <input type="text" class="gst-col-hdr" readonly value="${UI.fmtINR((item.quantity||0)*(item.rate||0)*0.09)}" 
+        style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--soft)">
+      <div class="amount-cell">${UI.fmtINR((item.quantity || 0) * (item.rate || 0))}</div>
+      <button type="button" class="del-btn" onclick="removeItem(${idx})">✕</button>
+    </div>
+  `).join('');
+  
+  if (!currentGstMode) {
+    document.querySelectorAll('.gst-col-hdr').forEach(el => el.style.display = 'none');
+  }
+}
+
+function updateItem(idx, field, value) { if (lineItems[idx]) lineItems[idx][field] = value; }
+
+function addItem() {
+  lineItems.push({ service_name: '', hsn_sac_code: '998361', quantity: 1, unit: 'PCS', rate: 0 });
+  renderLineItems();
+}
+
+function removeItem(idx) {
+  if (lineItems.length === 1) { UI.toast('⚠️ At least 1 item required', 'warning'); return; }
+  lineItems.splice(idx, 1);
+  renderLineItems();
+  recalcInv();
+}
+
+function onServiceInput(idx, input) {
+  const q = input.value.toLowerCase();
+  const matches = catalogue.filter(s => 
+    s.service_name.toLowerCase().includes(q) || 
+    (s.service_code && s.service_code.toLowerCase().includes(q))
+  ).slice(0, 6);
+  
+  const dropdown = document.getElementById(`auto-${idx}`);
+  if (matches.length === 0 || !q) {
+    dropdown.classList.remove('active');
+    return;
+  }
+  
+  dropdown.innerHTML = matches.map(s => `
+    <div class="svc-suggest" onclick="selectService(${idx}, '${s.id}')">
+      <div class="ss-name">${escapeHtml(s.service_name)}</div>
+      <div class="ss-meta">${s.category} · HSN ${s.hsn_sac_code} · ₹${s.default_rate}/${s.default_unit}</div>
+    </div>
+  `).join('');
+  dropdown.classList.add('active');
+}
+
+function selectService(idx, serviceId) {
+  const s = catalogue.find(x => x.id === serviceId);
+  if (!s) return;
+  lineItems[idx].service_name = s.service_name + (s.description ? `\n${s.description}` : '');
+  lineItems[idx].hsn_sac_code = s.hsn_sac_code;
+  lineItems[idx].rate = s.default_rate;
+  lineItems[idx].unit = s.default_unit;
+  lineItems[idx].image_url = s.image_url || null;
+  
+  if (s.specific_terms && s.specific_terms.trim()) {
+    const termsEl = document.getElementById('inv-terms');
+    const currentTerms = termsEl.value;
+    const tag = `\n\n--- ${s.service_name} ---\n${s.specific_terms.trim()}`;
+    if (!currentTerms.includes(s.specific_terms.trim())) {
+      termsEl.value = currentTerms + tag;
+      UI.toast(`📜 Service-specific terms added for ${s.service_name}`, 'info');
+    }
+  }
+  
+  renderLineItems();
+  recalcInv();
+  hideAutocomplete();
+}
+
+function hideAutocomplete() { document.querySelectorAll('.svc-autocomplete').forEach(el => el.classList.remove('active')); }
+
+// ═══════════════════════════════════════════════════════
+// CALCULATIONS
+// ═══════════════════════════════════════════════════════
+function recalcInv() {
+  const subtotal = lineItems.reduce((s, item) => s + ((item.quantity || 0) * (item.rate || 0)), 0);
+  const discountPct = parseFloat(document.getElementById('inv-discount-pct').value) || 0;
+  const discountAmt = (subtotal * discountPct) / 100;
+  const afterDiscount = subtotal - discountAmt;
+  
+  let cgstAmt = 0, sgstAmt = 0;
+  if (currentGstMode) {
+    cgstAmt = (afterDiscount * (settings.default_cgst_rate || 9)) / 100;
+    sgstAmt = (afterDiscount * (settings.default_sgst_rate || 9)) / 100;
+  }
+  
+  const applyTds = document.getElementById('inv-apply-tds').checked;
+  const tdsAmt = applyTds ? (subtotal * (settings.default_tds_rate || 1)) / 100 : 0;
+  
+  const grandTotal = afterDiscount + cgstAmt + sgstAmt - tdsAmt;
+  const paymentMade = parseFloat(document.getElementById('inv-payment-made').value) || 0;
+  const balance = grandTotal - paymentMade;
+  
+  document.getElementById('inv-subtotal').textContent = UI.fmtINR(subtotal);
+  document.getElementById('inv-discount-amt').textContent = '- ' + UI.fmtINR(discountAmt);
+  document.getElementById('inv-cgst-amt').textContent = UI.fmtINR(cgstAmt);
+  document.getElementById('inv-sgst-amt').textContent = UI.fmtINR(sgstAmt);
+  document.getElementById('inv-cgst-pct-display').textContent = settings.default_cgst_rate || 9;
+  document.getElementById('inv-sgst-pct-display').textContent = settings.default_sgst_rate || 9;
+  document.getElementById('inv-tds-amt').textContent = '- ' + UI.fmtINR(tdsAmt);
+  document.getElementById('inv-grand-total').textContent = UI.fmtINR(grandTotal);
+  document.getElementById('inv-payment-amt').textContent = '- ' + UI.fmtINR(paymentMade);
+  document.getElementById('inv-balance').textContent = UI.fmtINR(balance);
+  
+  // Update line items GST
+  document.querySelectorAll('.line-row').forEach((row, idx) => {
+    if (lineItems[idx]) {
+      const amt = (lineItems[idx].quantity || 0) * (lineItems[idx].rate || 0);
+      const cgstInputs = row.querySelectorAll('input.gst-col-hdr');
+      if (cgstInputs[0]) cgstInputs[0].value = UI.fmtINR(amt * 0.09);
+      if (cgstInputs[1]) cgstInputs[1].value = UI.fmtINR(amt * 0.09);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// SAVE
+// ═══════════════════════════════════════════════════════
+async function saveInvoice() {
+  const customerName = document.getElementById('inv-cust-name').value.trim();
+  if (!customerName) { UI.toast('⚠️ Customer name required', 'warning'); return; }
+  
+  const validItems = lineItems.filter(i => i.service_name && i.service_name.trim());
+  if (validItems.length === 0) { UI.toast('⚠️ Add at least 1 line item', 'warning'); return; }
+  
+  const subtotal = validItems.reduce((s, item) => s + (item.quantity * item.rate), 0);
+  const discountPct = parseFloat(document.getElementById('inv-discount-pct').value) || 0;
+  const discountAmt = (subtotal * discountPct) / 100;
+  const afterDiscount = subtotal - discountAmt;
+  
+  let cgstTotal = 0, sgstTotal = 0;
+  if (currentGstMode) {
+    cgstTotal = (afterDiscount * (settings.default_cgst_rate || 9)) / 100;
+    sgstTotal = (afterDiscount * (settings.default_sgst_rate || 9)) / 100;
+  }
+  
+  const applyTds = document.getElementById('inv-apply-tds').checked;
+  const tdsAmt = applyTds ? (subtotal * (settings.default_tds_rate || 1)) / 100 : 0;
+  const grandTotal = afterDiscount + cgstTotal + sgstTotal - tdsAmt;
+  const paymentMade = parseFloat(document.getElementById('inv-payment-made').value) || 0;
+  
+  let paymentStatus = 'unpaid';
+  if (paymentMade >= grandTotal) paymentStatus = 'paid';
+  else if (paymentMade > 0) paymentStatus = 'partial';
+  
+  const editingId = document.getElementById('inv-id').value;
+  
+  const payload = {
+    customer_name: customerName,
+    customer_company: document.getElementById('inv-cust-company').value.trim() || null,
+    customer_phone: document.getElementById('inv-cust-phone').value.trim() || null,
+    customer_phone_alt: document.getElementById('inv-cust-phone-alt').value.trim() || null,
+    customer_email: document.getElementById('inv-cust-email').value.trim() || null,
+    customer_gstin: document.getElementById('inv-cust-gstin').value.trim() || null,
+    customer_address_line1: document.getElementById('inv-cust-addr1').value.trim() || null,
+    customer_city: document.getElementById('inv-cust-city').value.trim() || null,
+    customer_state: document.getElementById('inv-cust-state').value.trim() || null,
+    place_of_supply: document.getElementById('inv-place').value.trim() || null,
+    invoice_date: document.getElementById('inv-date').value,
+    due_date: document.getElementById('inv-due-date').value,
+    payment_terms: document.getElementById('inv-terms-name').value.trim(),
+    is_gst: currentGstMode,
+    is_inter_state: false,
+    subtotal,
+    discount_percent: discountPct,
+    discount_amount: discountAmt,
+    cgst_total: cgstTotal,
+    sgst_total: sgstTotal,
+    igst_total: 0,
+    apply_tds: applyTds,
+    tds_rate: settings.default_tds_rate || 1,
+    tds_amount: tdsAmt,
+    tds_label: settings.default_tds_label,
+    grand_total: grandTotal,
+    total_in_words: numberToWords(Math.round(grandTotal)),
+    payment_made: paymentMade,
+    payment_status: paymentStatus,
+    bank_account_id: document.getElementById('inv-bank-id').value || null,
+    terms_conditions: document.getElementById('inv-terms').value,
+    notes: document.getElementById('inv-notes').value,
+    status: paymentStatus === 'paid' ? 'paid' : 'sent',
+    created_by: session.staffId,
+    created_by_name: session.name,
+    updated_at: new Date().toISOString()
+  };
+  
+  const btn = document.getElementById('inv-save-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving...';
+  
+  try {
+    let inv;
+    if (editingId) {
+      const { data, error } = await sb().from('prajapati_invoices').update(payload).eq('id', editingId).select().single();
+      if (error) throw error;
+      inv = data;
+      await sb().from('prajapati_invoice_items').delete().eq('invoice_id', editingId);
+    } else {
+      const { data, error } = await sb().from('prajapati_invoices').insert(payload).select().single();
+      if (error) throw error;
+      inv = data;
+    }
+    
+    const itemsPayload = validItems.map((item, idx) => {
+      const amt = item.quantity * item.rate;
+      return {
+        invoice_id: inv.id,
+        item_order: idx + 1,
+        service_name: item.service_name,
+        description: item.description || null,
+        hsn_sac_code: item.hsn_sac_code || '998361',
+        quantity: item.quantity,
+        unit: item.unit,
+        rate: item.rate,
+        cgst_percent: currentGstMode ? (settings.default_cgst_rate || 9) : 0,
+        cgst_amount: currentGstMode ? (amt * (settings.default_cgst_rate || 9) / 100) : 0,
+        sgst_percent: currentGstMode ? (settings.default_sgst_rate || 9) : 0,
+        sgst_amount: currentGstMode ? (amt * (settings.default_sgst_rate || 9) / 100) : 0,
+        image_url: item.image_url || null
+      };
+    });
+    
+    const { error: iErr } = await sb().from('prajapati_invoice_items').insert(itemsPayload);
+    if (iErr) throw iErr;
+    
+    UI.toast(`✅ Invoice #${inv.invoice_number} saved!`, 'success');
+    
+    document.getElementById('inv-id').value = inv.id;
+    document.getElementById('inv-pdf-btn').style.display = 'inline-flex';
+  document.getElementById('inv-whatsapp-btn').style.display = 'inline-flex';
+    window._currentInv = inv;
+    window._currentInvItems = itemsPayload;
+    
+    await loadInvoices();
+  } catch (e) {
+    console.error(e);
+    UI.toast('❌ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Save Invoice';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CONVERT FROM QUOTE
+// ═══════════════════════════════════════════════════════
+function openConvertFromQuote() {
+  document.getElementById('convert-modal').classList.add('active');
+}
+
+async function doConvertFromQuote() {
+  const quoteId = document.getElementById('convert-quote-id').value;
+  if (!quoteId) { UI.toast('⚠️ Select a quote', 'warning'); return; }
+  
+  const quote = allQuotes.find(q => q.id === quoteId);
+  const { data: items } = await sb().from('prajapati_quotation_items').select('*').eq('quote_id', quoteId).order('item_order');
+  
+  document.getElementById('convert-modal').classList.remove('active');
+  
+  // Open new invoice modal with quote data pre-filled
+  openNewInvoiceModal();
+  
+  // Override with quote data
+  document.getElementById('inv-cust-name').value = quote.customer_name || '';
+  document.getElementById('inv-cust-company').value = quote.customer_company || '';
+  document.getElementById('inv-cust-phone').value = quote.customer_phone || '';
+  document.getElementById('inv-cust-phone-alt').value = quote.customer_phone_alt || '';
+  document.getElementById('inv-cust-email').value = quote.customer_email || '';
+  document.getElementById('inv-cust-gstin').value = quote.customer_gstin || '';
+  document.getElementById('inv-cust-addr1').value = quote.customer_address_line1 || '';
+  document.getElementById('inv-cust-city').value = quote.customer_city || '';
+  document.getElementById('inv-cust-state').value = quote.customer_state || '';
+  document.getElementById('inv-place').value = quote.place_of_supply || '';
+  document.getElementById('inv-discount-pct').value = quote.discount_percent || 0;
+  document.getElementById('inv-apply-tds').checked = quote.apply_tds !== false;
+  
+  setInvGstMode(quote.is_gst);
+  if (quote.bank_account_id) document.getElementById('inv-bank-id').value = quote.bank_account_id;
+  
+  lineItems = (items || []).map(i => ({
+    service_name: i.service_name,
+    description: i.description || '',
+    hsn_sac_code: i.hsn_sac_code,
+    quantity: i.quantity,
+    unit: i.unit,
+    rate: i.rate,
+    image_url: i.image_url || null
+  }));
+  if (lineItems.length === 0) lineItems = [{ service_name: '', hsn_sac_code: '998361', quantity: 1, unit: 'PCS', rate: 0 }];
+  renderLineItems();
+  
+  document.getElementById('inv-title').textContent = `+ Invoice from ${quote.quote_number}`;
+  recalcInv();
+  UI.toast(`✅ Quote ${quote.quote_number} loaded — review and save`, 'success');
+}
+
+// PDF
+function generateInvPDF() {
+  if (!window._currentInv) { UI.toast('⚠️ Save first', 'warning'); return; }
+  const bank = banks.find(b => b.id === window._currentInv.bank_account_id) || banks.find(b => b.is_default);
+  PDF.generateInvoicePDF(window._currentInv, window._currentInvItems, settings, bank);
+}
+
+async function sendInvoiceViaWhatsApp() {
+  if (!window._currentInv) { UI.toast('⚠️ Save first', 'warning'); return; }
+  const inv = window._currentInv;
+  
+  if (!inv.customer_phone) {
+    UI.toast('⚠️ Customer phone missing', 'warning');
+    return;
+  }
+  
+  const message = WA.buildInvoiceMessage(inv, settings);
+  
+  // ⭐ Use dual-option chooser modal
+  WA.showSendChooser({
+    phone: inv.customer_phone,
+    message: message,
+    customerName: inv.customer_name,
+    sessionInfo: {
+      staffId: session.staffId,
+      name: session.name,
+      customerName: inv.customer_name,
+      customerId: inv.customer_master_id || null,
+      invoiceId: inv.id,
+      messageType: 'invoice_text'
+    }
+  });
+}
+
+async function quickInvPDF(id) {
+  const inv = allInvoices.find(x => x.id === id);
+  if (!inv) return;
+  const { data: items } = await sb().from('prajapati_invoice_items').select('*').eq('invoice_id', id).order('item_order');
+  const bank = banks.find(b => b.id === inv.bank_account_id) || banks.find(b => b.is_default);
+  PDF.generateInvoicePDF(inv, items || [], settings, bank);
+}
+
+// ═══════════════════════════════════════════════════════
+// PAYMENTS & RECEIPTS
+// ═══════════════════════════════════════════════════════
+let currentPayments = [];
+
+async function openPaymentsModal() {
+  const invoiceId = document.getElementById('inv-id').value;
+  if (!invoiceId) {
+    UI.toast('⚠️ Save invoice first', 'warning');
+    return;
+  }
+  
+  const inv = window._currentInv;
+  if (!inv) return;
+  
+  // Load payments
+  const { data: payments } = await sb()
+    .from('prajapati_payments')
+    .select('*')
+    .eq('invoice_id', invoiceId)
+    .order('payment_date', { ascending: false });
+  
+  currentPayments = payments || [];
+  
+  // Render summary
+  const totalPaid = currentPayments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  const balance = (Number(inv.grand_total) || 0) - totalPaid;
+  const statusColor = balance <= 0 ? 'var(--green-dk)' : 'var(--red-dk)';
+  
+  document.getElementById('pay-invoice-summary').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:center">
+      <div>
+        <div style="font-size:10px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase">Invoice</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;margin-top:2px">#${inv.invoice_number}</div>
+        <div style="font-size:11px;color:var(--mute);font-weight:600">${escapeHtml(inv.customer_name)}</div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase">Total</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;margin-top:2px">${UI.fmtINR(inv.grand_total)}</div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase">Balance Due</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;margin-top:2px;color:${statusColor}">${UI.fmtINR(balance)}</div>
+        <div style="font-size:11px;font-weight:700;margin-top:2px;color:${statusColor}">${balance <= 0 ? '✅ FULLY PAID' : `Paid: ${UI.fmtINR(totalPaid)}`}</div>
+      </div>
+    </div>
+  `;
+  
+  // Populate banks dropdown
+  const bankSel = document.getElementById('p-bank-id');
+  bankSel.innerHTML = '<option value="">— Default —</option>';
+  banks.forEach(b => {
+    const o = document.createElement('option');
+    o.value = b.id;
+    o.textContent = `${b.account_label} ${b.is_default ? '⭐' : ''}`;
+    bankSel.appendChild(o);
+  });
+  
+  // Set defaults for new payment form
+  document.getElementById('p-date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('p-amount').value = balance > 0 ? balance : 0;
+  document.getElementById('p-amount-helper').textContent = balance > 0 ? `Balance due: ${UI.fmtINR(balance)}` : 'Invoice is fully paid';
+  document.getElementById('p-reference').value = '';
+  document.getElementById('p-notes').value = '';
+  
+  // Render payment list
+  renderPaymentsList();
+  
+  // Hide add form initially (show button instead)
+  hideAddPaymentForm();
+  
+  document.getElementById('pay-modal').classList.add('active');
+}
+
+function renderPaymentsList() {
+  const list = document.getElementById('pay-list');
+  if (currentPayments.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--mute);font-size:12px;font-weight:600;font-style:italic;background:var(--soft);border-radius:8px">No payments recorded yet</div>';
+    return;
+  }
+  
+  const methodIcons = { cash: '💵', upi: '📱', bank_transfer: '🏦', cheque: '📝', card: '💳', other: '📌' };
+  const typeLabels = { advance: '⚡ Advance', partial: '💰 Partial', full: '✅ Full', final: '🏁 Final' };
+  
+  list.innerHTML = currentPayments.map(p => `
+    <div style="background:white;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:8px">
+      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center">
+        <div style="text-align:center;min-width:80px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;color:var(--accent)">${escapeHtml(p.receipt_number || '—')}</div>
+          <div style="font-size:10px;color:var(--mute);margin-top:2px">${UI.fmtDate(p.payment_date)}</div>
+        </div>
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;color:var(--green-dk)">${UI.fmtINR(p.amount)}</div>
+          <div style="font-size:11px;color:var(--ink-2);margin-top:2px;font-weight:600">
+            ${methodIcons[p.payment_method] || '📌'} ${escapeHtml(p.payment_method.replace('_', ' '))}
+            ${p.reference_number ? ` · Ref: <strong>${escapeHtml(p.reference_number)}</strong>` : ''}
+            · ${typeLabels[p.payment_type] || p.payment_type}
+          </div>
+          ${p.notes ? `<div style="font-size:11px;color:var(--mute);margin-top:4px;font-weight:500;font-style:italic">${escapeHtml(p.notes)}</div>` : ''}
+        </div>
+        <div style="display:flex;gap:4px">
+          <button class="btn-mini" onclick="generateReceiptPDF('${p.id}')">🖨️ Receipt</button>
+          <button class="btn-mini danger" onclick="deletePayment('${p.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showAddPaymentForm() {
+  document.getElementById('pay-add-form').style.display = 'block';
+  document.getElementById('pay-add-toggle-btn').style.display = 'none';
+}
+
+function hideAddPaymentForm() {
+  document.getElementById('pay-add-form').style.display = 'none';
+  document.getElementById('pay-add-toggle-btn').style.display = 'inline-flex';
+}
+
+function closePayModal() {
+  document.getElementById('pay-modal').classList.remove('active');
+}
+
+async function savePayment() {
+  const inv = window._currentInv;
+  if (!inv) return;
+  
+  const amount = parseFloat(document.getElementById('p-amount').value) || 0;
+  if (amount <= 0) {
+    UI.toast('⚠️ Amount must be greater than 0', 'warning');
+    return;
+  }
+  
+  const payload = {
+    invoice_id: inv.id,
+    customer_name: inv.customer_name,
+    customer_company: inv.customer_company,
+    customer_phone: inv.customer_phone,
+    customer_email: inv.customer_email,
+    customer_gstin: inv.customer_gstin,
+    amount: amount,
+    amount_in_words: numberToWords(Math.round(amount)),
+    payment_date: document.getElementById('p-date').value,
+    payment_method: document.getElementById('p-method').value,
+    reference_number: document.getElementById('p-reference').value.trim() || null,
+    bank_account_id: document.getElementById('p-bank-id').value || null,
+    payment_type: document.getElementById('p-type').value,
+    is_advance: document.getElementById('p-type').value === 'advance',
+    notes: document.getElementById('p-notes').value.trim() || null,
+    status: 'received',
+    created_by: session.staffId,
+    created_by_name: session.name
+  };
+  
+  const btn = document.getElementById('p-save-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving...';
+  
+  try {
+    const { data, error } = await sb().from('prajapati_payments').insert(payload).select().single();
+    if (error) throw error;
+    
+    UI.toast(`✅ Payment ${data.receipt_number} saved! Invoice updated.`, 'success');
+    
+    // Reload invoice + payments
+    await loadInvoices();
+    
+    // Refresh current invoice data
+    const updated = allInvoices.find(i => i.id === inv.id);
+    if (updated) window._currentInv = updated;
+    
+    // Re-open modal with fresh data
+    await openPaymentsModal();
+    
+    // Optional: Auto-generate receipt PDF
+    if (confirm('Generate receipt PDF now?')) {
+      generateReceiptPDF(data.id);
+    }
+  } catch (e) {
+    console.error(e);
+    UI.toast('❌ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Save Payment';
+  }
+}
+
+async function deletePayment(paymentId) {
+  if (!confirm('Delete this payment? Invoice balance will be recalculated.')) return;
+  
+  try {
+    const { error } = await sb().from('prajapati_payments').delete().eq('id', paymentId);
+    if (error) throw error;
+    
+    UI.toast('✅ Payment deleted, invoice balance updated', 'success');
+    
+    await loadInvoices();
+    const updated = allInvoices.find(i => i.id === window._currentInv.id);
+    if (updated) window._currentInv = updated;
+    
+    await openPaymentsModal();
+  } catch (e) {
+    UI.toast('❌ ' + e.message, 'error');
+  }
+}
+
+async function generateReceiptPDF(paymentId) {
+  const payment = currentPayments.find(p => p.id === paymentId);
+  if (!payment) return;
+  
+  const inv = window._currentInv;
+  const bank = banks.find(b => b.id === payment.bank_account_id) || banks.find(b => b.is_default);
+  
+  // Calculate totals
+  const totalPaid = currentPayments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  const balance = (Number(inv.grand_total) || 0) - totalPaid;
+  
+  PDF.generateReceiptPDF(payment, inv, settings, bank, totalPaid, balance);
+}
+
+// ═══════════════════════════════════════════════════════
+// Update edit invoice — show payments button if existing invoice
+// ═══════════════════════════════════════════════════════
+const _origOpenEditInvoice = openEditInvoice;
+openEditInvoice = async function(id) {
+  await _origOpenEditInvoice(id);
+  document.getElementById('inv-payments-btn').style.display = 'inline-flex';
+};
+
+const _origOpenNewInvoiceModal = openNewInvoiceModal;
+openNewInvoiceModal = function() {
+  _origOpenNewInvoiceModal();
+  document.getElementById('inv-payments-btn').style.display = 'none';
+};
+
+// Modal close on overlay
+document.getElementById('pay-modal').addEventListener('click', e => { 
+  if (e.target.id === 'pay-modal') closePayModal(); 
+});
+
+// Number to words
+function numberToWords(num) {
+  if (num === 0) return 'Rupees Zero Only';
+  const a = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function inWords(n) {
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n/10)] + (n%10 ? '-' + a[n%10] : '');
+    if (n < 1000) return a[Math.floor(n/100)] + ' Hundred' + (n%100 ? ' ' + inWords(n%100) : '');
+    return '';
+  }
+  let result = '';
+  const crore = Math.floor(num / 10000000); num %= 10000000;
+  const lakh = Math.floor(num / 100000); num %= 100000;
+  const thousand = Math.floor(num / 1000); num %= 1000;
+  if (crore) result += inWords(crore) + ' Crore ';
+  if (lakh) result += inWords(lakh) + ' Lakh ';
+  if (thousand) result += inWords(thousand) + ' Thousand ';
+  if (num) result += inWords(num);
+  return 'Rupees ' + result.trim() + ' Only';
+}
+
+document.getElementById('inv-modal').addEventListener('click', e => { if (e.target.id === 'inv-modal') closeInvModal(); });
+document.getElementById('convert-modal').addEventListener('click', e => { if (e.target.id === 'convert-modal') document.getElementById('convert-modal').classList.remove('active'); });
+
+init();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="erp-design.css">
+<script>
+(function(){var s=localStorage.getItem('erp_session');if(!s){window.location.href='login.html';return;}var p=JSON.parse(s);if(Date.now()>p.expiresAt){localStorage.removeItem('erp_session');window.location.href='login.html';}})();
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HR — Prajapati Advertising</title>
+</head>
+<body>
+<div class="erp-topbar">
+  <a href="index.html" class="erp-logo">
+    <div class="erp-logo-mark">PA</div>
+    <div class="erp-logo-text">
+      <div class="erp-logo-name">Prajapati Advertising</div>
+      <div class="erp-logo-tag">Enterprise ERP</div>
+    </div>
+  </a>
+  <nav class="erp-nav">
+    <a href="index.html">🏠 Home</a>
+    <a href="sales-crm.html">💼 Sales</a>
+    <a href="operations.html">⚙️ Operations</a>
+    <a href="dispatch.html">🚚 Dispatch</a>
+    <a href="hr.html" class="active">👥 HR</a>
+    <a href="reports.html">📊 Reports</a>
+    <a href="settings.html">⚙️ Settings</a>
+  </nav>
+  <div class="erp-user">
+    <div id="_uname" style="text-align:right"><div class="erp-user-name" id="_un">—</div><div class="erp-user-role" id="_ur"></div></div>
+    <div class="erp-avatar" id="_uav">?</div>
+    <button class="erp-logout" onclick="localStorage.removeItem('erp_session');window.location.href='login.html'">Logout</button>
+  </div>
+</div>
+<script>
+(function(){var s=localStorage.getItem('erp_session');if(!s)return;var p=JSON.parse(s);var el=document.getElementById('_un');var er=document.getElementById('_ur');var ea=document.getElementById('_uav');if(el)el.textContent=p.name||'User';if(er)er.textContent=(p.role||'').replace(/_/g,' ').toUpperCase();if(ea)ea.textContent=(p.name||'U')[0].toUpperCase();})();
+</script>
+<div class="erp-page">
+  <div id="kpi-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px"></div>
+
+  <!-- STAFF -->
+  <div id="tab-staff">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div style="font-size:15px;font-weight:700">👤 Staff Directory (34 Members)</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="staff-dept" class="inp" style="width:150px" onchange="loadStaff()">
+            <option value="">All Departments</option>
+            <option>Admin</option><option>Sales</option><option>Operations</option>
+            <option>Execution</option><option>Design</option>
+          </select>
+          <button class="btn btn-primary" onclick="openStaffModal()">+ Add Staff</button>
+        </div>
+      </div>
+      <div id="staff-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div id="tab-attendance" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div style="font-size:15px;font-weight:700">📅 Attendance</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="att-month" class="inp" type="month" style="width:150px" onchange="loadAttendance()">
+          <select id="att-dept" class="inp" style="width:150px" onchange="loadAttendance()">
+            <option value="">All Departments</option>
+            <option>Execution</option><option>Operations</option><option>Sales</option><option>Design</option><option>Admin</option>
+          </select>
+          <button class="btn btn-g" onclick="markBulk()">✅ Bulk Mark Today</button>
+          <button class="btn btn-b" onclick="exportAtt()">📥 Export</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <span class="att-cell att-P">P</span><span style="font-size:11px;color:var(--tx2);margin-right:8px">Present</span>
+        <span class="att-cell att-A">A</span><span style="font-size:11px;color:var(--tx2);margin-right:8px">Absent</span>
+        <span class="att-cell att-H">H</span><span style="font-size:11px;color:var(--tx2);margin-right:8px">Half Day</span>
+        <span class="att-cell att-L">L</span><span style="font-size:11px;color:var(--tx2);margin-right:8px">Leave</span>
+        <span class="att-cell att-O">-</span><span style="font-size:11px;color:var(--tx2)">Not marked</span>
+      </div>
+      <div id="att-grid" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- PAYROLL -->
+  <div id="tab-payroll" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div style="font-size:15px;font-weight:700">💰 Monthly Payroll</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="pay-month" class="inp" type="month" style="width:150px">
+          <button class="btn btn-am" onclick="generatePayroll()">⚡ Generate Payroll</button>
+          <button class="btn btn-g" onclick="exportPayroll()">📥 Export CSV</button>
+        </div>
+      </div>
+      <div id="payroll-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- LEAVES -->
+  <div id="tab-leaves" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700">🌴 Leave Management</div>
+        <button class="btn btn-primary" onclick="openLeaveModal()">+ Apply Leave</button>
+      </div>
+      <div id="leave-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- ADVANCES -->
+  <div id="tab-advances" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700">💳 Salary Advances</div>
+        <button class="btn btn-primary" onclick="openAdvModal()">+ Give Advance</button>
+      </div>
+      <div id="adv-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STAFF MODAL -->
+<div id="m-staff" class="modal-bg">
+<div class="modal">
+  <div class="mhdr"><span id="staff-modal-title">👤 Add Staff</span>
+    <button onclick="closeM('m-staff')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button></div>
+  <input type="hidden" id="sf-id">
+  <div class="g2">
+    <div class="fld"><label class="lbl">Name *</label><input id="sf-name" class="inp"></div>
+    <div class="fld"><label class="lbl">Phone *</label><input id="sf-phone" class="inp" type="tel" maxlength="10"></div>
+    <div class="fld"><label class="lbl">Email</label><input id="sf-email" class="inp" type="email"></div>
+    <div class="fld"><label class="lbl">Department</label>
+      <select id="sf-dept" class="inp"><option>Admin</option><option>Sales</option><option>Operations</option><option>Execution</option><option>Design</option></select></div>
+    <div class="fld"><label class="lbl">Role</label><input id="sf-role" class="inp" placeholder="e.g. execution, printing..."></div>
+    <div class="fld"><label class="lbl">Designation</label><input id="sf-desig" class="inp" placeholder="e.g. Field Worker"></div>
+    <div class="fld"><label class="lbl">Joining Date</label><input id="sf-join" class="inp" type="date"></div>
+    <div class="fld"><label class="lbl">Salary Type</label>
+      <select id="sf-saltype" class="inp" onchange="toggleSalary()">
+        <option value="monthly">Monthly</option><option value="daily">Daily Rate</option><option value="piece_rate">Piece Rate</option>
+      </select></div>
+    <div class="fld" id="sf-monthly-wrap"><label class="lbl">Monthly Salary (₹)</label><input id="sf-monthly" class="inp" type="number" placeholder="0"></div>
+    <div class="fld" id="sf-daily-wrap" style="display:none"><label class="lbl">Daily Rate (₹)</label><input id="sf-daily" class="inp" type="number" placeholder="0"></div>
+    <div class="fld" id="sf-piece-wrap" style="display:none"><label class="lbl">Piece Rate (₹)</label><input id="sf-piece" class="inp" type="number" placeholder="15"></div>
+    <div class="fld"><label class="lbl">UPI ID / Phone Pay</label><input id="sf-upi" class="inp" placeholder="name@upi"></div>
+    <div class="fld"><label class="lbl">Bank Account</label><input id="sf-bank" class="inp" placeholder="Account number"></div>
+    <div class="fld"><label class="lbl">Bank Name</label><input id="sf-bname" class="inp"></div>
+    <div class="fld"><label class="lbl">IFSC</label><input id="sf-ifsc" class="inp"></div>
+  </div>
+  <div class="fld"><label class="lbl">Address</label><textarea id="sf-addr" class="inp" rows="2"></textarea></div>
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <button class="btn btn-primary" onclick="saveStaff()">💾 Save</button>
+    <button class="btn" style="background:#e2e8f0;color:var(--tx)" onclick="closeM('m-staff')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- LEAVE MODAL -->
+<div id="m-leave" class="modal-bg">
+<div class="modal" style="max-width:500px">
+  <div class="mhdr"><span>🌴 Apply Leave</span>
+    <button onclick="closeM('m-leave')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button></div>
+  <div class="fld"><label class="lbl">Staff *</label>
+    <select id="lv-staff" class="inp"><option value="">— Select —</option></select></div>
+  <div class="g2">
+    <div class="fld"><label class="lbl">Leave Type</label>
+      <select id="lv-type" class="inp"><option value="casual">Casual</option><option value="sick">Sick</option><option value="earned">Earned</option><option value="unpaid">Unpaid</option></select></div>
+    <div class="fld"><label class="lbl">Days</label><input id="lv-days" class="inp" type="number" value="1"></div>
+    <div class="fld"><label class="lbl">From Date</label><input id="lv-from" class="inp" type="date"></div>
+    <div class="fld"><label class="lbl">To Date</label><input id="lv-to" class="inp" type="date"></div>
+  </div>
+  <div class="fld"><label class="lbl">Reason</label><textarea id="lv-reason" class="inp" rows="2"></textarea></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="saveLeave('approved')">✅ Approve</button>
+    <button class="btn btn-r" onclick="saveLeave('pending')">📤 Pending</button>
+    <button class="btn" style="background:#e2e8f0;color:var(--tx)" onclick="closeM('m-leave')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- ADVANCE MODAL -->
+<div id="m-adv" class="modal-bg">
+<div class="modal" style="max-width:500px">
+  <div class="mhdr"><span>💳 Give Advance</span>
+    <button onclick="closeM('m-adv')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button></div>
+  <div class="fld"><label class="lbl">Staff *</label>
+    <select id="adv-staff" class="inp"><option value="">— Select —</option></select></div>
+  <div class="g2">
+    <div class="fld"><label class="lbl">Amount (₹)</label><input id="adv-amount" class="inp" type="number" placeholder="5000"></div>
+    <div class="fld"><label class="lbl">Given Date</label><input id="adv-date" class="inp" type="date"></div>
+    <div class="fld"><label class="lbl">Repay in (months)</label><input id="adv-months" class="inp" type="number" value="1" oninput="calcAdv()"></div>
+    <div class="fld"><label class="lbl">Monthly Deduction</label><input id="adv-monthly" class="inp" type="number" readonly style="background:#f8fafc"></div>
+  </div>
+  <div class="fld"><label class="lbl">Reason</label><textarea id="adv-reason" class="inp" rows="2"></textarea></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="saveAdv()">💾 Save</button>
+    <button class="btn" style="background:#e2e8f0;color:var(--tx)" onclick="closeM('m-adv')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- PAYSLIP MODAL -->
+<div id="m-payslip" class="modal-bg">
+<div class="modal" style="max-width:500px">
+  <div class="mhdr"><span id="ps-title">💰 Edit Payroll</span>
+    <button onclick="closeM('m-payslip')" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button></div>
+  <input type="hidden" id="ps-id">
+  <div id="ps-body"></div>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <button class="btn btn-primary" onclick="savePayslip()">💾 Save</button>
+    <button class="btn btn-g" onclick="markPayrollPaid()">✅ Mark Paid</button>
+    <button class="btn" style="background:#e2e8f0;color:var(--tx)" onclick="closeM('m-payslip')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<script>
+const SU='https://shafygjbffffjhwhmcgo.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE';
+async function db(m,p,b){
+  try{const r=await fetch(SU+'/rest/v1/'+p,{method:m,headers:{apikey:SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json',Prefer:['POST','PATCH'].includes(m)?'return=representation':''},body:b?JSON.stringify(b):undefined});if(!r.ok){console.error(r.status,await r.text());return null;}const t=await r.text();return t?JSON.parse(t):null;}catch(e){console.error(e);return null;}
+}
+
+let _staff=[],_payrollData=[];
+const today=new Date().toISOString().slice(0,10);
+const thisMonth=today.slice(0,7);
+
+function openM(id){document.getElementById(id).classList.add('show');document.getElementById(id).style.display='flex';}
+function closeM(id){document.getElementById(id).classList.remove('show');document.getElementById(id).style.display='none';}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg'))closeM(e.target.id);});
+
+function sw(name,el){
+  document.querySelectorAll('[id^=tab-]').forEach(x=>x.style.display='none');
+  document.querySelectorAll('.subnav a').forEach(x=>x.classList.remove('act'));
+  document.getElementById('tab-'+name).style.display='';
+  if(el)el.classList.add('act');
+  const fns={staff:loadStaff,attendance:loadAttendance,payroll:loadPayroll,leaves:loadLeaves,advances:loadAdvances};
+  if(fns[name])fns[name]();
+}
+
+function fmt(n){return '₹'+parseFloat(n||0).toLocaleString('en-IN');}
+function fmtD(d){return d?new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—';}
+function kpi(l,v,c){return `<div class="kpi" style="color:${c}"><div style="font-size:10px;font-weight:700;color:var(--tx2);margin-bottom:4px;text-transform:uppercase">${l}</div><div style="font-size:22px;font-weight:900">${v}</div></div>`;}
+
+function roleBdg(r){
+  const m={admin:'bdg-r',hr_sales:'bdg-p',sales:'bdg-b',printing:'bdg-o',stitching:'bdg-am',stitching_manager:'bdg-am',execution:'bdg-g',execution_manager:'bdg-g',operations_manager:'bdg-o',designer:'bdg-p',designer_head:'bdg-p'};
+  return `<span class="bdg ${m[r]||'bdg-b'}">${r?.replace('_',' ')||'—'}</span>`;
+}
+
+// ═══ KPIs ═══
+async function loadKPIs(){
+  const [staff,leaves,adv]=await Promise.all([
+    db('GET','prajapati_staff?select=id,status,department'),
+    db('GET','prajapati_leaves?select=id,status&status=eq.pending'),
+    db('GET','prajapati_advances?select=id,remaining_amount&status=eq.active'),
+  ]);
+  const active=(staff||[]).filter(s=>s.status==='active').length;
+  const depts={...{Admin:0,Sales:0,Operations:0,Execution:0,Design:0}};
+  (staff||[]).forEach(s=>{if(depts[s.department]!==undefined)depts[s.department]++;else depts[s.department]=(depts[s.department]||0)+1;});
+  document.getElementById('kpi-row').innerHTML=
+    kpi('Total Staff',active,'var(--bl)')+
+    kpi('Execution',(depts.Execution||0),'var(--gr)')+
+    kpi('Pending Leaves',(leaves||[]).length,'var(--am)')+
+    kpi('Active Advances',(adv||[]).length,'var(--re)');
+}
+
+// ═══ STAFF ═══
+async function loadStaff(){
+  const dept=document.getElementById('staff-dept')?.value;
+  let q='prajapati_staff?select=*&order=department,name';
+  if(dept)q+='&department=eq.'+dept;
+  const data=await db('GET',q);_staff=data||[];
+  // Update dropdowns
+  const opts='<option value="">— Select Staff —</option>'+_staff.map(s=>`<option value="${s.id}">${s.name} (${s.department})</option>`).join('');
+  ['lv-staff','adv-staff'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+  document.getElementById('staff-list').innerHTML=_staff.length?`
+    <table class="tbl">
+    <tr><th>Code</th><th>Name</th><th>Phone</th><th>Department</th><th>Role</th><th>Salary</th><th>Status</th><th>Actions</th></tr>
+    ${_staff.map(s=>`<tr>
+      <td style="font-family:monospace;font-size:11px;color:var(--tx2)">${s.emp_code||'—'}</td>
+      <td><strong>${s.name}</strong></td>
+      <td style="font-family:monospace">${s.phone||'—'}</td>
+      <td><span class="bdg bdg-b">${s.department||'—'}</span></td>
+      <td>${roleBdg(s.role)}</td>
+      <td style="font-size:12px">
+        ${s.salary_type==='monthly'?fmt(s.monthly_salary)+'/mo':s.salary_type==='daily'?fmt(s.daily_rate)+'/day':fmt(s.piece_rate)+'/pc'}
+      </td>
+      <td><span class="bdg bdg-${s.status==='active'?'g':'r'}">${s.status}</span></td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-b" style="padding:3px 8px;font-size:10px" onclick="editStaff('${s.id}')">✏️</button>
+        <button class="btn" style="padding:3px 8px;font-size:10px;background:${s.status==='active'?'var(--re)':'var(--gr)'};color:#fff" onclick="toggleStaff('${s.id}','${s.status}')">
+          ${s.status==='active'?'Disable':'Enable'}</button>
+      </td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No staff found</div>';
+}
+
+function openStaffModal(){
+  document.getElementById('staff-modal-title').textContent='👤 Add Staff';
+  document.getElementById('sf-id').value='';
+  ['sf-name','sf-phone','sf-email','sf-role','sf-desig','sf-upi','sf-bank','sf-bname','sf-ifsc','sf-addr'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sf-monthly').value=0;document.getElementById('sf-join').value='';
+  openM('m-staff');
+}
+
+function editStaff(id){
+  const s=_staff.find(x=>x.id===id);if(!s)return;
+  document.getElementById('staff-modal-title').textContent='✏️ Edit Staff';
+  document.getElementById('sf-id').value=s.id;
+  document.getElementById('sf-name').value=s.name||'';
+  document.getElementById('sf-phone').value=s.phone||'';
+  document.getElementById('sf-email').value=s.email||'';
+  document.getElementById('sf-dept').value=s.department||'Execution';
+  document.getElementById('sf-role').value=s.role||'';
+  document.getElementById('sf-desig').value=s.designation||'';
+  document.getElementById('sf-join').value=s.joining_date||'';
+  document.getElementById('sf-saltype').value=s.salary_type||'monthly';
+  document.getElementById('sf-monthly').value=s.monthly_salary||0;
+  document.getElementById('sf-daily').value=s.daily_rate||0;
+  document.getElementById('sf-piece').value=s.piece_rate||0;
+  document.getElementById('sf-upi').value=s.upi_id||'';
+  document.getElementById('sf-bank').value=s.bank_account||'';
+  document.getElementById('sf-bname').value=s.bank_name||'';
+  document.getElementById('sf-ifsc').value=s.ifsc||'';
+  document.getElementById('sf-addr').value=s.address||'';
+  toggleSalary();openM('m-staff');
+}
+
+function toggleSalary(){
+  const t=document.getElementById('sf-saltype').value;
+  document.getElementById('sf-monthly-wrap').style.display=t==='monthly'?'':'none';
+  document.getElementById('sf-daily-wrap').style.display=t==='daily'?'':'none';
+  document.getElementById('sf-piece-wrap').style.display=t==='piece_rate'?'':'none';
+}
+
+async function saveStaff(){
+  const name=document.getElementById('sf-name').value.trim();
+  const phone=document.getElementById('sf-phone').value.trim();
+  if(!name||!phone){alert('Name aur Phone required!');return;}
+  const payload={name,phone,email:document.getElementById('sf-email').value,department:document.getElementById('sf-dept').value,role:document.getElementById('sf-role').value,designation:document.getElementById('sf-desig').value,joining_date:document.getElementById('sf-join').value||null,salary_type:document.getElementById('sf-saltype').value,monthly_salary:parseFloat(document.getElementById('sf-monthly').value)||0,daily_rate:parseFloat(document.getElementById('sf-daily').value)||0,piece_rate:parseFloat(document.getElementById('sf-piece').value)||0,upi_id:document.getElementById('sf-upi').value,bank_account:document.getElementById('sf-bank').value,bank_name:document.getElementById('sf-bname').value,ifsc:document.getElementById('sf-ifsc').value,address:document.getElementById('sf-addr').value,updated_at:new Date().toISOString()};
+  const id=document.getElementById('sf-id').value;
+  if(id)await db('PATCH','prajapati_staff?id=eq.'+id,payload);
+  else{payload.status='active';await db('POST','prajapati_staff',payload);}
+  closeM('m-staff');loadStaff();loadKPIs();alert('✅ Saved!');
+}
+
+async function toggleStaff(id,status){
+  if(!confirm((status==='active'?'Disable':'Enable')+' staff member?'))return;
+  await db('PATCH','prajapati_staff?id=eq.'+id,{status:status==='active'?'inactive':'active'});
+  loadStaff();loadKPIs();
+}
+
+// ═══ ATTENDANCE ═══
+async function loadAttendance(){
+  const month=document.getElementById('att-month').value||thisMonth;
+  const dept=document.getElementById('att-dept').value;
+  let sq='prajapati_staff?select=id,name,department&status=eq.active&order=department,name';
+  if(dept)sq+='&department=eq.'+dept;
+  const [staff,att]=await Promise.all([
+    db('GET',sq),
+    db('GET',`prajapati_attendance?select=*&date=gte.${month}-01&date=lte.${month}-31&order=date`)
+  ]);
+  if(!staff?.length){document.getElementById('att-grid').innerHTML='<div style="color:var(--tx2);padding:20px;text-align:center">No staff</div>';return;}
+
+  // Build date headers for month
+  const year=parseInt(month.split('-')[0]);
+  const mon=parseInt(month.split('-')[1])-1;
+  const daysInMonth=new Date(year,mon+1,0).getDate();
+  const dates=Array.from({length:daysInMonth},(_,i)=>{
+    const d=new Date(year,mon,i+1);
+    return {day:i+1,date:d.toISOString().slice(0,10),dow:d.getDay()};
+  });
+
+  // Build attendance map
+  const attMap={};
+  (att||[]).forEach(a=>{attMap[a.staff_id+'_'+a.date]=a.status;});
+
+  let html=`<div style="overflow-x:auto"><table class="tbl" style="min-width:800px">
+    <tr><th style="min-width:130px">Name</th><th>Dept</th>`;
+  dates.forEach(d=>{
+    const isWeekend=d.dow===0||d.dow===6;
+    html+=`<th style="font-size:9px;min-width:28px;text-align:center;color:${isWeekend?'var(--re)':'var(--tx2)'}">${d.day}</th>`;
+  });
+  html+='<th>P</th><th>A</th><th>H</th></tr>';
+
+  staff.forEach(s=>{
+    let p=0,a=0,h=0;
+    html+=`<tr><td><strong>${s.name}</strong></td><td style="font-size:11px">${s.department}</td>`;
+    dates.forEach(d=>{
+      const status=attMap[s.id+'_'+d.date];
+      const isWeekend=d.dow===0||d.dow===6;
+      if(status==='present')p++;else if(status==='absent')a++;else if(status==='half_day')h++;
+      const cls=status?`att-${status[0].toUpperCase()}`:isWeekend?'att-O':'';
+      const lbl=status?status[0].toUpperCase():(isWeekend?'O':'·');
+      html+=`<td style="padding:2px;text-align:center"><span class="att-cell ${cls}" onclick="markAtt('${s.id}','${s.name}','${d.date}',${JSON.stringify(status||'')})" title="${d.date}">${lbl}</span></td>`;
+    });
+    html+=`<td style="font-weight:700;color:var(--gr)">${p}</td><td style="color:var(--re)">${a}</td><td style="color:var(--am)">${h}</td></tr>`;
+  });
+  html+='</table></div>';
+  document.getElementById('att-grid').innerHTML=html;
+}
+
+async function markAtt(sid,sname,date,current){
+  const statuses=['present','absent','half_day','leave'];
+  const cur=current||'';
+  const next=statuses[(statuses.indexOf(cur)+1)%statuses.length];
+  await db('POST','prajapati_attendance',{staff_id:sid,staff_name:sname,date,status:next,marked_by:'Admin'},{headers:{'Prefer':'resolution=merge-duplicates,return=representation'}});
+  // Workaround: upsert
+  await fetch(SU+'/rest/v1/prajapati_attendance',{method:'POST',headers:{apikey:SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify({staff_id:sid,staff_name:sname,date,status:next,marked_by:'Admin'})});
+  loadAttendance();
+}
+
+async function markBulk(){
+  if(!_staff.length)await loadStaff();
+  const confirm_=confirm(`Aaj ke liye sab ko Present mark karein? (${_staff.filter(s=>s.status==='active').length} staff)`);
+  if(!confirm_)return;
+  const active=_staff.filter(s=>s.status==='active');
+  const records=active.map(s=>{return {staff_id:s.id,staff_name:s.name,date:today,status:'present',marked_by:'Admin (Bulk)'}});
+  await fetch(SU+'/rest/v1/prajapati_attendance',{method:'POST',headers:{apikey:SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify(records)});
+  loadAttendance();alert('✅ '+active.length+' staff marked Present!');
+}
+
+function exportAtt(){
+  const month=document.getElementById('att-month').value||thisMonth;
+  alert('Attendance Export — CSV download coming!');
+}
+
+// ═══ PAYROLL ═══
+async function loadPayroll(){
+  const month=document.getElementById('pay-month')?.value||thisMonth;
+  const data=await db('GET',`prajapati_payroll?payroll_month=eq.${month}&select=*,prajapati_staff(name,department,salary_type)&order=prajapati_staff(department),prajapati_staff(name)`);
+  _payrollData=data||[];
+  if(!_payrollData.length){
+    document.getElementById('payroll-list').innerHTML=`<div style="color:var(--tx2);padding:20px;text-align:center">No payroll for ${month}.<br><button class="btn btn-am" onclick="generatePayroll()" style="margin-top:10px">⚡ Generate Now</button></div>`;
+    return;
+  }
+  const totalNet=_payrollData.reduce((s,p)=>s+(p.net_salary||0),0);
+  const totalPaid=_payrollData.filter(p=>p.payment_status==='paid').reduce((s,p)=>s+(p.net_salary||0),0);
+  document.getElementById('payroll-list').innerHTML=`
+    <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 16px;font-size:13px">
+        Total Payroll: <strong style="color:var(--gr)">${fmt(totalNet)}</strong></div>
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 16px;font-size:13px">
+        Pending: <strong style="color:var(--re)">${fmt(totalNet-totalPaid)}</strong></div>
+    </div>
+    <div style="overflow-x:auto"><table class="tbl">
+    <tr><th>Name</th><th>Dept</th><th>Days</th><th>Basic</th><th>OT</th><th>Deductions</th><th>Net Salary</th><th>Status</th><th>Actions</th></tr>
+    ${_payrollData.map(p=>`<tr>
+      <td><strong>${p.prajapati_staff?.name||p.staff_name}</strong></td>
+      <td style="font-size:11px">${p.prajapati_staff?.department||'—'}</td>
+      <td>${p.days_present}/${p.total_working_days}</td>
+      <td>${fmt(p.basic_salary)}</td>
+      <td style="color:var(--bl)">${fmt(p.overtime_amount)}</td>
+      <td style="color:var(--re)">${fmt(p.total_deductions)}</td>
+      <td style="font-weight:700;font-size:14px;color:var(--gr)">${fmt(p.net_salary)}</td>
+      <td><span class="bdg bdg-${p.payment_status==='paid'?'g':'r'}">${p.payment_status}</span></td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-b" style="padding:3px 8px;font-size:10px" onclick="editPayslip('${p.id}')">✏️</button>
+        ${p.payment_status!=='paid'?`<button class="btn btn-g" style="padding:3px 8px;font-size:10px" onclick="markPaid('${p.id}')">✓ Pay</button>`:''};
+        <button class="btn btn-am" style="padding:3px 8px;font-size:10px" onclick="sendPayWA('${p.id}')">💬</button>
+      </td>
+    </tr>`).join('')}
+    </table></div>`;
+}
+
+async function generatePayroll(){
+  const month=document.getElementById('pay-month')?.value||thisMonth;
+  if(!confirm(`${month} ka payroll generate karein?`))return;
+  const [staff,att]=await Promise.all([
+    db('GET','prajapati_staff?select=*&status=eq.active'),
+    db('GET',`prajapati_attendance?select=*&date=gte=${month}-01&date=lte=${month}-31`)
+  ]);
+  const records=[];
+  (staff||[]).forEach(s=>{
+    const sAtt=(att||[]).filter(a=>a.staff_id===s.id);
+    const present=sAtt.filter(a=>a.status==='present').length;
+    const absent=sAtt.filter(a=>a.status==='absent').length;
+    const leave=sAtt.filter(a=>a.status==='leave').length;
+    const half=sAtt.filter(a=>a.status==='half_day').length;
+    const wd=26;
+    let basic=0;
+    if(s.salary_type==='monthly')basic=(s.monthly_salary||0)*present/wd;
+    else if(s.salary_type==='daily')basic=(s.daily_rate||0)*present;
+    else basic=0; // piece rate handled separately
+    const net=Math.round(basic);
+    records.push({payroll_month:month,staff_id:s.id,staff_name:s.name,department:s.department,salary_type:s.salary_type,total_working_days:wd,days_present:present,days_absent:absent,days_leave:leave,days_half:half,basic_salary:Math.round(basic),gross_salary:Math.round(basic),net_salary:net,payment_status:'unpaid'});
+  });
+  await fetch(SU+'/rest/v1/prajapati_payroll',{method:'POST',headers:{apikey:SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(records)});
+  loadPayroll();alert('✅ Payroll generated for '+records.length+' staff!');
+}
+
+async function markPaid(id){
+  const mode=prompt('Payment mode? (cash/upi/neft/cheque)','upi');if(!mode)return;
+  await db('PATCH','prajapati_payroll?id=eq.'+id,{payment_status:'paid',payment_mode:mode,payment_date:today});
+  loadPayroll();
+}
+
+function editPayslip(id){
+  const p=_payrollData.find(x=>x.id===id);if(!p)return;
+  document.getElementById('ps-id').value=id;
+  document.getElementById('ps-title').textContent='💰 '+p.staff_name+' — '+(p.payroll_month||'');
+  document.getElementById('ps-body').innerHTML=`
+    <div class="g2">
+      <div class="fld"><label class="lbl">Days Present</label><input id="ps-present" class="inp" type="number" value="${p.days_present||0}"></div>
+      <div class="fld"><label class="lbl">Basic Salary</label><input id="ps-basic" class="inp" type="number" value="${p.basic_salary||0}"></div>
+      <div class="fld"><label class="lbl">HRA</label><input id="ps-hra" class="inp" type="number" value="${p.hra||0}"></div>
+      <div class="fld"><label class="lbl">OT Amount</label><input id="ps-ot" class="inp" type="number" value="${p.overtime_amount||0}"></div>
+      <div class="fld"><label class="lbl">Bonus</label><input id="ps-bonus" class="inp" type="number" value="${p.bonus||0}"></div>
+      <div class="fld"><label class="lbl">Advance Deduction</label><input id="ps-adv" class="inp" type="number" value="${p.advance_deduction||0}"></div>
+      <div class="fld"><label class="lbl">Other Deduction</label><input id="ps-other" class="inp" type="number" value="${p.other_deduction||0}"></div>
+    </div>
+    <div class="fld"><label class="lbl">Notes</label><textarea id="ps-notes" class="inp" rows="2">${p.notes||''}</textarea></div>`;
+  openM('m-payslip');
+}
+
+async function savePayslip(){
+  const id=document.getElementById('ps-id').value;
+  const basic=parseFloat(document.getElementById('ps-basic').value)||0;
+  const hra=parseFloat(document.getElementById('ps-hra').value)||0;
+  const ot=parseFloat(document.getElementById('ps-ot').value)||0;
+  const bonus=parseFloat(document.getElementById('ps-bonus').value)||0;
+  const advDed=parseFloat(document.getElementById('ps-adv').value)||0;
+  const otherDed=parseFloat(document.getElementById('ps-other').value)||0;
+  const gross=basic+hra+ot+bonus;
+  const totalDed=advDed+otherDed;
+  const net=gross-totalDed;
+  await db('PATCH','prajapati_payroll?id=eq.'+id,{days_present:parseInt(document.getElementById('ps-present').value)||0,basic_salary:basic,hra,overtime_amount:ot,bonus,advance_deduction:advDed,other_deduction:otherDed,total_deductions:totalDed,gross_salary:gross,net_salary:net,notes:document.getElementById('ps-notes').value});
+  closeM('m-payslip');loadPayroll();alert('✅ Payslip updated!');
+}
+
+async function markPayrollPaid(){
+  const id=document.getElementById('ps-id').value;
+  const mode=prompt('Payment mode?','upi');if(!mode)return;
+  await db('PATCH','prajapati_payroll?id=eq.'+id,{payment_status:'paid',payment_mode:mode,payment_date:today});
+  closeM('m-payslip');loadPayroll();
+}
+
+function sendPayWA(id){
+  const p=_payrollData.find(x=>x.id===id);if(!p)return;
+  const s=_staff.find(x=>x.id===p.staff_id);
+  const msg=`*Salary Credit — ${p.payroll_month}*\nName: ${p.staff_name}\nDays: ${p.days_present}/${p.total_working_days}\nNet Salary: ₹${p.net_salary?.toLocaleString('en-IN')}\n\n_Prajapati Advertising_`;
+  const phone=s?.phone?'91'+s.phone:'';
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+function exportPayroll(){
+  if(!_payrollData.length){alert('Pehle generate karo');return;}
+  const h=['Name','Department','Month','Days Present','Basic','HRA','OT','Bonus','Deductions','Net Salary','Status'];
+  const rows=_payrollData.map(p=>[p.staff_name||'',p.department||'',p.payroll_month||'',p.days_present||0,p.basic_salary||0,p.hra||0,p.overtime_amount||0,p.bonus||0,p.total_deductions||0,p.net_salary||0,p.payment_status||'unpaid']);
+  const csv=[h,...rows].map(r=>r.map(v=>'"'+v+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='payroll_'+((document.getElementById('pay-month')?.value)||thisMonth)+'.csv';a.click();
+}
+
+// ═══ LEAVES ═══
+async function loadLeaves(){
+  const data=await db('GET','prajapati_leaves?select=*,prajapati_staff(name,department)&order=created_at.desc&limit=50');
+  document.getElementById('leave-list').innerHTML=data?.length?`
+    <table class="tbl"><tr><th>Staff</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th><th>Actions</th></tr>
+    ${data.map(l=>`<tr>
+      <td><strong>${l.prajapati_staff?.name||l.staff_name}</strong><br><span style="font-size:10px;color:var(--tx2)">${l.prajapati_staff?.department||''}</span></td>
+      <td><span class="bdg bdg-b">${l.leave_type}</span></td>
+      <td style="font-size:11px">${fmtD(l.from_date)}</td>
+      <td style="font-size:11px">${fmtD(l.to_date)}</td>
+      <td style="font-weight:700">${l.days}</td>
+      <td style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis">${l.reason||'—'}</td>
+      <td><span class="bdg bdg-${l.status==='approved'?'g':l.status==='rejected'?'r':'am'}">${l.status}</span></td>
+      <td style="display:flex;gap:4px">
+        ${l.status==='pending'?`<button class="btn btn-g" style="padding:3px 8px;font-size:10px" onclick="approveLeave('${l.id}','approved')">✓</button><button class="btn btn-r" style="padding:3px 8px;font-size:10px" onclick="approveLeave('${l.id}','rejected')">✗</button>`:''}
+      </td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No leaves</div>';
+}
+
+function openLeaveModal(){
+  if(!_staff.length)loadStaff().then(()=>openM('m-leave'));
+  else openM('m-leave');
+  document.getElementById('lv-from').value=today;document.getElementById('lv-to').value=today;
+}
+
+async function saveLeave(status){
+  const sid=document.getElementById('lv-staff').value;if(!sid){alert('Staff select karo!');return;}
+  const s=_staff.find(x=>x.id===sid);
+  const from=document.getElementById('lv-from').value;const to=document.getElementById('lv-to').value;
+  const days=Math.ceil((new Date(to)-new Date(from))/(1000*86400))+1;
+  await db('POST','prajapati_leaves',{staff_id:sid,staff_name:s?.name,leave_type:document.getElementById('lv-type').value,from_date:from,to_date:to,days,reason:document.getElementById('lv-reason').value,status,approved_by:status==='approved'?'Admin':null,approved_at:status==='approved'?new Date().toISOString():null});
+  closeM('m-leave');loadLeaves();alert('✅ Leave '+(status==='approved'?'approved':'saved')+'!');
+}
+
+async function approveLeave(id,status){
+  await db('PATCH','prajapati_leaves?id=eq.'+id,{status,approved_by:'Admin',approved_at:new Date().toISOString()});
+  loadLeaves();
+}
+
+// ═══ ADVANCES ═══
+async function loadAdvances(){
+  const data=await db('GET','prajapati_advances?select=*,prajapati_staff(name,department)&order=created_at.desc');
+  document.getElementById('adv-list').innerHTML=data?.length?`
+    <table class="tbl"><tr><th>Staff</th><th>Amount</th><th>Given</th><th>Monthly Ded.</th><th>Remaining</th><th>Reason</th><th>Status</th><th>Actions</th></tr>
+    ${data.map(a=>`<tr>
+      <td><strong>${a.prajapati_staff?.name||a.staff_name}</strong></td>
+      <td style="font-weight:700">${fmt(a.amount)}</td>
+      <td style="font-size:11px">${fmtD(a.given_date)}</td>
+      <td style="color:var(--re)">${fmt(a.monthly_deduction)}</td>
+      <td style="font-weight:700;color:${a.remaining_amount>0?'var(--re)':'var(--gr)'}">${fmt(a.remaining_amount)}</td>
+      <td style="font-size:11px">${a.reason||'—'}</td>
+      <td><span class="bdg bdg-${a.status==='active'?'o':'g'}">${a.status}</span></td>
+      <td><button class="btn btn-g" style="padding:3px 8px;font-size:10px" onclick="clearAdv('${a.id}')">✓ Cleared</button></td>
+    </tr>`).join('')}
+    </table>`:'<div style="color:var(--tx2);padding:20px;text-align:center">No advances</div>';
+}
+
+function openAdvModal(){
+  if(!_staff.length)loadStaff().then(()=>openM('m-adv'));
+  else openM('m-adv');
+  document.getElementById('adv-date').value=today;
+  document.getElementById('adv-amount').value='';document.getElementById('adv-months').value=1;
+}
+
+function calcAdv(){
+  const amt=parseFloat(document.getElementById('adv-amount')?.value)||0;
+  const months=parseInt(document.getElementById('adv-months')?.value)||1;
+  document.getElementById('adv-monthly').value=Math.ceil(amt/months);
+}
+
+async function saveAdv(){
+  const sid=document.getElementById('adv-staff').value;if(!sid){alert('Staff select karo!');return;}
+  const s=_staff.find(x=>x.id===sid);
+  const amount=parseFloat(document.getElementById('adv-amount').value)||0;if(!amount){alert('Amount required!');return;}
+  const months=parseInt(document.getElementById('adv-months').value)||1;
+  await db('POST','prajapati_advances',{staff_id:sid,staff_name:s?.name,amount,given_date:document.getElementById('adv-date').value,repayment_months:months,monthly_deduction:Math.ceil(amount/months),remaining_amount:amount,reason:document.getElementById('adv-reason').value,status:'active'});
+  closeM('m-adv');loadAdvances();alert('✅ Advance recorded!');
+}
+
+async function clearAdv(id){
+  if(!confirm('Mark as cleared?'))return;
+  await db('PATCH','prajapati_advances?id=eq.'+id,{status:'cleared',remaining_amount:0});
+  loadAdvances();
+}
+
+// INIT
+document.getElementById('att-month').value=thisMonth;
+document.getElementById('pay-month').value=thisMonth;
+loadKPIs();loadStaff();
+</script>
+</body>
+</html>

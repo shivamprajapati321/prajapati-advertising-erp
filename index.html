@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard · Prajapati ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+.hero {
+  background: linear-gradient(135deg, var(--nav) 0%, #1E3A8A 100%);
+  border-radius: 16px; padding: 24px 28px; color: white;
+  margin-bottom: 18px; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -50%; right: -20%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(245,184,0,0.15) 0%, transparent 70%);
+}
+.hero-greeting { font-size: 13px; font-weight: 700; opacity: 0.7; letter-spacing: 0.05em; text-transform: uppercase; }
+.hero-name { font-size: 28px; font-weight: 800; margin: 4px 0 6px; }
+.hero-meta { font-size: 13px; opacity: 0.8; font-weight: 600; }
+
+.target-card {
+  background: rgba(255,255,255,0.1); backdrop-filter: blur(8px);
+  border-radius: 12px; padding: 16px 20px; margin-top: 18px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.target-label { font-size: 11px; font-weight: 800; opacity: 0.7; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+.target-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.target-amount { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; }
+.target-percent { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #FBBF24; }
+.target-bar-bg { height: 10px; background: rgba(255,255,255,0.15); border-radius: 99px; overflow: hidden; }
+.target-bar-fill { height: 100%; background: linear-gradient(90deg, #10B981, #FBBF24, #F59E0B); border-radius: 99px; transition: width 0.6s ease; }
+.target-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; font-weight: 600; opacity: 0.85; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+.stat-block { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 16px; position: relative; transition: all 0.15s; }
+.stat-block:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: var(--accent); }
+.stat-block .lbl { font-size: 11px; font-weight: 800; color: var(--mute); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+.stat-block .val { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 6px; }
+.stat-block .sub { font-size: 11px; font-weight: 700; color: var(--mute); }
+.stat-block .sub.up { color: var(--green-dk); }
+.stat-block .sub.down { color: var(--red-dk); }
+.stat-block .icon { position: absolute; top: 14px; right: 14px; font-size: 22px; opacity: 0.4; }
+
+.section { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+.section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.section-head h3 { font-size: 14px; font-weight: 800; color: var(--nav); letter-spacing: 0.04em; text-transform: uppercase; }
+.section-head .badge-count { background: var(--red-soft); color: var(--red-dk); padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 800; }
+
+.two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+.action-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; background: var(--soft); border-radius: 10px;
+  margin-bottom: 8px; transition: all 0.15s;
+  border-left: 3px solid var(--mute);
+}
+.action-item.urgent { border-left-color: var(--red-dk); background: var(--red-soft); }
+.action-item.warning { border-left-color: var(--amber); background: var(--amber-soft); }
+.action-item.info { border-left-color: var(--accent); background: var(--blue-soft); }
+.action-item:hover { transform: translateX(4px); }
+.action-icon { font-size: 20px; }
+.action-content { flex: 1; min-width: 0; }
+.action-title { font-size: 13px; font-weight: 800; color: var(--ink); }
+.action-desc { font-size: 11px; color: var(--ink-2); margin-top: 2px; font-weight: 600; }
+.action-btn { padding: 6px 12px; font-size: 11px; font-weight: 800; background: white; color: var(--accent); border: 1px solid var(--accent); border-radius: 6px; cursor: pointer; text-decoration: none; }
+.action-btn:hover { background: var(--accent); color: white; }
+
+.funnel { padding: 8px 0; }
+.funnel-row { display: grid; grid-template-columns: 110px 1fr 80px 90px; gap: 10px; align-items: center; padding: 8px 0; }
+.funnel-stage { font-size: 12px; font-weight: 800; color: var(--ink); }
+.funnel-bar-bg { height: 22px; background: var(--soft); border-radius: 6px; overflow: hidden; position: relative; }
+.funnel-bar-fill { height: 100%; border-radius: 6px; transition: width 0.6s; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 800; color: white; }
+.funnel-bar-fill.new { background: linear-gradient(90deg, #6366F1, #818CF8); }
+.funnel-bar-fill.contacted { background: linear-gradient(90deg, #3B82F6, #60A5FA); }
+.funnel-bar-fill.quoted { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
+.funnel-bar-fill.negotiating { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+.funnel-bar-fill.won { background: linear-gradient(90deg, #10B981, #34D399); }
+.funnel-count { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: var(--ink); text-align: center; }
+.funnel-value { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--mute); text-align: right; }
+
+.activity-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+.activity-item:last-child { border-bottom: none; }
+.activity-icon { width: 32px; height: 32px; background: var(--blue-soft); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.activity-icon.lead { background: var(--blue-soft); color: var(--accent); }
+.activity-icon.quote { background: #F3E8FF; color: #7C3AED; }
+.activity-icon.invoice { background: #FFEDD5; color: #EA580C; }
+.activity-icon.payment { background: var(--green-soft); color: var(--green-dk); }
+.activity-content { flex: 1; min-width: 0; }
+.activity-text { color: var(--ink); font-weight: 600; line-height: 1.4; }
+.activity-meta { font-size: 10px; color: var(--mute); margin-top: 2px; font-weight: 600; }
+
+.leader-row { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.leader-row:last-child { border-bottom: none; }
+.leader-row.you { background: var(--blue-soft); padding: 10px; border-radius: 8px; border-bottom: none; margin: 4px -8px; }
+.leader-rank { font-size: 18px; text-align: center; }
+.leader-info { min-width: 0; }
+.leader-name { font-size: 13px; font-weight: 800; color: var(--ink); }
+.leader-pct { font-size: 11px; color: var(--mute); font-weight: 700; margin-top: 1px; }
+.leader-amt { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; color: var(--ink); text-align: right; }
+
+.quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.quick-btn { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer; text-decoration: none; color: var(--ink); transition: all 0.15s; }
+.quick-btn:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--blue-soft); }
+.quick-btn .qb-icon { font-size: 24px; margin-bottom: 6px; }
+.quick-btn .qb-label { font-size: 11px; font-weight: 800; }
+
+.module-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.mod-card { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.15s; text-decoration: none; color: inherit; }
+.mod-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 6px 16px rgba(37,99,235,0.12); }
+.mod-card .mc-icon { width: 50px; height: 50px; border-radius: 12px; background: var(--blue-soft); display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 10px; }
+.mod-card .mc-count { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; color: var(--ink); }
+.mod-card .mc-label { font-size: 12px; font-weight: 800; color: var(--ink); margin-top: 4px; }
+.mod-card .mc-sub { font-size: 11px; color: var(--mute); font-weight: 600; margin-top: 2px; }
+
+.empty { padding: 40px 20px; text-align: center; color: var(--mute); font-weight: 600; font-size: 13px; font-style: italic; }
+.empty-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.4; }
+
+@media (max-width: 900px) {
+  .stats-grid, .module-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .quick-actions { grid-template-columns: repeat(2, 1fr); }
+  .funnel-row { grid-template-columns: 90px 1fr 60px; }
+  .funnel-value { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <header class="topbar" id="topbar"></header>
+    <div class="page" id="dashboard-page">
+      <div style="text-align:center;padding:60px;color:var(--mute)">⏳ Loading dashboard...</div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="lib-config.js"></script>
+<script src="lib-auth.js"></script>
+<script src="lib-ui.js"></script>
+<script src="lib-dashboard.js"></script>
+<script>
+const session = AUTH.requireLogin();
+if (!session) throw new Error('Not authenticated');
+
+document.getElementById('sidebar').innerHTML = UI.renderSidebar('dashboard');
+document.getElementById('topbar').innerHTML = UI.renderTopbar('Dashboard');
+
+const role = session.role;
+const isAdmin = role === 'admin';
+const isSalesRole = ['admin', 'sales', 'hr_sales', 'operations_manager'].includes(role);
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function loadDashboard() {
+  if (isAdmin) await loadAdminDashboard();
+  else if (isSalesRole) await loadSalesDashboard();
+  else await loadOperationsDashboard();
+}
+
+async function loadAdminDashboard() {
+  const container = document.getElementById('dashboard-page');
+  container.innerHTML = renderHero(null) + '<div style="text-align:center;padding:40px;color:var(--mute)">⏳ Loading admin stats...</div>';
+  
+  const [adminStats, leaderboard, activity, personalStats, todaysActions] = await Promise.all([
+    DASH.getAdminStats(),
+    DASH.getLeaderboard(),
+    DASH.getRecentActivity(null, 10),
+    DASH.getPersonalStats(session.staffId, session.name),
+    DASH.getTodaysActions(session.staffId)
+  ]);
+  
+  let html = renderHero(personalStats);
+  html += renderQuickActions();
+  html += renderAdminStatsGrid(adminStats);
+  html += '<div class="two-col"><div>';
+  html += renderTodaysActions(todaysActions);
+  html += renderFunnel(adminStats?.funnel, 'Company-Wide Pipeline');
+  html += '</div><div>';
+  html += renderLeaderboard(leaderboard, session.staffId);
+  html += renderActivityFeed(activity);
+  html += '</div></div>';
+  
+  if (adminStats?.topCustomers?.length > 0) {
+    html += renderTopCustomers(adminStats.topCustomers);
+  }
+  html += renderModulesGrid();
+  container.innerHTML = html;
+}
+
+async function loadSalesDashboard() {
+  const container = document.getElementById('dashboard-page');
+  container.innerHTML = renderHero(null) + '<div style="text-align:center;padding:40px;color:var(--mute)">⏳ Loading your stats...</div>';
+  
+  const [stats, leaderboard, activity, todaysActions] = await Promise.all([
+    DASH.getPersonalStats(session.staffId, session.name),
+    DASH.getLeaderboard(),
+    DASH.getRecentActivity(session.staffId, 8),
+    DASH.getTodaysActions(session.staffId)
+  ]);
+  
+  let html = renderHero(stats);
+  html += renderQuickActions();
+  html += renderSalesStatsGrid(stats);
+  html += '<div class="two-col"><div>';
+  html += renderTodaysActions(todaysActions);
+  html += renderFunnel(stats?.funnel ? {
+    new: stats.funnel.new.length, contacted: stats.funnel.contacted.length,
+    quoted: stats.funnel.quoted.length, negotiating: stats.funnel.negotiating.length,
+    won: stats.funnel.won.length
+  } : null, 'My Pipeline');
+  html += '</div><div>';
+  html += renderLeaderboard(leaderboard, session.staffId);
+  html += renderActivityFeed(activity);
+  html += '</div></div>';
+  container.innerHTML = html;
+}
+
+async function loadOperationsDashboard() {
+  const container = document.getElementById('dashboard-page');
+  let html = `
+    <div class="hero">
+      <div class="hero-greeting">Welcome back</div>
+      <div class="hero-name">${escapeHtml(session.name)} 👋</div>
+      <div class="hero-meta">📅 ${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · Role: <strong>${escapeHtml(role)}</strong></div>
+    </div>
+  `;
+  html += renderModulesGrid();
+  container.innerHTML = html;
+}
+
+function renderHero(stats) {
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const day = today.getDate();
+  const totalDays = DASH.daysInMonth(today.getFullYear(), today.getMonth() + 1);
+  const daysRemaining = totalDays - day;
+  
+  let html = `
+    <div class="hero">
+      <div class="hero-greeting">Welcome back 👋</div>
+      <div class="hero-name">${escapeHtml(session.name)}</div>
+      <div class="hero-meta">📅 ${dateStr} · Role: <strong>${escapeHtml(role)}</strong></div>
+  `;
+  
+  if (stats?.target) {
+    const t = stats.target;
+    const revenue = stats.revenue?.total || 0;
+    const targetAmount = Number(t.revenue_target) || 0;
+    const pct = targetAmount > 0 ? Math.min(100, Math.round((revenue / targetAmount) * 100)) : 0;
+    const remaining = Math.max(0, targetAmount - revenue);
+    const dailyNeed = daysRemaining > 0 ? remaining / daysRemaining : 0;
+    
+    html += `
+      <div class="target-card">
+        <div class="target-label">💰 ${stats.period.name} Revenue Target</div>
+        <div class="target-row">
+          <div class="target-amount">${DASH.fmtINRFull(revenue)} <span style="opacity:0.5;font-size:14px">/ ${DASH.fmtINRFull(targetAmount)}</span></div>
+          <div class="target-percent">${pct}%</div>
+        </div>
+        <div class="target-bar-bg"><div class="target-bar-fill" style="width:${pct}%"></div></div>
+        <div class="target-meta">
+          <span>📊 Day ${day} of ${totalDays} · ${daysRemaining} days left</span>
+          <span>${remaining > 0 ? `Need ${DASH.fmtINR(dailyNeed)}/day` : '✅ Target achieved!'}</span>
+        </div>
+      </div>
+    `;
+  } else if (stats) {
+    html += `
+      <div class="target-card" style="text-align:center">
+        <div style="font-size:13px;font-weight:600;opacity:0.85">📋 No target set for ${stats.period?.name || 'this month'}</div>
+        ${isAdmin ? '<div style="margin-top:8px"><a href="team.html" style="color:#FBBF24;font-weight:800;font-size:12px;text-decoration:underline">Set Targets in Team Management →</a></div>' : ''}
+      </div>
+    `;
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderQuickActions() {
+  const actions = [];
+  if (AUTH.canAccess('leads')) actions.push({ icon: '🎯', label: 'New Lead', href: 'leads.html' });
+  if (AUTH.canAccess('quotations')) actions.push({ icon: '📝', label: 'New Quote', href: 'quotations.html' });
+  if (AUTH.canAccess('invoices')) actions.push({ icon: '💰', label: 'Record Payment', href: 'invoices.html' });
+  if (AUTH.canAccess('orders')) actions.push({ icon: '📋', label: 'New Order', href: 'orders.html' });
+  if (AUTH.canAccess('reports')) actions.push({ icon: '📊', label: 'View Reports', href: 'reports.html' });
+  if (isAdmin && AUTH.canAccess('team')) actions.push({ icon: '👥', label: 'Manage Team', href: 'team.html' });
+  
+  if (actions.length === 0) return '';
+  return `<div class="quick-actions">${actions.slice(0, 4).map(a => `<a href="${a.href}" class="quick-btn"><div class="qb-icon">${a.icon}</div><div class="qb-label">${a.label}</div></a>`).join('')}</div>`;
+}
+
+function renderSalesStatsGrid(stats) {
+  if (!stats) return '';
+  const leadsDelta = stats.leads.count - stats.leads.lastMonthCount;
+  const quotesDelta = stats.quotes.count - stats.quotes.lastMonthCount;
+  
+  return `
+    <div class="stats-grid">
+      <div class="stat-block">
+        <div class="icon">🎯</div>
+        <div class="lbl">My Leads</div>
+        <div class="val">${stats.leads.count}</div>
+        <div class="sub ${leadsDelta >= 0 ? 'up' : 'down'}">${leadsDelta >= 0 ? '↑' : '↓'} ${Math.abs(leadsDelta)} vs last month</div>
+      </div>
+      <div class="stat-block">
+        <div class="icon">📝</div>
+        <div class="lbl">My Quotes</div>
+        <div class="val">${stats.quotes.count}</div>
+        <div class="sub ${quotesDelta >= 0 ? 'up' : 'down'}">${quotesDelta >= 0 ? '↑' : '↓'} ${Math.abs(quotesDelta)} vs last · ${DASH.fmtINR(stats.quotes.totalValue)} value</div>
+      </div>
+      <div class="stat-block">
+        <div class="icon">🧾</div>
+        <div class="lbl">Invoices</div>
+        <div class="val">${stats.invoices.count}</div>
+        <div class="sub">${DASH.fmtINR(stats.invoices.totalValue)} value · ${stats.invoices.unpaid} unpaid</div>
+      </div>
+      <div class="stat-block">
+        <div class="icon">📈</div>
+        <div class="lbl">Conversion %</div>
+        <div class="val">${stats.conversionRate}%</div>
+        <div class="sub">Lead → Invoice rate</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAdminStatsGrid(stats) {
+  if (!stats) return '';
+  return `
+    <div class="stats-grid">
+      <div class="stat-block">
+        <div class="icon">💰</div>
+        <div class="lbl">Revenue (${stats.period.name})</div>
+        <div class="val">${DASH.fmtINR(stats.revenue.total)}</div>
+        <div class="sub ${stats.revenue.growth >= 0 ? 'up' : 'down'}">${stats.revenue.growth >= 0 ? '↑' : '↓'} ${Math.abs(stats.revenue.growth)}% vs last month</div>
+      </div>
+      <div class="stat-block">
+        <div class="icon">🎯</div>
+        <div class="lbl">New Leads</div>
+        <div class="val">${stats.leads.count}</div>
+        <div class="sub">${DASH.fmtINR(stats.leads.totalValue)} pipeline value</div>
+      </div>
+      <div class="stat-block">
+        <div class="icon">🧾</div>
+        <div class="lbl">Invoices Created</div>
+        <div class="val">${stats.invoices.count}</div>
+        <div class="sub">${DASH.fmtINR(stats.invoices.totalValue)} total value</div>
+      </div>
+      <div class="stat-block">
+        <div class="icon">⏳</div>
+        <div class="lbl">Outstanding</div>
+        <div class="val" style="color:var(--red-dk)">${DASH.fmtINR(stats.outstanding)}</div>
+        <div class="sub">Across all unpaid invoices</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTodaysActions(actions) {
+  const total = (actions.hotLeads?.length || 0) + (actions.expiringQuotes?.length || 0) + (actions.pendingPayments?.length || 0) + (actions.staleLeads?.length || 0);
+  if (total === 0) return `<div class="section"><div class="section-head"><h3>🎯 Today's Priority</h3></div><div class="empty"><div class="empty-icon">✨</div><div>All caught up! No urgent items.</div></div></div>`;
+  
+  let html = `<div class="section"><div class="section-head"><h3>🔥 Today's Priority</h3><span class="badge-count">${total}</span></div>`;
+  
+  (actions.expiringQuotes || []).forEach(q => {
+    const validityDate = new Date(q.validity_date);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const isExpiringToday = validityDate.getTime() === today.getTime();
+    html += `<div class="action-item urgent">
+      <div class="action-icon">⏰</div>
+      <div class="action-content">
+        <div class="action-title">Quote ${escapeHtml(q.quote_number)} ${isExpiringToday ? 'expires TODAY' : 'expires tomorrow'}</div>
+        <div class="action-desc">${escapeHtml(q.customer_name)} · ${DASH.fmtINR(q.grand_total)} ${q.customer_phone ? '· 📞 ' + q.customer_phone : ''}</div>
+      </div>
+      <a class="action-btn" href="quotations.html">Open</a>
+    </div>`;
+  });
+  
+  (actions.pendingPayments || []).slice(0, 3).forEach(inv => {
+    html += `<div class="action-item warning">
+      <div class="action-icon">💰</div>
+      <div class="action-content">
+        <div class="action-title">Invoice #${escapeHtml(inv.invoice_number)} unpaid</div>
+        <div class="action-desc">${escapeHtml(inv.customer_name)} · Balance ${DASH.fmtINR(inv.balance_due)} ${inv.due_date ? '· Due ' + inv.due_date : ''}</div>
+      </div>
+      <a class="action-btn" href="invoices.html">Open</a>
+    </div>`;
+  });
+  
+  (actions.hotLeads || []).slice(0, 3).forEach(lead => {
+    html += `<div class="action-item info">
+      <div class="action-icon">📞</div>
+      <div class="action-content">
+        <div class="action-title">${escapeHtml(lead.name)} ${lead.priority === 'urgent' ? '🚨' : '🔥'}</div>
+        <div class="action-desc">${escapeHtml(lead.company || '')} ${lead.phone ? '· 📱 ' + lead.phone : ''} · Stage: ${lead.stage}</div>
+      </div>
+      <a class="action-btn" href="leads.html">Open</a>
+    </div>`;
+  });
+  
+  if ((actions.staleLeads || []).length > 0 && total < 8) {
+    actions.staleLeads.slice(0, 2).forEach(lead => {
+      const days = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / 86400000);
+      html += `<div class="action-item">
+        <div class="action-icon">😴</div>
+        <div class="action-content">
+          <div class="action-title">${escapeHtml(lead.name)} - No activity for ${days} days</div>
+          <div class="action-desc">${escapeHtml(lead.company || '')} · Stage: ${lead.stage}</div>
+        </div>
+        <a class="action-btn" href="leads.html">Follow up</a>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderFunnel(funnel, title) {
+  if (!funnel) return '';
+  const stages = [
+    { key: 'new', label: '🎯 New', color: 'new' },
+    { key: 'contacted', label: '📞 Contacted', color: 'contacted' },
+    { key: 'quoted', label: '📝 Quoted', color: 'quoted' },
+    { key: 'negotiating', label: '💼 Negotiating', color: 'negotiating' },
+    { key: 'won', label: '🎉 Won', color: 'won' }
+  ];
+  const max = Math.max(...stages.map(s => funnel[s.key] || 0), 1);
+  
+  return `<div class="section">
+    <div class="section-head"><h3>📊 ${title || 'Pipeline Funnel'}</h3></div>
+    <div class="funnel">
+      ${stages.map(s => {
+        const count = funnel[s.key] || 0;
+        const pct = (count / max) * 100;
+        return `<div class="funnel-row">
+          <div class="funnel-stage">${s.label}</div>
+          <div class="funnel-bar-bg"><div class="funnel-bar-fill ${s.color}" style="width:${pct}%">${count > 0 ? count : ''}</div></div>
+          <div class="funnel-count">${count}</div>
+          <div class="funnel-value">leads</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function renderLeaderboard(leaderboard, currentStaffId) {
+  if (!leaderboard || leaderboard.length === 0) return `<div class="section"><div class="section-head"><h3>🏆 Sales Leaderboard</h3></div><div class="empty"><div class="empty-icon">🏆</div><div>No data yet this month</div></div></div>`;
+  const medals = ['🥇', '🥈', '🥉', '🏅', '🏅', '🏅'];
+  return `<div class="section">
+    <div class="section-head"><h3>🏆 Leaderboard - ${new Date().toLocaleString('en-US', { month: 'long' })}</h3></div>
+    ${leaderboard.slice(0, 6).map((member, i) => {
+      const isYou = member.staffId === currentStaffId;
+      return `<div class="leader-row ${isYou ? 'you' : ''}">
+        <div class="leader-rank">${medals[i] || '#' + (i+1)}</div>
+        <div class="leader-info">
+          <div class="leader-name">${escapeHtml(member.name)} ${isYou ? '(YOU)' : ''}</div>
+          <div class="leader-pct">${member.achievement}% of target ${member.target > 0 ? '· Target: ' + DASH.fmtINR(member.target) : ''}</div>
+        </div>
+        <div class="leader-amt">${DASH.fmtINR(member.revenue)}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderActivityFeed(activity) {
+  if (!activity || activity.length === 0) return `<div class="section"><div class="section-head"><h3>📋 Recent Activity</h3></div><div class="empty"><div class="empty-icon">📭</div><div>No recent activity</div></div></div>`;
+  const iconMap = {
+    lead_created: { icon: '🎯', class: 'lead' },
+    lead_stage_changed: { icon: '📈', class: 'lead' },
+    quote_created: { icon: '📝', class: 'quote' },
+    quote_sent: { icon: '✉️', class: 'quote' },
+    invoice_created: { icon: '🧾', class: 'invoice' },
+    payment_received: { icon: '💰', class: 'payment' }
+  };
+  return `<div class="section">
+    <div class="section-head"><h3>📋 Recent Activity</h3></div>
+    ${activity.map(a => {
+      const i = iconMap[a.action_type] || { icon: '📌', class: 'lead' };
+      return `<div class="activity-item">
+        <div class="activity-icon ${i.class}">${i.icon}</div>
+        <div class="activity-content">
+          <div class="activity-text">${escapeHtml(a.action_description)}</div>
+          <div class="activity-meta">${escapeHtml(a.staff_name)} · ${DASH.timeAgo(a.created_at)}${a.amount ? ' · ' + DASH.fmtINR(a.amount) : ''}</div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderTopCustomers(customers) {
+  if (!customers || customers.length === 0) return '';
+  return `<div class="section">
+    <div class="section-head"><h3>👑 Top Customers</h3></div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:var(--soft)">
+        <th style="padding:8px 12px;font-size:10px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase;text-align:left">Customer</th>
+        <th style="padding:8px 12px;font-size:10px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase;text-align:right">Invoices</th>
+        <th style="padding:8px 12px;font-size:10px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase;text-align:right">Total</th>
+        <th style="padding:8px 12px;font-size:10px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase;text-align:right">Paid</th>
+        <th style="padding:8px 12px;font-size:10px;font-weight:800;color:var(--mute);letter-spacing:0.05em;text-transform:uppercase;text-align:right">Balance</th>
+      </tr></thead>
+      <tbody>${customers.map(c => `<tr style="border-bottom:1px solid var(--line)">
+        <td style="padding:10px 12px;font-size:13px;font-weight:800;color:var(--ink)">${escapeHtml(c.name)}</td>
+        <td style="padding:10px 12px;font-size:12px;font-weight:700;text-align:right">${c.invoiceCount}</td>
+        <td style="padding:10px 12px;font-size:12px;font-weight:700;text-align:right;font-family:'JetBrains Mono',monospace">${DASH.fmtINR(c.totalValue)}</td>
+        <td style="padding:10px 12px;font-size:12px;font-weight:700;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--green-dk)">${DASH.fmtINR(c.paid)}</td>
+        <td style="padding:10px 12px;font-size:12px;font-weight:700;text-align:right;font-family:'JetBrains Mono',monospace;color:${c.balance > 0 ? 'var(--red-dk)' : 'var(--green-dk)'}">${DASH.fmtINR(c.balance)}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+function renderModulesGrid() {
+  const modules = [];
+  if (AUTH.canAccess('orders')) modules.push({ icon: '📋', label: 'Orders', sub: 'Sales entry', href: 'orders.html' });
+  if (AUTH.canAccess('printing')) modules.push({ icon: '🖨️', label: 'Printing', sub: 'Operator daily', href: 'printing.html' });
+  if (AUTH.canAccess('stitching')) modules.push({ icon: '✂️', label: 'Stitching', sub: '7 masters · ₹15/pc', href: 'stitching.html' });
+  if (AUTH.canAccess('execution')) modules.push({ icon: '🛺', label: 'Execution', sub: 'Field deployment', href: 'execution.html' });
+  if (AUTH.canAccess('dispatch')) modules.push({ icon: '🚚', label: 'Dispatch', sub: 'Logistics', href: 'dispatch.html' });
+  if (AUTH.canAccess('reports')) modules.push({ icon: '📊', label: 'Reports', sub: 'Analytics', href: 'reports.html' });
+  if (AUTH.canAccess('leads')) modules.push({ icon: '🎯', label: 'Leads', sub: 'CRM pipeline', href: 'leads.html' });
+  if (AUTH.canAccess('quotations')) modules.push({ icon: '📝', label: 'Quotations', sub: 'Estimates & PI', href: 'quotations.html' });
+  if (AUTH.canAccess('invoices')) modules.push({ icon: '🧾', label: 'Invoices', sub: 'Tax invoices', href: 'invoices.html' });
+  if (modules.length === 0) return '';
+  
+  return `<div class="section">
+    <div class="section-head"><h3>📦 Available Modules</h3></div>
+    <div class="module-grid">${modules.map(m => `<a href="${m.href}" class="mod-card">
+      <div class="mc-icon">${m.icon}</div>
+      <div class="mc-label">${m.label}</div>
+      <div class="mc-sub">${m.sub}</div>
+    </a>`).join('')}</div>
+  </div>`;
+}
+
+loadDashboard().catch(e => {
+  console.error('Dashboard error:', e);
+  document.getElementById('dashboard-page').innerHTML = `
+    <div class="hero"><div class="hero-greeting">Welcome back</div><div class="hero-name">${escapeHtml(session.name)} 👋</div></div>
+    <div class="section"><div style="padding:20px;color:var(--red-dk);text-align:center">
+      ⚠️ Failed to load dashboard data. ${e.message}<br><br>
+      <button class="btn primary" onclick="window.location.reload()">🔄 Retry</button>
+    </div></div>
+  `;
+});
+</script>
+
+</body>
+</html>

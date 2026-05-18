@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0B1957">
+<title>Order Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --brand:#0B1957;--orange:#FF6B00;
+  --bg:#f0f2f8;--card:#fff;--border:#e2e8f0;
+  --tx:#0f172a;--tx2:#64748b;--tx3:#94a3b8;
+  --gr:#22c55e;--re:#ef4444;--am:#f59e0b;--bl:#3b82f6;--pu:#8b5cf6;
+}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px}
+
+/* CLEAN theme (agency) */
+body.clean{--brand:#1e293b;--orange:#334155}
+body.clean .topbar{background:#1e293b}
+body.clean .brand-mark{background:#334155}
+
+/* LOGIN SCREEN */
+.login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:var(--brand)}
+.login-logo{margin-bottom:32px;text-align:center}
+.login-mark{width:64px;height:64px;border-radius:16px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;margin:0 auto 12px}
+.login-name{font-size:20px;font-weight:800;color:#fff;letter-spacing:.5px}
+.login-tag{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;letter-spacing:1px;text-transform:uppercase}
+.login-card{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px}
+.login-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--tx2);margin-bottom:20px}
+.lbl{display:block;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.inp{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--tx);outline:none;font-family:inherit;background:#fff;transition:border-color .15s}
+.inp:focus{border-color:var(--brand)}
+.fld{margin-bottom:14px}
+.btn-full{width:100%;padding:13px;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:var(--brand);color:#fff}
+.otp-row{display:flex;gap:8px;margin-bottom:14px}
+.otp-d{flex:1;padding:12px 4px;border:1.5px solid var(--border);border-radius:10px;color:var(--orange);font-size:22px;text-align:center;font-weight:800;outline:none;font-family:inherit;background:#fff}
+.otp-d:focus{border-color:var(--brand)}
+.wa-note{display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;font-size:11px;color:#166534;margin-top:12px}
+.back-btn{background:none;border:none;color:var(--tx2);font-size:12px;cursor:pointer;font-family:inherit;margin-bottom:14px;display:flex;align-items:center;gap:4px}
+
+/* TOPBAR */
+.topbar{background:var(--brand);padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.brand-mark{width:30px;height:30px;border-radius:8px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff}
+.brand-txt{color:#fff;font-size:12px;font-weight:700;margin-left:8px;letter-spacing:.5px}
+.user-av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700}
+
+/* MAIN */
+.main{padding:16px;max-width:600px;margin:0 auto}
+.page-title{font-size:18px;font-weight:800;margin-bottom:2px}
+.page-sub{font-size:12px;color:var(--tx2);margin-bottom:16px}
+
+/* CAMPAIGN CARD */
+.camp-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;overflow:hidden;position:relative}
+.camp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--camp-color,var(--brand))}
+.camp-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.camp-name{font-size:15px;font-weight:700}
+.camp-meta{font-size:11px;color:var(--tx2);margin-top:2px}
+.bdg{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.bg-g{background:#dcfce7;color:#166534}
+.bg-a{background:#fef3c7;color:#b45309}
+.bg-b{background:#dbeafe;color:#1d4ed8}
+.bg-r{background:#fee2e2;color:#b91c1c}
+.bg-p{background:#f3e8ff;color:#7c3aed}
+.bg-gray{background:#f1f5f9;color:#475569}
+
+/* PIPELINE */
+.pipeline{display:flex;align-items:center;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.pipeline::-webkit-scrollbar{display:none}
+.pipe-step{text-align:center;min-width:60px;position:relative}
+.pipe-step:not(:last-child)::after{content:'';position:absolute;top:12px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
+.pipe-step.done::after{background:var(--gr)}
+.pipe-step.active::after{background:var(--am)}
+.pipe-dot{width:24px;height:24px;border-radius:50%;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:11px;position:relative;z-index:1;font-weight:700}
+.pipe-step.done .pipe-dot{background:var(--gr);color:#fff}
+.pipe-step.active .pipe-dot{background:var(--am);color:#fff;box-shadow:0 0 0 4px rgba(245,158,11,.2)}
+.pipe-step.pending .pipe-dot{background:var(--border);color:var(--tx3)}
+.pipe-lbl{font-size:9px;font-weight:600;white-space:nowrap}
+.pipe-step.done .pipe-lbl{color:var(--gr)}
+.pipe-step.active .pipe-lbl{color:var(--am)}
+.pipe-step.pending .pipe-lbl{color:var(--tx3)}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat{background:var(--bg);border-radius:8px;padding:10px;text-align:center}
+.stat-val{font-size:20px;font-weight:800}
+.stat-lbl{font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* PHOTOS */
+.photos-section{margin-top:4px}
+.photos-title{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.photo-thumb{border-radius:8px;overflow:hidden;position:relative;aspect-ratio:1;background:#e2e8f0;cursor:pointer}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:4px 5px 3px}
+.photo-area{font-size:8px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.see-all{font-size:11px;font-weight:600;color:var(--brand)}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:#e2e8f0;border-radius:10px;padding:3px;margin-bottom:16px}
+.tab{flex:1;padding:7px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:none;color:var(--tx2);font-family:inherit;transition:all .15s}
+.tab.on{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;align-items:center;justify-content:center;flex-direction:column}
+.lightbox.show{display:flex}
+.lb-img{max-width:100%;max-height:75vh;border-radius:10px;object-fit:contain}
+.lb-close{position:absolute;top:16px;right:16px;color:#fff;font-size:24px;cursor:pointer;background:rgba(255,255,255,.15);border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+.lb-info{color:#fff;margin-top:12px;text-align:center;font-size:12px;max-width:300px}
+
+/* AREA CARDS */
+.area-list{display:flex;flex-direction:column;gap:8px}
+.area-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+.area-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.area-name{font-size:13px;font-weight:700}
+.area-meta{font-size:11px;color:var(--tx2)}
+.area-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px}
+.area-fill{height:5px;border-radius:3px;transition:width .5s}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:40px 20px;color:var(--tx2)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+canvas{display:none}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-logo">
+    <div class="login-mark" id="l-mark">PA</div>
+    <div class="login-name" id="l-name">Prajapati Advertising</div>
+    <div class="login-tag">Order Tracking Portal</div>
+  </div>
+
+  <!-- Step 1: Phone -->
+  <div class="login-card" id="step-phone">
+    <div class="login-title">Track Your Order</div>
+    <div class="login-sub">Enter your registered contact number</div>
+    <div class="fld">
+      <label class="lbl">Phone Number</label>
+      <input id="l-phone" class="inp" type="tel" maxlength="10" placeholder="10-digit mobile number"
+        onkeydown="if(event.key==='Enter')sendPortalOTP()">
+    </div>
+    <button class="btn-full" onclick="sendPortalOTP()">Send OTP via WhatsApp</button>
+    <div class="wa-note">💬 OTP will be sent to your WhatsApp</div>
+    <div id="ph-err" style="color:#ef4444;font-size:12px;text-align:center;margin-top:8px"></div>
+  </div>
+
+  <!-- Step 2: OTP -->
+  <div class="login-card" id="step-otp" style="display:none">
+    <button class="back-btn" onclick="goBack()">← Back</button>
+    <div class="login-title">Verify OTP</div>
+    <div class="login-sub" id="otp-sub">WhatsApp pe 6-digit OTP bheja gaya</div>
+    <div class="otp-row">
+      <input class="otp-d" maxlength="1" type="tel" id="p0" oninput="oi(0,this)">
+      <input class="otp-d" maxlength="1" type="tel" id="p1" oninput="oi(1,this)">
+      <input class="otp-d" maxlength="1" type="tel" id="p2" oninput="oi(2,this)">
+      <input class="otp-d" maxlength="1" type="tel" id="p3" oninput="oi(3,this)">
+      <input class="otp-d" maxlength="1" type="tel" id="p4" oninput="oi(4,this)">
+      <input class="otp-d" maxlength="1" type="tel" id="p5" oninput="oi(5,this)">
+    </div>
+    <button class="btn-full" onclick="verifyPortalOTP()">Verify & Enter</button>
+    <div id="otp-err" style="color:#ef4444;font-size:12px;text-align:center;margin-top:8px"></div>
+    <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--tx2)">
+      Resend: <button onclick="resendOTP()" style="background:none;border:none;color:var(--orange);font-size:11px;cursor:pointer;font-family:inherit;font-weight:700">Send Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app" style="display:none">
+  <div class="topbar">
+    <div style="display:flex;align-items:center">
+      <div class="brand-mark" id="app-mark">PA</div>
+      <span class="brand-txt" id="app-name">Prajapati Advertising</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="user-av" id="app-av">?</div>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);padding:4px 12px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div class="page-title" id="client-greeting">My Orders</div>
+        <div class="page-sub" id="client-sub">Live tracking of your campaigns</div>
+      </div>
+      <button onclick="refreshAll()" style="background:var(--brand);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔄 Refresh</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab on" id="t-orders" onclick="showSection('orders',this)">📋 Orders</button>
+      <button class="tab" id="t-photos" onclick="showSection('photos',this)">📸 Photos</button>
+      <button class="tab" id="t-areas" onclick="showSection('areas',this)">📍 Areas</button>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="sec-orders">
+      <div id="orders-list"></div>
+    </div>
+
+    <!-- PHOTOS -->
+    <div id="sec-photos" style="display:none">
+      <div id="all-photos-grid"></div>
+    </div>
+
+    <!-- AREAS -->
+    <div id="sec-areas" style="display:none">
+      <div id="areas-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLB()">
+  <button class="lb-close" onclick="closeLB()">✕</button>
+  <img class="lb-img" id="lb-img" alt="">
+  <div class="lb-info" id="lb-info"></div>
+</div>
+
+<script>
+const SU = 'https://shafygjbffffjhwhmcgo.supabase.co';
+const SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE';
+const WATI_URL = 'https://live-mt-server.wati.io/1077226';
+const WATI_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImluZm9AcHJhamFwYXRpYWR2ZXJ0aXNpbmcuY29tIiwibmFtZWlkIjoiaW5mb0BwcmFqYXBhdGlhZHZlcnRpc2luZy5jb20iLCJlbWFpbCI6ImluZm9AcHJhamFwYXRpYWR2ZXJ0aXNpbmcuY29tIiwiYXV0aF90aW1lIjoiMDUvMDUvMjAyNiAxODo1MzozMCIsInRlbmFudF9pZCI6IjEwNzcyMjYiLCJkYl9uYW1lIjoibXQtcHJvZC1UZW5hbnRzIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQURNSU5JU1RSQVRPUiIsImV4cCI6MjUzNDAyMzAwODAwLCJpc3MiOiJDbGFyZV9BSSIsImF1ZCI6IkNsYXJlX0FJIn0.aKa3M0p0d7yid2J5ROpNvG-ekc_Llhdh_chAeL_WW3E';
+
+let _phone = '', _otp = '', _otpExp = 0, _clientData = null, _allPhotos = [];
+
+// ── DB ──────────────────────────────────────────────────────
+async function db(p) {
+  const r = await fetch(SU + '/rest/v1/' + p, {
+    headers: { apikey: SK, 'Authorization': 'Bearer ' + SK }
+  });
+  const t = await r.text(); return t ? JSON.parse(t) : [];
+}
+
+// ── OTP ─────────────────────────────────────────────────────
+async function sendPortalOTP() {
+  const phone = document.getElementById('l-phone').value.trim();
+  if (phone.length < 10) { document.getElementById('ph-err').textContent = 'Valid 10-digit number enter karo'; return; }
+  document.getElementById('ph-err').textContent = '';
+
+  // Check if client exists with this phone
+  const clients = await db('prajapati_clients?phone=eq.' + phone + '&select=id,company_name,client_type,portal_active');
+  if (!clients?.length) {
+    document.getElementById('ph-err').textContent = '❌ Yeh number registered nahi hai. Sales team se contact karo.';
+    return;
+  }
+  if (!clients[0].portal_active) {
+    document.getElementById('ph-err').textContent = '❌ Portal access not active. Sales team se contact karo.';
+    return;
+  }
+
+  _phone = phone;
+  _otp = Math.floor(100000 + Math.random() * 900000).toString();
+  _otpExp = Date.now() + 5 * 60000;
+  sessionStorage.setItem('portal_otp', JSON.stringify({ otp: _otp, phone, exp: _otpExp }));
+
+  // Send via Wati
+  try {
+    await fetch(WATI_URL + '/api/v1/sendTemplateMessages', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + WATI_TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        template_name: 'prajapati_hrm_otp',
+        broadcast_name: 'portal_otp_' + Date.now(),
+        receivers: [{ whatsappNumber: '91' + phone, customParams: [{ name: '1', value: _otp }, { name: '2', value: '5' }] }]
+      })
+    });
+  } catch(e) { console.log('Wati error', e); }
+
+  document.getElementById('step-phone').style.display = 'none';
+  document.getElementById('step-otp').style.display = '';
+  document.getElementById('otp-sub').textContent = '+91 ' + phone + ' pe OTP bheja gaya';
+  document.getElementById('p0').focus();
+  // Dev fallback
+  setTimeout(() => { if (_otp) alert('OTP (Dev): ' + _otp); }, 500);
+}
+
+function oi(idx, el) {
+  const v = el.value.replace(/[^0-9]/g, '');
+  el.value = v.slice(-1);
+  if (v && idx < 5) document.getElementById('p' + (idx + 1)).focus();
+  const code = [0,1,2,3,4,5].map(i => document.getElementById('p'+i).value).join('');
+  if (code.length === 6) verifyPortalOTP();
+}
+
+async function verifyPortalOTP() {
+  const code = [0,1,2,3,4,5].map(i => document.getElementById('p'+i).value).join('');
+  if (code.length < 6) { document.getElementById('otp-err').textContent = '6-digit OTP enter karo'; return; }
+  const saved = JSON.parse(sessionStorage.getItem('portal_otp') || '{}');
+  if (Date.now() > saved.exp) { document.getElementById('otp-err').textContent = 'OTP expired! Dobara send karo'; return; }
+  if (saved.phone !== _phone || code !== saved.otp) { document.getElementById('otp-err').textContent = '❌ Wrong OTP'; return; }
+  sessionStorage.removeItem('portal_otp');
+
+  // Load client data
+  const clients = await db('prajapati_clients?phone=eq.' + _phone + '&select=*');
+  if (!clients?.length) return;
+  _clientData = clients[0];
+
+  const session = { clientId: _clientData.id, name: _clientData.company_name, phone: _phone, type: _clientData.client_type || 'direct', exp: Date.now() + 12*3600000 };
+  localStorage.setItem('portal_session', JSON.stringify(session));
+  enterPortal(_clientData);
+}
+
+function resendOTP() { sendPortalOTP(); }
+function goBack() {
+  document.getElementById('step-otp').style.display = 'none';
+  document.getElementById('step-phone').style.display = '';
+}
+
+// ── PORTAL ENTRY ─────────────────────────────────────────────
+function enterPortal(client) {
+  const isAgency = client.client_type === 'agency';
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = '';
+
+  if (isAgency) {
+    document.body.classList.add('clean');
+    document.getElementById('app-mark').textContent = 'SE';
+    document.getElementById('app-name').textContent = 'Sakshi Enterprises';
+    document.getElementById('l-mark').textContent = 'SE';
+    document.getElementById('l-name').textContent = 'Sakshi Enterprises';
+  } else {
+    document.getElementById('app-mark').textContent = 'PA';
+    document.getElementById('app-name').textContent = 'Prajapati Advertising';
+  }
+
+  document.getElementById('app-av').textContent = (client.company_name || 'C')[0].toUpperCase();
+  document.getElementById('client-greeting').textContent = 'Welcome, ' + client.company_name;
+  document.getElementById('client-sub').textContent = 'Live tracking of your campaigns • ' + new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  loadOrders();
+}
+
+function doLogout() {
+  localStorage.removeItem('portal_session');
+  _clientData = null;
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('step-phone').style.display = '';
+  document.getElementById('step-otp').style.display = 'none';
+  document.getElementById('l-phone').value = '';
+  [0,1,2,3,4,5].forEach(i => document.getElementById('p'+i).value = '');
+}
+
+// ── SECTIONS ─────────────────────────────────────────────────
+function showSection(name, el) {
+  ['orders','photos','areas'].forEach(n => {
+    document.getElementById('sec-'+n).style.display = n===name?'':'none';
+    document.getElementById('t-'+n).classList.toggle('on', n===name);
+  });
+  if (name === 'photos') loadAllPhotos();
+  if (name === 'areas') loadAreas();
+}
+
+// ── ORDERS ───────────────────────────────────────────────────
+async function loadOrders() {
+  if (!_clientData) return;
+  const [wos, dispatches] = await Promise.all([
+    db('prajapati_work_orders?select=*&client_name=eq.' + encodeURIComponent(_clientData.company_name) + '&order=created_at.desc'),
+    db('prajapati_dispatch?select=*&client_name=eq.' + encodeURIComponent(_clientData.company_name) + '&order=created_at.desc')
+  ]);
+
+  const el = document.getElementById('orders-list');
+  if (!wos?.length && !dispatches?.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div>No orders found</div><div style="font-size:12px;margin-top:6px">Contact your sales representative</div></div>`;
+    return;
+  }
+
+  const stageOrder = ['pending','design','printing','stitching','qc','dispatch','delivered'];
+  const stageEmoji = {pending:'⏳',design:'✏️',printing:'🖨️',stitching:'🧵',qc:'✅',dispatch:'🚚',delivered:'✅'};
+
+  el.innerHTML = (wos || []).map(w => {
+    const curIdx = stageOrder.indexOf(w.status || 'pending');
+    const pct = Math.round((curIdx / (stageOrder.length - 1)) * 100);
+    const statusColor = {pending:'bg-gray',design:'bg-b',printing:'bg-a',stitching:'bg-p',qc:'bg-b',dispatch:'bg-a',delivered:'bg-g'}[w.status] || 'bg-gray';
+    const dispForWO = (dispatches||[]).filter(d => d.campaign_name === w.campaign_name);
+
+    return `<div class="camp-card" style="--camp-color:${w.status==='delivered'?'#22c55e':w.status==='printing'?'#f59e0b':'#3b82f6'}">
+      <div class="camp-hdr">
+        <div>
+          <div class="camp-name">${w.campaign_name || w.wo_number}</div>
+          <div class="camp-meta">${w.wo_number} · ${w.media_type || '—'} · ${(w.total_qty||0).toLocaleString()} pcs</div>
+        </div>
+        <span class="bdg ${statusColor}">${stageEmoji[w.status]||''} ${w.status?.replace('_',' ')||'pending'}</span>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="background:#f1f5f9;border-radius:4px;height:5px;margin-bottom:10px;overflow:hidden">
+        <div style="height:5px;background:${w.status==='delivered'?'#22c55e':'#3b82f6'};border-radius:4px;width:${pct}%;transition:width .5s"></div>
+      </div>
+
+      <!-- Pipeline -->
+      <div class="pipeline">
+        ${stageOrder.map((s,i) => {
+          const st = i < curIdx ? 'done' : i === curIdx ? 'active' : 'pending';
+          return `<div class="pipe-step ${st}">
+            <div class="pipe-dot">${i < curIdx ? '✓' : stageEmoji[s]}</div>
+            <div class="pipe-lbl">${s}</div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-val">${w.total_qty||0}</div>
+          <div class="stat-lbl">Ordered</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" style="color:${w.status==='delivered'?'var(--gr)':'var(--am)'}">${w.status==='delivered'?w.total_qty:Math.round((w.total_qty||0)*pct/100)}</div>
+          <div class="stat-lbl">Done</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">${dispForWO.length}</div>
+          <div class="stat-lbl">Dispatches</div>
+        </div>
+      </div>
+
+      <!-- Dispatch info -->
+      ${dispForWO.length ? `<div style="background:#f8fafc;border-radius:8px;padding:10px;font-size:12px">
+        ${dispForWO.map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0">
+          <span style="color:var(--tx2)">${d.dispatch_number} · ${d.qty_dispatched} pcs</span>
+          <span class="bdg ${d.status==='delivered'?'bg-g':d.status==='in_transit'?'bg-a':'bg-b'}" style="font-size:9px">${d.status?.replace('_',' ')}</span>
+        </div>`).join('')}
+      </div>` : ''}
+
+      <!-- Photos preview -->
+      <div id="photos-${w.id}"></div>
+    </div>`;
+  }).join('') + (dispatches||[]).filter(d => !wos?.find(w => w.campaign_name === d.campaign_name)).map(d => `
+    <div class="camp-card" style="--camp-color:${d.status==='delivered'?'#22c55e':'#f59e0b'}">
+      <div class="camp-hdr">
+        <div>
+          <div class="camp-name">${d.campaign_name || d.dispatch_number}</div>
+          <div class="camp-meta">${d.dispatch_number} · ${d.media_type||'—'} · ${(d.qty_dispatched||0)} pcs</div>
+        </div>
+        <span class="bdg ${d.status==='delivered'?'bg-g':'bg-a'}">${d.status?.replace('_',' ')}</span>
+      </div>
+      ${d.lr_number ? `<div style="font-size:11px;color:var(--tx2);background:#f8fafc;padding:8px;border-radius:6px">LR: <strong>${d.lr_number}</strong> · Vendor: ${d.vendor_name||'—'}</div>` : ''}
+    </div>`).join('');
+
+  // Load photos for each WO
+  loadOrderPhotos(wos || []);
+}
+
+async function loadOrderPhotos(wos) {
+  if (!wos.length || !_clientData) return;
+  // Get photos from field cam (prajapati_photos in prajapati-gps Supabase)
+  // For now show from assignment photos
+  const photos = await db('prajapati_photos?select=*&order=created_at.desc&limit=50');
+  _allPhotos = photos || [];
+
+  wos.forEach(w => {
+    const wPhotos = (photos||[]).filter(p => p.campaign_name === w.campaign_name || p.campaign_id === w.id).slice(0,6);
+    const el = document.getElementById('photos-' + w.id);
+    if (!el || !wPhotos.length) return;
+    el.innerHTML = `<div class="photos-section">
+      <div class="photos-title"><span>📸 Field Photos (${wPhotos.length})</span><span class="see-all" onclick="showSection('photos',document.getElementById('t-photos'))">See all →</span></div>
+      <div class="photo-grid">
+        ${wPhotos.map(p => `<div class="photo-thumb" onclick="openLB('${p.image_url||p.photo_url||''}','${(p.address||'').replace(/'/g,"\\'")}')">
+          <img src="${p.image_url||p.photo_url||''}" alt="" loading="lazy" onerror="this.style.display='none'">
+          <div class="photo-overlay"><div class="photo-area">${p.address?.split(',')[0] || p.locality || ''}</div></div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+}
+
+async function loadAllPhotos() {
+  if (!_allPhotos.length) {
+    const photos = await db('prajapati_photos?select=*&order=created_at.desc&limit=100');
+    _allPhotos = photos || [];
+  }
+  const el = document.getElementById('all-photos-grid');
+  if (!_allPhotos.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📸</div><div>No photos yet</div></div>`;
+    return;
+  }
+  el.innerHTML = `<div style="font-size:12px;font-weight:700;margin-bottom:10px">All Field Photos (${_allPhotos.length})</div>
+    <div class="photo-grid">
+      ${_allPhotos.map(p => `<div class="photo-thumb" onclick="openLB('${p.image_url||p.photo_url||''}','${(p.address||'').replace(/'/g,"\\'")} · ${p.worker_name||''} · ${p.created_at?.slice(0,10)||''}')">
+        <img src="${p.image_url||p.photo_url||''}" alt="" loading="lazy" onerror="this.style.display='none'">
+        <div class="photo-overlay">
+          <div class="photo-area">${p.address?.split(',')[0] || p.locality || ''}</div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+}
+
+async function loadAreas() {
+  if (!_allPhotos.length) {
+    const photos = await db('prajapati_photos?select=*&order=created_at.desc&limit=200');
+    _allPhotos = photos || [];
+  }
+  // Group by area/locality
+  const areaMap = {};
+  _allPhotos.forEach(p => {
+    const area = p.address?.split(',')[0] || p.locality || 'Unknown Area';
+    if (!areaMap[area]) areaMap[area] = { name: area, count: 0, latest: null, photos: [] };
+    areaMap[area].count++;
+    areaMap[area].photos.push(p);
+    if (!areaMap[area].latest) areaMap[area].latest = p.created_at?.slice(0,10);
+  });
+  const areas = Object.values(areaMap).sort((a,b) => b.count - a.count);
+  const maxCount = areas[0]?.count || 1;
+
+  document.getElementById('areas-list').innerHTML = areas.length ?
+    `<div style="font-size:12px;font-weight:700;margin-bottom:10px">${areas.length} Areas Covered</div>
+     <div class="area-list">
+       ${areas.map(a => `<div class="area-card">
+         <div class="area-hdr">
+           <div class="area-name">📍 ${a.name}</div>
+           <span class="bdg bg-g">${a.count} photos</span>
+         </div>
+         <div class="area-meta">Last activity: ${a.latest || '—'}</div>
+         <div class="area-bar"><div class="area-fill" style="width:${Math.round(a.count/maxCount*100)}%;background:${a.count/maxCount>0.7?'var(--gr)':a.count/maxCount>0.4?'var(--am)':'var(--bl)'}"></div></div>
+         <div style="margin-top:8px;display:flex;gap:4px;overflow-x:auto">
+           ${a.photos.slice(0,5).map(p => `<img src="${p.image_url||p.photo_url||''}" onclick="openLB('${p.image_url||p.photo_url||''}','${a.name}')" style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;cursor:pointer" loading="lazy" onerror="this.style.display='none'">`).join('')}
+         </div>
+       </div>`).join('')}
+     </div>`
+    : `<div class="empty"><div class="empty-icon">📍</div><div>No area data yet</div></div>`;
+}
+
+// ── LIGHTBOX ─────────────────────────────────────────────────
+function openLB(src, info) {
+  if (!src) return;
+  document.getElementById('lb-img').src = src;
+  document.getElementById('lb-info').textContent = info;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLB() { document.getElementById('lightbox').classList.remove('show'); }
+
+function refreshAll() { loadOrders(); }
+
+// ── AUTO-LOGIN ────────────────────────────────────────────────
+(async function init() {
+  const raw = localStorage.getItem('portal_session');
+  if (raw) {
+    const s = JSON.parse(raw);
+    if (Date.now() < s.exp) {
+      const clients = await db('prajapati_clients?id=eq.' + s.clientId + '&select=*');
+      if (clients?.[0]) {
+        _clientData = clients[0];
+        _phone = s.phone;
+        enterPortal(_clientData);
+        return;
+      }
+    }
+    localStorage.removeItem('portal_session');
+  }
+})();
+</script>
+</body>
+</html>

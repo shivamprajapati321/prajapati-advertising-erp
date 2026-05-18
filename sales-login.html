@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0B1957">
+<title>Login — Prajapati CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --primary: #0B1957;
+  --primary-dark: #050d3a;
+  --accent: #26d0ce;
+  --accent-dark: #1ba5a3;
+  --success: #10b981;
+  --danger: #ef4444;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: #e5e7eb;
+  --bg: #f7f8fa;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 4px 16px rgba(11,25,87,0.08);
+  --shadow-lg: 0 20px 60px rgba(11,25,87,0.15);
+}
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: linear-gradient(135deg, #0B1957 0%, #1a2575 50%, #0B1957 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--text);
+}
+.login-container {
+  background: #fff;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: slideUp 0.4s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.login-header {
+  background: linear-gradient(135deg, var(--primary) 0%, #1a2575 100%);
+  padding: 36px 32px 32px;
+  text-align: center;
+  color: #fff;
+}
+.brand-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+.login-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.login-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+}
+.login-body { padding: 32px; }
+.step { display: none; animation: fadeIn 0.3s; }
+.step.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.field { margin-bottom: 18px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.field input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: all 0.15s;
+  background: #fff;
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(38, 208, 206, 0.1);
+}
+.phone-input-wrap {
+  display: flex;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.15s;
+}
+.phone-input-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(38, 208, 206, 0.1);
+}
+.phone-prefix {
+  background: var(--bg);
+  padding: 14px 14px;
+  font-weight: 600;
+  color: var(--text);
+  border-right: 1.5px solid var(--border);
+  font-size: 16px;
+}
+.phone-input-wrap input {
+  border: none !important;
+  flex: 1;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.otp-inputs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 18px 0;
+}
+.otp-inputs input {
+  width: 50px;
+  height: 56px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 0;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(38, 208, 206, 0.4); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--accent-dark);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0;
+}
+.btn-link:hover { text-decoration: underline; }
+
+.alert {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 14px;
+  display: none;
+}
+.alert.show { display: block; }
+.alert-info { background: #dbeafe; color: #1e40af; }
+.alert-success { background: #dcfce7; color: #166534; }
+.alert-error { background: #fee2e2; color: #991b1b; }
+.alert-warning { background: #fef3c7; color: #92400e; }
+
+.helper-text { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+.text-center { text-align: center; }
+.mt-4 { margin-top: 16px; }
+.mb-3 { margin-bottom: 12px; }
+
+.dev-otp-display {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px dashed #f59e0b;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  margin: 14px 0;
+  font-family: 'JetBrains Mono', monospace;
+  display: none;
+}
+.dev-otp-display.show { display: block; }
+.dev-otp-code {
+  font-size: 28px;
+  font-weight: 800;
+  color: #92400e;
+  letter-spacing: 4px;
+}
+.dev-otp-label {
+  font-size: 10px;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.footer-help {
+  text-align: center;
+  padding: 20px;
+  background: var(--bg);
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+.footer-help a { color: var(--accent-dark); text-decoration: none; font-weight: 600; }
+
+.spin {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.user-preview {
+  background: var(--bg);
+  padding: 14px;
+  border-radius: 10px;
+  margin: 14px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+}
+.user-info { flex: 1; }
+.user-name { font-weight: 700; font-size: 14px; color: var(--primary); }
+.user-role { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.role-admin { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; }
+.role-sales { background: #dbeafe; color: #1e40af; }
+.role-other { background: #e0e7ff; color: #3730a3; }
+
+.timer-text { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="login-header">
+    <div class="brand-logo">📦</div>
+    <div class="login-title">Prajapati Advertising</div>
+    <div class="login-subtitle">Operations + Sales CRM</div>
+  </div>
+  
+  <div class="login-body">
+    <div id="alert" class="alert"></div>
+    
+    <!-- Step 1: Phone Entry -->
+    <div id="step-phone" class="step active">
+      <div class="text-center mb-3" style="margin-bottom:24px;">
+        <div style="font-size:18px;font-weight:700;color:var(--primary);">Welcome Back</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">Phone number se login karo</div>
+      </div>
+      
+      <div class="field">
+        <label>Mobile Number</label>
+        <div class="phone-input-wrap">
+          <span class="phone-prefix">+91</span>
+          <input type="tel" id="phoneInput" maxlength="10" placeholder="9876543210" autofocus inputmode="numeric">
+        </div>
+        <div class="helper-text">Aapka registered 10-digit phone number</div>
+      </div>
+      
+      <button class="btn-primary" id="sendOtpBtn" onclick="sendOTP()">
+        Send OTP →
+      </button>
+      
+      <div class="text-center mt-4" style="margin-top:20px;">
+        <div class="helper-text">
+          New team member? <br>
+          <a href="https://wa.me/919922138138" style="color:var(--accent-dark);font-weight:600;text-decoration:none;">📱 Contact Admin (Shivam)</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Step 2: OTP Verification -->
+    <div id="step-otp" class="step">
+      <div class="text-center mb-3" style="margin-bottom:20px;">
+        <div style="font-size:18px;font-weight:700;color:var(--primary);">Enter OTP</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">
+          OTP sent to <strong id="phoneDisplay">—</strong>
+          <button class="btn-link" onclick="changePhone()" style="margin-left:8px;">Change</button>
+        </div>
+      </div>
+      
+      <!-- DEV MODE: Show OTP for testing -->
+      <div class="dev-otp-display" id="devOtpDisplay">
+        <div class="dev-otp-label">🧪 DEV MODE - Your OTP:</div>
+        <div class="dev-otp-code" id="devOtpCode">——————</div>
+        <div style="font-size:10px;color:#92400e;margin-top:4px;">In production, this comes via SMS/WhatsApp</div>
+      </div>
+      
+      <div class="field">
+        <label>6-Digit OTP</label>
+        <div class="otp-inputs">
+          <input type="text" maxlength="1" data-index="0" inputmode="numeric">
+          <input type="text" maxlength="1" data-index="1" inputmode="numeric">
+          <input type="text" maxlength="1" data-index="2" inputmode="numeric">
+          <input type="text" maxlength="1" data-index="3" inputmode="numeric">
+          <input type="text" maxlength="1" data-index="4" inputmode="numeric">
+          <input type="text" maxlength="1" data-index="5" inputmode="numeric">
+        </div>
+      </div>
+      
+      <button class="btn-primary" id="verifyBtn" onclick="verifyOTP()">
+        Verify & Login
+      </button>
+      
+      <div class="timer-text" id="timerText">OTP expires in <span id="countdown">5:00</span></div>
+      
+      <div class="text-center mt-4">
+        <button class="btn-link" id="resendBtn" onclick="sendOTP()" disabled>Resend OTP (wait 30s)</button>
+      </div>
+    </div>
+    
+    <!-- Step 3: Welcome -->
+    <div id="step-welcome" class="step">
+      <div class="text-center" style="padding:20px 0;">
+        <div style="font-size:48px;margin-bottom:14px;">✅</div>
+        <div style="font-size:20px;font-weight:800;color:var(--primary);margin-bottom:4px;">Login Successful!</div>
+        <div style="font-size:13px;color:var(--text-muted);">Redirecting to dashboard...</div>
+      </div>
+      
+      <div class="user-preview" id="userPreview"></div>
+    </div>
+  </div>
+  
+  <div class="footer-help">
+    🔒 Secure login · OTP-based authentication<br>
+    📞 Help: <a href="tel:+919922138138">+91 9922138138</a> · <a href="https://www.prajapatiadvertising.com">www.prajapatiadvertising.com</a>
+  </div>
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://fpbktcgtspqsqpaytslv.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_JhObe56x_zETygpy6y8-DQ_qpQXIz_j';
+let db;
+let currentPhone = '';
+let countdownInterval = null;
+let resendTimerInterval = null;
+
+// Init DB
+function initDB() {
+  if (typeof supabase === 'undefined') { setTimeout(initDB, 100); return; }
+  db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  
+  // Check existing session
+  const token = localStorage.getItem('prajapati_session');
+  if (token) {
+    validateExisting(token);
+  }
+}
+
+async function validateExisting(token) {
+  try {
+    const { data, error } = await db.rpc('validate_session', { p_token: token });
+    if (error) throw error;
+    if (data && data[0] && data[0].is_valid) {
+      // Already logged in, redirect
+      window.location.href = data[0].user_role === 'admin' ? 'index.html' : 'sales.html';
+    }
+  } catch (e) { /* ignore - just show login */ }
+}
+
+function showAlert(message, type = 'info') {
+  const a = document.getElementById('alert');
+  a.className = 'alert show alert-' + type;
+  a.textContent = message;
+  setTimeout(() => a.classList.remove('show'), 5000);
+}
+
+function showStep(step) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + step).classList.add('active');
+}
+
+async function sendOTP() {
+  const phone = document.getElementById('phoneInput').value.replace(/\D/g, '');
+  
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    showAlert('Please enter a valid 10-digit Indian mobile number', 'error');
+    return;
+  }
+  
+  currentPhone = phone;
+  const btn = document.getElementById('sendOtpBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Sending OTP...';
+  
+  try {
+    const { data, error } = await db.rpc('generate_otp', { p_phone: phone });
+    if (error) throw error;
+    
+    const result = data && data[0];
+    if (!result || !result.otp_code) {
+      showAlert(result?.message || 'Phone not registered. Contact admin.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = 'Send OTP →';
+      return;
+    }
+    
+    // Move to OTP step
+    document.getElementById('phoneDisplay').textContent = '+91 ' + phone;
+    
+    // DEV MODE: show OTP
+    document.getElementById('devOtpCode').textContent = result.otp_code;
+    document.getElementById('devOtpDisplay').classList.add('show');
+    
+    showStep('otp');
+    document.querySelector('.otp-inputs input').focus();
+    
+    startCountdown(result.expires_in_seconds || 300);
+    startResendTimer(30);
+    
+    btn.disabled = false;
+    btn.innerHTML = 'Send OTP →';
+    
+    showAlert('OTP generated successfully!', 'success');
+  } catch (err) {
+    showAlert('Error: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = 'Send OTP →';
+  }
+}
+
+function changePhone() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  if (resendTimerInterval) clearInterval(resendTimerInterval);
+  showStep('phone');
+  document.querySelectorAll('.otp-inputs input').forEach(i => i.value = '');
+  document.getElementById('devOtpDisplay').classList.remove('show');
+}
+
+async function verifyOTP() {
+  const otp = Array.from(document.querySelectorAll('.otp-inputs input')).map(i => i.value).join('');
+  
+  if (otp.length !== 6) {
+    showAlert('Please enter the complete 6-digit OTP', 'error');
+    return;
+  }
+  
+  const btn = document.getElementById('verifyBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Verifying...';
+  
+  try {
+    const { data, error } = await db.rpc('verify_otp_and_login', { p_phone: currentPhone, p_otp: otp });
+    if (error) throw error;
+    
+    const result = data && data[0];
+    if (!result || !result.success) {
+      showAlert(result?.message || 'Invalid OTP', 'error');
+      btn.disabled = false;
+      btn.innerHTML = 'Verify & Login';
+      // Clear OTP inputs
+      document.querySelectorAll('.otp-inputs input').forEach(i => i.value = '');
+      document.querySelector('.otp-inputs input').focus();
+      return;
+    }
+    
+    // SUCCESS - save session
+    localStorage.setItem('prajapati_session', result.session_token);
+    localStorage.setItem('prajapati_user_phone', currentPhone);
+    localStorage.setItem('prajapati_user_name', result.user_name || '');
+    localStorage.setItem('prajapati_user_role', result.user_role || '');
+    
+    showStep('welcome');
+    
+    const initial = (result.user_name || 'U').charAt(0).toUpperCase();
+    const roleClass = result.user_role === 'admin' ? 'role-admin' : (result.user_role === 'sales' ? 'role-sales' : 'role-other');
+    
+    document.getElementById('userPreview').innerHTML = `
+      <div class="user-avatar">${initial}</div>
+      <div class="user-info">
+        <div class="user-name">${result.user_name || 'User'}</div>
+        <div class="user-role">+91 ${currentPhone}</div>
+        <span class="role-badge ${roleClass}">${result.user_role || 'user'}</span>
+      </div>
+    `;
+    
+    // Redirect after 1.5 sec
+    setTimeout(() => {
+      const redirect = result.user_role === 'admin' ? 'index.html' : 'sales.html';
+      window.location.href = redirect;
+    }, 1500);
+    
+  } catch (err) {
+    showAlert('Error: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = 'Verify & Login';
+  }
+}
+
+function startCountdown(seconds) {
+  if (countdownInterval) clearInterval(countdownInterval);
+  let remaining = seconds;
+  
+  function update() {
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      document.getElementById('timerText').innerHTML = '<span style="color:var(--danger);">⚠️ OTP Expired - Please resend</span>';
+      return;
+    }
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    document.getElementById('countdown').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    remaining--;
+  }
+  
+  update();
+  countdownInterval = setInterval(update, 1000);
+}
+
+function startResendTimer(seconds) {
+  if (resendTimerInterval) clearInterval(resendTimerInterval);
+  let remaining = seconds;
+  const btn = document.getElementById('resendBtn');
+  btn.disabled = true;
+  
+  function update() {
+    if (remaining <= 0) {
+      clearInterval(resendTimerInterval);
+      btn.disabled = false;
+      btn.textContent = '🔄 Resend OTP';
+      return;
+    }
+    btn.textContent = `Resend OTP (wait ${remaining}s)`;
+    remaining--;
+  }
+  
+  update();
+  resendTimerInterval = setInterval(update, 1000);
+}
+
+// OTP input auto-advance
+document.querySelectorAll('.otp-inputs input').forEach((input, idx) => {
+  input.addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+    if (e.target.value && idx < 5) {
+      document.querySelectorAll('.otp-inputs input')[idx + 1].focus();
+    }
+    // Auto-submit when all 6 filled
+    const all = Array.from(document.querySelectorAll('.otp-inputs input')).map(i => i.value).join('');
+    if (all.length === 6) verifyOTP();
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+      document.querySelectorAll('.otp-inputs input')[idx - 1].focus();
+    }
+  });
+  input.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+    text.split('').forEach((char, i) => {
+      const inputs = document.querySelectorAll('.otp-inputs input');
+      if (inputs[i]) inputs[i].value = char;
+    });
+    if (text.length === 6) verifyOTP();
+  });
+});
+
+// Phone input - only digits
+document.getElementById('phoneInput').addEventListener('input', (e) => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+});
+
+document.getElementById('phoneInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendOTP();
+});
+
+window.addEventListener('load', () => {
+  setTimeout(initDB, 100);
+});
+</script>
+
+</body>
+</html>

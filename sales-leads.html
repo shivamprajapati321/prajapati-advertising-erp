@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Leads — Prajapati Sales CRM</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f8fafc;--bg1:#fff;--br:#e2e8f0;--tx:#1e293b;--tx2:#64748b;--or:#FF6B00;--bl:#3b82f6;--gr:#22c55e;--re:#ef4444;--pu:#8b5cf6;--pi:#ec4899;--cy:#06b6d4;--nav:#0B1957}
+body{background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;font-size:14px}
+/* NAV */
+.nav{background:var(--nav);padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.nav-brand{font-size:15px;font-weight:700;color:#fff;text-decoration:none}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap}
+.nav-links a{color:rgba(255,255,255,.75);text-decoration:none;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:500}
+.nav-links a:hover,.nav-links a.act{background:rgba(255,255,255,.15);color:#fff}
+.nav-sub{background:#1a2a6b;padding:6px 20px;display:flex;gap:4px;flex-wrap:wrap}
+.nav-sub a{color:rgba(255,255,255,.7);text-decoration:none;padding:4px 10px;border-radius:5px;font-size:12px}
+.nav-sub a:hover,.nav-sub a.act{background:rgba(255,255,255,.15);color:#fff}
+/* MAIN */
+.main{padding:16px;max-width:1400px;margin:0 auto}
+.page-title{font-size:20px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.page-sub{font-size:12px;color:var(--tx2);margin-bottom:16px}
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--bg1);border:1px solid var(--br);border-radius:10px;padding:12px;border-left:3px solid var(--bl)}
+.kpi-label{font-size:9px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.kpi-val{font-size:22px;font-weight:900;color:var(--tx)}
+.kpi-sub{font-size:10px;color:var(--tx2);margin-top:2px}
+/* SOURCE CARDS */
+.sources{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.source-card{background:var(--bg1);border:1px solid var(--br);border-radius:10px;padding:12px;cursor:pointer;transition:all .15s;position:relative}
+.source-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);transform:translateY(-1px)}
+.source-card .s-icon{font-size:22px;margin-bottom:6px}
+.source-card .s-name{font-size:12px;font-weight:700;color:var(--tx)}
+.source-card .s-count{font-size:18px;font-weight:900;margin-top:2px}
+.source-card .s-btn{font-size:10px;color:var(--bl);margin-top:4px;font-weight:600}
+.source-card .s-badge{position:absolute;top:8px;right:8px;background:#dcfce7;color:#16a34a;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px}
+/* TOOLBAR */
+.toolbar{background:var(--bg1);border:1px solid var(--br);border-radius:10px;padding:12px;margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toolbar input,.toolbar select{padding:7px 10px;border:1px solid var(--br);border-radius:7px;font-size:12px;color:var(--tx);background:var(--bg);outline:none;font-family:inherit}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--bl)}
+.toolbar input[type=text]{flex:1;min-width:180px}
+.btn{padding:7px 14px;border:none;border-radius:7px;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--nav);color:#fff}
+.btn-orange{background:var(--or);color:#fff}
+.btn-green{background:var(--gr);color:#fff}
+.btn-blue{background:var(--bl);color:#fff}
+.btn-red{background:var(--re);color:#fff}
+.btn-gray{background:var(--br);color:var(--tx)}
+.btn-wa{background:#25D366;color:#fff}
+/* TABLE */
+.table-wrap{background:var(--bg1);border:1px solid var(--br);border-radius:10px;overflow:hidden}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:9px 12px;text-align:left;font-size:9px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;background:#f8fafc;border-bottom:1px solid var(--br)}
+.tbl td{padding:8px 12px;border-bottom:1px solid #f1f5f9;color:var(--tx2)}
+.tbl tr:hover td{background:#fafbff}
+.tbl tr:last-child td{border:none}
+/* BADGES */
+.bdg{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.bdg-new{background:#dbeafe;color:#1d4ed8}
+.bdg-contacted{background:#fef9c3;color:#854d0e}
+.bdg-qualified{background:#dcfce7;color:#166534}
+.bdg-proposal{background:#f3e8ff;color:#6b21a8}
+.bdg-won{background:#d1fae5;color:#065f46}
+.bdg-lost{background:#fee2e2;color:#991b1b}
+.bdg-followup{background:#ffedd5;color:#9a3412}
+/* SOURCE BADGES */
+.src-indiamart{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.src-justdial{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.src-tradeindia{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.src-meta{background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe}
+.src-manual{background:#f8fafc;color:#475569;border:1px solid #e2e8f0}
+.src-import{background:#faf5ff;color:#7c3aed;border:1px solid #e9d5ff}
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--bg1);border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:20px}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--tx2);line-height:1}
+.fld{margin-bottom:12px}
+.lbl{display:block;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.inp{width:100%;padding:8px 12px;border:1px solid var(--br);border-radius:8px;font-size:13px;color:var(--tx);outline:none;font-family:inherit;background:#fff}
+.inp:focus{border-color:var(--bl)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* STATUS TABS */
+.status-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.stab{padding:5px 12px;border-radius:20px;border:1px solid var(--br);cursor:pointer;font-size:11px;font-weight:600;color:var(--tx2);background:var(--bg1);transition:all .15s}
+.stab.act{background:var(--nav);color:#fff;border-color:var(--nav)}
+/* FETCH SECTION */
+.fetch-box{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;margin-bottom:12px}
+.fetch-title{font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px}
+/* PROGRESS */
+.progress-bar{height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:var(--gr);border-radius:2px;transition:width .3s}
+/* PAGINATION */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-top:1px solid var(--br);font-size:12px;color:var(--tx2)}
+@media(max-width:600px){.g2{grid-template-columns:1fr}.sources{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="/index.html" class="nav-brand">📦 Prajapati Advertising</a>
+  <div class="nav-links">
+    <a href="/index.html">Operations</a>
+    <a href="/dispatch-list.html">Dispatches</a>
+    <a href="/vendors.html">Vendors</a>
+    <a href="/work-orders.html">Work Orders</a>
+    <a href="/payments.html">Payments</a>
+    <a href="/sales.html" class="act">💼 Sales CRM</a>
+  </div>
+</nav>
+<div class="nav-sub">
+  <a href="/sales.html">🏠 Home</a>
+  <a href="/sales-leads.html" class="act">📥 Leads</a>
+  <a href="/sales-quotations.html">💰 Quotations</a>
+  <a href="/sales-pi.html">📄 PI</a>
+  <a href="/sales-invoices.html">🧾 Invoices</a>
+  <a href="/sales-clients.html">👥 Clients</a>
+  <a href="/sales-reports.html">📊 Reports</a>
+</div>
+
+<div class="main">
+  <div class="page-title">📥 Leads Management</div>
+  <div class="page-sub">All sources · Auto-fetch · Import · Manual</div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi" style="border-color:var(--bl)"><div class="kpi-label">Total Leads</div><div class="kpi-val" id="k-total">—</div></div>
+    <div class="kpi" style="border-color:#f59e0b"><div class="kpi-label">New Today</div><div class="kpi-val" id="k-today">—</div></div>
+    <div class="kpi" style="border-color:var(--gr)"><div class="kpi-label">Qualified</div><div class="kpi-val" id="k-qual">—</div></div>
+    <div class="kpi" style="border-color:var(--pu)"><div class="kpi-label">Follow-up Due</div><div class="kpi-val" id="k-follow">—</div></div>
+    <div class="kpi" style="border-color:var(--gr)"><div class="kpi-label">Won</div><div class="kpi-val" id="k-won">—</div></div>
+    <div class="kpi" style="border-color:var(--re)"><div class="kpi-label">Lost</div><div class="kpi-val" id="k-lost">—</div></div>
+  </div>
+
+  <!-- SOURCE CARDS -->
+  <div class="sources">
+    <div class="source-card" onclick="fetchIndiamart()">
+      <div class="s-badge">Auto</div>
+      <div class="s-icon">🇮🇳</div>
+      <div class="s-name">IndiaMART</div>
+      <div class="s-count" id="src-im" style="color:var(--or)">—</div>
+      <div class="s-btn">🔄 Fetch Now</div>
+    </div>
+    <div class="source-card" onclick="openImport('justdial')">
+      <div class="s-icon">📱</div>
+      <div class="s-name">JustDial</div>
+      <div class="s-count" id="src-jd" style="color:var(--bl)">—</div>
+      <div class="s-btn">📥 Import CSV</div>
+    </div>
+    <div class="source-card" onclick="openImport('tradeindia')">
+      <div class="s-icon">🏭</div>
+      <div class="s-name">TradeIndia</div>
+      <div class="s-count" id="src-ti" style="color:var(--gr)">—</div>
+      <div class="s-btn">📥 Import CSV</div>
+    </div>
+    <div class="source-card" onclick="openImport('meta')">
+      <div class="s-icon">📣</div>
+      <div class="s-name">Meta Ads</div>
+      <div class="s-count" id="src-meta" style="color:var(--pu)">—</div>
+      <div class="s-btn">📥 Import CSV</div>
+    </div>
+    <div class="source-card" onclick="openManual()">
+      <div class="s-icon">✏️</div>
+      <div class="s-name">Manual Entry</div>
+      <div class="s-count" id="src-man" style="color:var(--cy)">—</div>
+      <div class="s-btn">➕ Add Lead</div>
+    </div>
+    <div class="source-card" onclick="openImport('generic')">
+      <div class="s-icon">📂</div>
+      <div class="s-name">Import File</div>
+      <div class="s-count" style="color:var(--tx2)">Excel/CSV</div>
+      <div class="s-btn">📤 Upload</div>
+    </div>
+  </div>
+
+  <!-- INDIAMART FETCH BOX -->
+  <div class="fetch-box" id="im-fetch-box" style="display:none">
+    <div class="fetch-title">🇮🇳 IndiaMART Auto-Fetch</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <div><label class="lbl">From Date</label><input type="date" id="im-from" class="inp" style="width:150px"></div>
+      <div><label class="lbl">To Date</label><input type="date" id="im-to" class="inp" style="width:150px"></div>
+      <div style="margin-top:16px;display:flex;gap:6px">
+        <button class="btn btn-orange" onclick="runFetchIndiamart()">🔄 Fetch Leads</button>
+        <button class="btn btn-gray" onclick="document.getElementById('im-fetch-box').style.display='none'">Cancel</button>
+      </div>
+    </div>
+    <div id="im-status" style="font-size:12px;color:var(--tx2);margin-top:8px"></div>
+    <div class="progress-bar"><div class="progress-fill" id="im-progress" style="width:0%"></div></div>
+  </div>
+
+  <!-- STATUS TABS -->
+  <div class="status-tabs">
+    <div class="stab act" onclick="filterStatus('all',this)">All</div>
+    <div class="stab" onclick="filterStatus('new',this)">🆕 New</div>
+    <div class="stab" onclick="filterStatus('contacted',this)">📞 Contacted</div>
+    <div class="stab" onclick="filterStatus('qualified',this)">✅ Qualified</div>
+    <div class="stab" onclick="filterStatus('proposal',this)">📋 Proposal</div>
+    <div class="stab" onclick="filterStatus('won',this)">🏆 Won</div>
+    <div class="stab" onclick="filterStatus('lost',this)">❌ Lost</div>
+    <div class="stab" onclick="filterStatus('followup',this)">🔔 Follow-up Due</div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="🔍 Search name, company, phone..." oninput="applyFilters()">
+    <select id="f-source" onchange="applyFilters()">
+      <option value="">All Sources</option>
+      <option value="indiamart">🇮🇳 IndiaMART</option>
+      <option value="justdial">📱 JustDial</option>
+      <option value="tradeindia">🏭 TradeIndia</option>
+      <option value="meta">📣 Meta Ads</option>
+      <option value="manual">✏️ Manual</option>
+      <option value="import">📂 Import</option>
+    </select>
+    <select id="f-assigned" onchange="applyFilters()">
+      <option value="">All Assigned</option>
+    </select>
+    <input type="date" id="f-from" onchange="applyFilters()">
+    <input type="date" id="f-to" onchange="applyFilters()">
+    <button class="btn btn-primary" onclick="openManual()">➕ Add Lead</button>
+    <button class="btn btn-green" onclick="exportCSV()">📥 Export CSV</button>
+    <button class="btn btn-gray" onclick="clearFilters()">✕ Clear</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)"></th>
+            <th>#</th>
+            <th>Name / Company</th>
+            <th>Phone</th>
+            <th>Product</th>
+            <th>Source</th>
+            <th>Status</th>
+            <th>Follow-up</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leads-body">
+          <tr><td colspan="10" style="text-align:center;padding:30px;color:var(--tx2)">⏳ Loading leads...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span id="pg-info">—</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-gray" onclick="prevPage()" id="pg-prev">← Prev</button>
+        <button class="btn btn-gray" onclick="nextPage()" id="pg-next">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT LEAD MODAL -->
+<div class="overlay" id="lead-modal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-title-text">➕ Add Lead</span>
+      <button class="modal-close" onclick="closeModal('lead-modal')">✕</button>
+    </div>
+    <input type="hidden" id="lead-id">
+    <div class="g2">
+      <div class="fld"><label class="lbl">Name *</label><input id="l-name" class="inp" placeholder="Full name"></div>
+      <div class="fld"><label class="lbl">Company</label><input id="l-company" class="inp" placeholder="Company name"></div>
+    </div>
+    <div class="g2">
+      <div class="fld"><label class="lbl">Phone *</label><input id="l-phone" class="inp" type="tel" placeholder="10-digit"></div>
+      <div class="fld"><label class="lbl">Email</label><input id="l-email" class="inp" type="email" placeholder="email@example.com"></div>
+    </div>
+    <div class="g2">
+      <div class="fld"><label class="lbl">City</label><input id="l-city" class="inp" placeholder="City"></div>
+      <div class="fld"><label class="lbl">State</label><input id="l-state" class="inp" placeholder="State"></div>
+    </div>
+    <div class="fld"><label class="lbl">Product Interest</label><input id="l-product" class="inp" placeholder="Auto Hood, Back Panel, Flex, etc."></div>
+    <div class="fld"><label class="lbl">Message / Requirement</label><textarea id="l-message" class="inp" rows="2" placeholder="Lead requirement details..."></textarea></div>
+    <div class="g2">
+      <div class="fld"><label class="lbl">Source</label>
+        <select id="l-source" class="inp">
+          <option value="manual">✏️ Manual</option>
+          <option value="indiamart">🇮🇳 IndiaMART</option>
+          <option value="justdial">📱 JustDial</option>
+          <option value="tradeindia">🏭 TradeIndia</option>
+          <option value="meta">📣 Meta Ads</option>
+          <option value="import">📂 Import</option>
+          <option value="reference">🤝 Reference</option>
+          <option value="website">🌐 Website</option>
+          <option value="cold_call">📞 Cold Call</option>
+        </select>
+      </div>
+      <div class="fld"><label class="lbl">Status</label>
+        <select id="l-status" class="inp">
+          <option value="new">🆕 New</option>
+          <option value="contacted">📞 Contacted</option>
+          <option value="qualified">✅ Qualified</option>
+          <option value="proposal">📋 Proposal Sent</option>
+          <option value="won">🏆 Won</option>
+          <option value="lost">❌ Lost</option>
+        </select>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="fld"><label class="lbl">Assigned To</label><input id="l-assigned" class="inp" placeholder="Sales person name"></div>
+      <div class="fld"><label class="lbl">Follow-up Date</label><input id="l-followup" class="inp" type="date"></div>
+    </div>
+    <div class="fld"><label class="lbl">Notes</label><textarea id="l-notes" class="inp" rows="2" placeholder="Internal notes..."></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary" onclick="saveLead()">💾 Save Lead</button>
+      <button class="btn btn-gray" onclick="closeModal('lead-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div class="overlay" id="import-modal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="import-title">📥 Import Leads</span>
+      <button class="modal-close" onclick="closeModal('import-modal')">✕</button>
+    </div>
+    <div id="import-source-info" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:10px;margin-bottom:12px;font-size:12px;color:#0c4a6e"></div>
+
+    <div class="fld">
+      <label class="lbl">Upload File (CSV / Excel)</label>
+      <input type="file" id="import-file" accept=".csv,.xlsx,.xls" class="inp" onchange="previewImport(this)">
+    </div>
+    <div id="import-preview" style="max-height:250px;overflow-y:auto;margin-bottom:12px"></div>
+    <div id="import-mapping" style="margin-bottom:12px"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="runImport()" id="import-btn" style="display:none">📥 Import Leads</button>
+      <button class="btn btn-green" onclick="downloadTemplate()" style="font-size:11px">📄 Download Template</button>
+      <button class="btn btn-gray" onclick="closeModal('import-modal')">Cancel</button>
+    </div>
+    <div id="import-status" style="font-size:12px;color:var(--tx2);margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- VIEW LEAD MODAL -->
+<div class="overlay" id="view-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-title">
+      <span>👤 Lead Details</span>
+      <button class="modal-close" onclick="closeModal('view-modal')">✕</button>
+    </div>
+    <div id="view-content"></div>
+  </div>
+</div>
+
+<script>
+const SURL = 'https://shafygjbffffjhwhmcgo.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE';
+
+let _all=[], _filtered=[], _page=1, _perPage=25, _statusFilter='all', _importSource='', _importData=[];
+
+async function db(method, path, body){
+  try{
+    const r=await fetch(SURL+'/rest/v1/'+path,{
+      method,headers:{apikey:SKEY,'Authorization':'Bearer '+SKEY,'Content-Type':'application/json',
+        Prefer:method==='POST'?'return=representation':method==='PATCH'?'return=representation':''},
+      body:body?JSON.stringify(body):undefined
+    });
+    if(!r.ok){const e=await r.text();console.error('DB',r.status,e);return null;}
+    const t=await r.text();return t?JSON.parse(t):null;
+  }catch(e){console.error(e);return null;}
+}
+
+// ═══ LOAD ═══
+async function loadLeads(){
+  const data=await db('GET','prajapati_leads?select=*&order=created_at.desc&limit=1000');
+  _all=data||[];
+  updateKPIs();
+  updateSourceCounts();
+  applyFilters();
+}
+
+function updateKPIs(){
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('k-total').textContent=_all.length;
+  document.getElementById('k-today').textContent=_all.filter(l=>l.created_at?.slice(0,10)===today).length;
+  document.getElementById('k-qual').textContent=_all.filter(l=>l.status==='qualified').length;
+  document.getElementById('k-won').textContent=_all.filter(l=>l.status==='won').length;
+  document.getElementById('k-lost').textContent=_all.filter(l=>l.status==='lost').length;
+  const now=today;
+  document.getElementById('k-follow').textContent=_all.filter(l=>l.follow_up_date&&l.follow_up_date<=now&&l.status!=='won'&&l.status!=='lost').length;
+}
+
+function updateSourceCounts(){
+  const cnt=(s)=>_all.filter(l=>l.source===s).length;
+  document.getElementById('src-im').textContent=cnt('indiamart');
+  document.getElementById('src-jd').textContent=cnt('justdial');
+  document.getElementById('src-ti').textContent=cnt('tradeindia');
+  document.getElementById('src-meta').textContent=cnt('meta');
+  document.getElementById('src-man').textContent=cnt('manual');
+}
+
+// ═══ FILTERS ═══
+function filterStatus(s,el){
+  _statusFilter=s;_page=1;
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+  applyFilters();
+}
+
+function applyFilters(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const src=document.getElementById('f-source').value;
+  const from=document.getElementById('f-from').value;
+  const to=document.getElementById('f-to').value;
+  const today=new Date().toISOString().slice(0,10);
+
+  _filtered=_all.filter(l=>{
+    if(_statusFilter==='followup')return l.follow_up_date&&l.follow_up_date<=today&&l.status!=='won'&&l.status!=='lost';
+    if(_statusFilter!=='all'&&l.status!==_statusFilter)return false;
+    if(src&&l.source!==src)return false;
+    if(from&&l.created_at?.slice(0,10)<from)return false;
+    if(to&&l.created_at?.slice(0,10)>to)return false;
+    if(q){
+      const txt=[l.name,l.company,l.phone,l.email,l.city,l.product_interest].join(' ').toLowerCase();
+      if(!txt.includes(q))return false;
+    }
+    return true;
+  });
+  _page=1;
+  renderTable();
+}
+
+function clearFilters(){
+  document.getElementById('search').value='';
+  document.getElementById('f-source').value='';
+  document.getElementById('f-from').value='';
+  document.getElementById('f-to').value='';
+  _statusFilter='all';
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('act'));
+  document.querySelectorAll('.stab')[0].classList.add('act');
+  applyFilters();
+}
+
+// ═══ RENDER ═══
+function renderTable(){
+  const start=(_page-1)*_perPage, end=start+_perPage;
+  const page=_filtered.slice(start,end);
+  const tb=document.getElementById('leads-body');
+
+  if(!page.length){
+    tb.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--tx2)">No leads found</td></tr>`;
+    document.getElementById('pg-info').textContent='No results';
+    return;
+  }
+
+  tb.innerHTML=page.map((l,i)=>{
+    const n=start+i+1;
+    const fu=l.follow_up_date;
+    const today=new Date().toISOString().slice(0,10);
+    const fuColor=fu&&fu<today?'color:var(--re);font-weight:700':fu===today?'color:var(--or);font-weight:700':'';
+    return `<tr>
+      <td><input type="checkbox" class="row-chk" value="${l.id}"></td>
+      <td style="color:var(--tx2);font-size:11px">${n}</td>
+      <td>
+        <div style="font-weight:700;color:var(--tx)">${l.name||'—'}</div>
+        <div style="font-size:11px;color:var(--tx2)">${l.company||''}</div>
+        <div style="font-size:10px;color:var(--tx2)">${l.city||''}</div>
+      </td>
+      <td>
+        <div style="font-family:monospace">${l.phone||'—'}</div>
+        <div style="font-size:10px;color:var(--tx2)">${l.email||''}</div>
+      </td>
+      <td style="max-width:150px;font-size:11px">${l.product_interest||'—'}</td>
+      <td><span class="bdg src-${l.source||'manual'}">${srcLabel(l.source)}</span></td>
+      <td>
+        <select onchange="quickStatus('${l.id}',this.value)" style="border:none;background:transparent;font-size:11px;font-weight:700;cursor:pointer;color:${statusColor(l.status)}">
+          ${['new','contacted','qualified','proposal','won','lost'].map(s=>`<option value="${s}"${s===l.status?' selected':''}>${statusEmoji(s)} ${s}</option>`).join('')}
+        </select>
+      </td>
+      <td style="font-size:11px;${fuColor}">${fu||'—'}</td>
+      <td style="font-size:11px;color:var(--tx2)">${l.created_at?new Date(l.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):'—'}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button onclick="viewLead('${l.id}')" style="background:#eff6ff;color:var(--bl);border:none;padding:3px 7px;border-radius:5px;cursor:pointer;font-size:11px" title="View">👁️</button>
+          <button onclick="editLead('${l.id}')" style="background:#f0fdf4;color:var(--gr);border:none;padding:3px 7px;border-radius:5px;cursor:pointer;font-size:11px" title="Edit">✏️</button>
+          <button onclick="whatsapp('${l.phone}','${l.name}')" style="background:#dcfce7;color:#16a34a;border:none;padding:3px 7px;border-radius:5px;cursor:pointer;font-size:11px" title="WhatsApp">💬</button>
+          <button onclick="deleteLead('${l.id}')" style="background:#fef2f2;color:var(--re);border:none;padding:3px 7px;border-radius:5px;cursor:pointer;font-size:11px" title="Delete">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('pg-info').textContent=`Showing ${start+1}–${Math.min(end,_filtered.length)} of ${_filtered.length} leads`;
+  document.getElementById('pg-prev').disabled=_page===1;
+  document.getElementById('pg-next').disabled=end>=_filtered.length;
+}
+
+function srcLabel(s){return{indiamart:'🇮🇳 IndiaMART',justdial:'📱 JustDial',tradeindia:'🏭 TradeIndia',meta:'📣 Meta',manual:'✏️ Manual',import:'📂 Import',reference:'🤝 Ref',website:'🌐 Web',cold_call:'📞 Cold Call'}[s]||s||'Manual';}
+function statusColor(s){return{new:'#1d4ed8',contacted:'#854d0e',qualified:'#166534',proposal:'#6b21a8',won:'#065f46',lost:'#991b1b'}[s]||'inherit';}
+function statusEmoji(s){return{new:'🆕',contacted:'📞',qualified:'✅',proposal:'📋',won:'🏆',lost:'❌'}[s]||'';}
+
+function prevPage(){if(_page>1){_page--;renderTable();}}
+function nextPage(){if(_page*_perPage<_filtered.length){_page++;renderTable();}}
+
+// ═══ INDIAMART FETCH ═══
+function fetchIndiamart(){
+  const box=document.getElementById('im-fetch-box');
+  box.style.display=box.style.display==='none'?'block':'none';
+  const today=new Date().toISOString().slice(0,10);
+  const from=new Date(); from.setDate(from.getDate()-30);
+  document.getElementById('im-from').value=from.toISOString().slice(0,10);
+  document.getElementById('im-to').value=today;
+}
+
+async function runFetchIndiamart(){
+  const from=document.getElementById('im-from').value;
+  const to=document.getElementById('im-to').value;
+  const st=document.getElementById('im-status');
+  const prog=document.getElementById('im-progress');
+  if(!from||!to){alert('Date range choose karo');return;}
+  st.textContent='⏳ IndiaMART se leads fetch ho raha hai...';
+  prog.style.width='20%';
+  try{
+    const start_time=from+' 00:00:00';
+    const end_time=to+' 23:59:59';
+    // Try direct API first, fall back to proxy
+    let data=null;
+    try{
+      const r=await fetch(`/api/indiamart?start_time=${encodeURIComponent(start_time)}&end_time=${encodeURIComponent(end_time)}`);
+      data=await r.json();
+    }catch{
+      // Direct CORS attempt
+      const r=await fetch(`https://mapi.indiamart.com/wservce/crm/crmListing/v2/?glusr_crm_key=mRy2Fb5u7XjDSvet4nKP7lGHoVHCmTA=&start_time=${encodeURIComponent(start_time)}&end_time=${encodeURIComponent(end_time)}`);
+      data=await r.json();
+    }
+    prog.style.width='60%';
+    if(data?.CODE===200||data?.STATUS==='1'){
+      const leads=data.RESPONSE||[];
+      st.textContent=`✅ ${leads.length} leads mila — Supabase mein save ho raha hai...`;
+      let saved=0,dupes=0;
+      for(const l of leads){
+        const existing=_all.find(x=>x.lead_id===l.UNIQUE_QUERY_ID);
+        if(existing){dupes++;continue;}
+        const payload={
+          lead_id:l.UNIQUE_QUERY_ID,source:'indiamart',
+          name:l.SENDER_NAME||'',company:l.SENDER_COMPANY||'',
+          phone:l.SENDER_MOBILE||l.SENDER_PHONE||'',email:l.SENDER_EMAIL||'',
+          city:l.SENDER_CITY||'',state:l.SENDER_STATE||'',
+          product_interest:l.QUERY_PRODUCT_NAME||l.SUBJECT||'',
+          message:l.QUERY_MESSAGE||'',
+          status:'new',raw_data:l
+        };
+        const r=await db('POST','prajapati_leads',payload);
+        if(r)saved++;
+      }
+      prog.style.width='100%';
+      st.textContent=`✅ Done! ${saved} new leads saved, ${dupes} duplicates skipped`;
+      await loadLeads();
+    }else{
+      st.textContent='⚠️ API error: '+(data?.STATUS||JSON.stringify(data));
+      prog.style.width='0%';
+    }
+  }catch(e){
+    st.textContent='❌ Error: '+e.message+' — Check console';
+    prog.style.width='0%';
+    console.error(e);
+  }
+}
+
+// ═══ IMPORT ═══
+function openImport(source){
+  _importSource=source;
+  const titles={justdial:'📱 JustDial Import',tradeindia:'🏭 TradeIndia Import',meta:'📣 Meta Ads Import',generic:'📂 Import Leads'};
+  const infos={
+    justdial:'JustDial seller panel → Download Leads → CSV export karo → yahan upload karo.<br>Columns: Name, Mobile, Email, City, Product',
+    tradeindia:'TradeIndia → My Account → Lead Manager → Export → CSV upload karo.<br>Columns: Name, Company, Phone, Email, City',
+    meta:'Meta Ads Manager → Leads Center → Download → CSV upload karo.<br>Columns: full_name, phone_number, email, city',
+    generic:'Standard format: Name, Company, Phone, Email, City, State, Product, Source<br>CSV ya Excel dono chalega.'
+  };
+  document.getElementById('import-title').textContent=titles[source]||'📥 Import';
+  document.getElementById('import-source-info').innerHTML=infos[source]||'CSV ya Excel upload karo';
+  document.getElementById('import-file').value='';
+  document.getElementById('import-preview').innerHTML='';
+  document.getElementById('import-mapping').innerHTML='';
+  document.getElementById('import-btn').style.display='none';
+  document.getElementById('import-status').textContent='';
+  _importData=[];
+  document.getElementById('import-modal').classList.add('open');
+}
+
+function previewImport(inp){
+  const file=inp.files[0]; if(!file)return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(['xlsx','xls'].includes(ext)){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+      processImportRows(rows);
+    };
+    reader.readAsArrayBuffer(file);
+  }else{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const rows=e.target.result.split('\n').map(r=>r.split(',').map(c=>c.trim().replace(/^"|"$/g,'')));
+      processImportRows(rows);
+    };
+    reader.readAsText(file);
+  }
+}
+
+function processImportRows(rows){
+  if(!rows.length)return;
+  const headers=rows[0].map(h=>(h||'').toString().toLowerCase().trim());
+  const dataRows=rows.slice(1).filter(r=>r.some(c=>c));
+  
+  // Smart column mapping
+  const map={};
+  headers.forEach((h,i)=>{
+    if(/name|sender_name|full_name|contact/i.test(h))map.name=i;
+    if(/company|firm|business|organization/i.test(h))map.company=i;
+    if(/phone|mobile|contact.*no|mob|number/i.test(h))map.phone=i;
+    if(/email|mail/i.test(h))map.email=i;
+    if(/city|location/i.test(h))map.city=i;
+    if(/state|province/i.test(h))map.state=i;
+    if(/product|interest|requirement|query/i.test(h))map.product=i;
+    if(/message|note|remark/i.test(h))map.message=i;
+  });
+
+  _importData=dataRows.map(r=>({
+    name:r[map.name]||'',company:r[map.company]||'',
+    phone:r[map.phone]||'',email:r[map.email]||'',
+    city:r[map.city]||'',state:r[map.state]||'',
+    product_interest:r[map.product]||'',message:r[map.message]||'',
+    source:_importSource==='generic'?'import':_importSource,status:'new'
+  })).filter(r=>r.name||r.phone);
+
+  // Preview table
+  const prev=document.getElementById('import-preview');
+  prev.innerHTML=`
+    <div style="font-size:12px;font-weight:700;margin-bottom:6px;color:var(--tx)">Preview: ${_importData.length} leads found</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">
+    <tr>${['Name','Company','Phone','Email','City','Product'].map(h=>`<th style="padding:4px 8px;background:#f8fafc;border:1px solid var(--br);text-align:left">${h}</th>`).join('')}</tr>
+    ${_importData.slice(0,5).map(r=>`<tr>${[r.name,r.company,r.phone,r.email,r.city,r.product_interest].map(v=>`<td style="padding:4px 8px;border:1px solid #f1f5f9">${v||'—'}</td>`).join('')}</tr>`).join('')}
+    ${_importData.length>5?`<tr><td colspan="6" style="padding:4px 8px;color:var(--tx2);font-style:italic">...and ${_importData.length-5} more rows</td></tr>`:''}
+    </table></div>`;
+  document.getElementById('import-btn').style.display='inline-flex';
+}
+
+async function runImport(){
+  if(!_importData.length){alert('Koi data nahi mila');return;}
+  const btn=document.getElementById('import-btn');
+  btn.textContent='⏳ Importing...'; btn.disabled=true;
+  let saved=0,dupes=0,errors=0;
+  for(const lead of _importData){
+    if(lead.phone&&_all.find(l=>l.phone===lead.phone)){dupes++;continue;}
+    const r=await db('POST','prajapati_leads',lead);
+    if(r)saved++; else errors++;
+  }
+  document.getElementById('import-status').innerHTML=`✅ <strong>${saved}</strong> leads imported | ${dupes} duplicates skipped | ${errors} errors`;
+  btn.textContent='📥 Import Leads'; btn.disabled=false;
+  closeModal('import-modal');
+  await loadLeads();
+}
+
+function downloadTemplate(){
+  const headers='Name,Company,Phone,Email,City,State,Product Interest,Message\n';
+  const sample='Ramesh Sharma,ABC Corp,9876543210,ramesh@abc.com,Pune,Maharashtra,Auto Hood Branding,Need 50 rickshaw hood ads\n';
+  const blob=new Blob([headers+sample],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='leads_template.csv'; a.click();
+}
+
+// ═══ MANUAL ADD / EDIT ═══
+function openManual(){
+  document.getElementById('modal-title-text').textContent='➕ Add Lead';
+  document.getElementById('lead-id').value='';
+  ['name','company','phone','email','city','state','product','message','assigned','notes'].forEach(f=>{
+    const el=document.getElementById('l-'+f); if(el)el.value='';
+  });
+  document.getElementById('l-source').value='manual';
+  document.getElementById('l-status').value='new';
+  document.getElementById('l-followup').value='';
+  document.getElementById('lead-modal').classList.add('open');
+}
+
+function editLead(id){
+  const l=_all.find(x=>x.id===id); if(!l)return;
+  document.getElementById('modal-title-text').textContent='✏️ Edit Lead';
+  document.getElementById('lead-id').value=id;
+  document.getElementById('l-name').value=l.name||'';
+  document.getElementById('l-company').value=l.company||'';
+  document.getElementById('l-phone').value=l.phone||'';
+  document.getElementById('l-email').value=l.email||'';
+  document.getElementById('l-city').value=l.city||'';
+  document.getElementById('l-state').value=l.state||'';
+  document.getElementById('l-product').value=l.product_interest||'';
+  document.getElementById('l-message').value=l.message||'';
+  document.getElementById('l-source').value=l.source||'manual';
+  document.getElementById('l-status').value=l.status||'new';
+  document.getElementById('l-assigned').value=l.assigned_to||'';
+  document.getElementById('l-followup').value=l.follow_up_date||'';
+  document.getElementById('l-notes').value=l.notes||'';
+  document.getElementById('lead-modal').classList.add('open');
+}
+
+async function saveLead(){
+  const name=document.getElementById('l-name').value.trim();
+  const phone=document.getElementById('l-phone').value.trim();
+  if(!name&&!phone){alert('Name ya Phone required!');return;}
+  const payload={
+    name,company:document.getElementById('l-company').value,
+    phone,email:document.getElementById('l-email').value,
+    city:document.getElementById('l-city').value,state:document.getElementById('l-state').value,
+    product_interest:document.getElementById('l-product').value,
+    message:document.getElementById('l-message').value,
+    source:document.getElementById('l-source').value,
+    status:document.getElementById('l-status').value,
+    assigned_to:document.getElementById('l-assigned').value,
+    follow_up_date:document.getElementById('l-followup').value||null,
+    notes:document.getElementById('l-notes').value,
+    updated_at:new Date().toISOString()
+  };
+  const id=document.getElementById('lead-id').value;
+  if(id){
+    await db('PATCH',`prajapati_leads?id=eq.${id}`,payload);
+  }else{
+    await db('POST','prajapati_leads',payload);
+  }
+  closeModal('lead-modal');
+  await loadLeads();
+}
+
+async function quickStatus(id,status){
+  await db('PATCH',`prajapati_leads?id=eq.${id}`,{status,updated_at:new Date().toISOString()});
+  const lead=_all.find(l=>l.id===id);
+  if(lead)lead.status=status;
+  updateKPIs();
+}
+
+async function deleteLead(id){
+  if(!confirm('Lead delete karna chahte hain?'))return;
+  await db('DELETE',`prajapati_leads?id=eq.${id}`);
+  await loadLeads();
+}
+
+// ═══ VIEW ═══
+function viewLead(id){
+  const l=_all.find(x=>x.id===id); if(!l)return;
+  document.getElementById('view-content').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div><div class="kpi-label">Name</div><div style="font-size:16px;font-weight:700">${l.name||'—'}</div></div>
+      <div><div class="kpi-label">Company</div><div style="font-size:14px">${l.company||'—'}</div></div>
+      <div><div class="kpi-label">Phone</div><div style="font-family:monospace;font-size:14px;color:var(--bl)">${l.phone||'—'}</div></div>
+      <div><div class="kpi-label">Email</div><div style="font-size:13px">${l.email||'—'}</div></div>
+      <div><div class="kpi-label">City / State</div><div>${(l.city||'')+(l.state?', '+l.state:'')}</div></div>
+      <div><div class="kpi-label">Status</div><span class="bdg bdg-${l.status||'new'}">${statusEmoji(l.status)} ${l.status||'new'}</span></div>
+      <div><div class="kpi-label">Source</div><span class="bdg src-${l.source||'manual'}">${srcLabel(l.source)}</span></div>
+      <div><div class="kpi-label">Assigned To</div><div>${l.assigned_to||'—'}</div></div>
+    </div>
+    <div style="margin-bottom:10px"><div class="kpi-label">Product Interest</div><div style="font-weight:600">${l.product_interest||'—'}</div></div>
+    ${l.message?`<div style="margin-bottom:10px"><div class="kpi-label">Message</div><div style="background:#f8fafc;padding:8px 10px;border-radius:6px;font-size:13px">${l.message}</div></div>`:''}
+    ${l.notes?`<div style="margin-bottom:10px"><div class="kpi-label">Notes</div><div style="background:#fefce8;padding:8px 10px;border-radius:6px;font-size:13px">${l.notes}</div></div>`:''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+      <button class="btn btn-wa" onclick="whatsapp('${l.phone}','${l.name}');closeModal('view-modal')">💬 WhatsApp</button>
+      <button class="btn btn-blue" onclick="closeModal('view-modal');editLead('${l.id}')">✏️ Edit</button>
+      ${l.phone?`<a href="tel:${l.phone}" class="btn btn-green">📞 Call</a>`:''}
+    </div>
+    <div style="font-size:11px;color:var(--tx2);margin-top:10px">Created: ${new Date(l.created_at).toLocaleString('en-IN')}</div>
+  `;
+  document.getElementById('view-modal').classList.add('open');
+}
+
+// ═══ UTILS ═══
+function whatsapp(phone,name){
+  if(!phone){alert('Phone number nahi hai');return;}
+  const msg=`Namaste ${name||''},\n\nMai Prajapati Advertising se bol raha hoon.\nAapki inquiry receive hui hai.\nKya aap availability confirm kar sakte hain?\n\nDhanyawad!\nPrajapati Advertising\n+91 9922138138`;
+  window.open(`https://wa.me/91${phone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+function exportCSV(){
+  if(!_filtered.length){alert('Koi data nahi');return;}
+  const hdrs=['Name','Company','Phone','Email','City','State','Product','Status','Source','Follow-up','Assigned','Notes','Date'];
+  const rows=_filtered.map(l=>[
+    l.name||'',l.company||'',l.phone||'',l.email||'',l.city||'',l.state||'',
+    l.product_interest||'',l.status||'',l.source||'',l.follow_up_date||'',
+    l.assigned_to||'',l.notes?.replace(/,/g,' ')||'',
+    l.created_at?new Date(l.created_at).toLocaleDateString('en-IN'):''
+  ]);
+  const csv=[hdrs,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`leads_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+}
+
+function toggleAll(chk){
+  document.querySelectorAll('.row-chk').forEach(c=>c.checked=chk.checked);
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(m=>m.classList.remove('open'));});
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// INIT
+loadLeads();
+</script>
+</body>
+</html>

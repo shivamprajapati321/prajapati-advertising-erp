@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Dispatch — Prajapati Advertising</title>
+<meta name="theme-color" content="#0B1957">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #0B1957;
+  --primary-light: #1a2870;
+  --accent: #26d0ce;
+  --accent-dark: #1eaaa8;
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #dc2626;
+  --bg: #f8fafc;
+  --card: #fff;
+  --border: #e5e7eb;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow: 0 4px 12px rgba(11,25,87,0.08);
+  --shadow-lg: 0 10px 30px rgba(11,25,87,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg); color: var(--text);
+  font-size: 14px; line-height: 1.5;
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* TOP BAR */
+.topbar {
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  color: #fff; padding: 12px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(11,25,87,0.15);
+}
+.topbar-left { display: flex; align-items: baseline; gap: 12px; }
+.topbar-brand { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; }
+.topbar-tagline { font-size: 11px; opacity: 0.7; }
+.topbar-right { font-size: 11px; opacity: 0.85; font-family: 'JetBrains Mono', monospace; }
+
+/* SUB-TABS */
+.subtabs-nav {
+  background: #fff; border-bottom: 1px solid var(--border);
+  position: sticky; top: 41px; z-index: 99;
+}
+.subtabs-inner {
+  max-width: 1400px; margin: 0 auto; padding: 0 24px;
+  display: flex; gap: 4px; overflow-x: auto;
+}
+.subtab {
+  padding: 12px 16px; cursor: pointer;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-muted); border-bottom: 3px solid transparent;
+  white-space: nowrap; transition: all 0.15s; text-decoration: none;
+}
+.subtab:hover { color: var(--text); background: rgba(0,0,0,0.02); }
+.subtab.active { color: var(--primary); border-bottom-color: var(--accent); }
+
+.container { padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
+
+.page-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+}
+.page-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+.page-sub { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
+
+.btn {
+  padding: 9px 16px; border-radius: 8px; border: none;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-light); }
+.btn-accent { background: var(--accent); color: var(--primary); }
+.btn-accent:hover { background: var(--accent-dark); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-warning { background: var(--warning); color: #fff; }
+.btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); color: var(--text); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-xs { padding: 4px 8px; font-size: 11px; }
+
+.section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow-sm);
+  margin-bottom: 16px; overflow: hidden;
+}
+.section-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.section-title { font-size: 15px; font-weight: 700; }
+.section-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.section-body { padding: 20px; }
+
+.field { margin-bottom: 14px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; display: block; }
+.field label .req { color: var(--danger); }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 13px; background: #fff; transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(38,208,206,0.1);
+}
+.field-row { display: grid; gap: 12px; }
+.cols-2 { grid-template-columns: 1fr 1fr; }
+.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.helper { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 18px; text-align: left; vertical-align: middle; }
+th { background: #f9fafb; font-size: 10px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-muted); font-weight: 700; border-bottom: 1px solid var(--border); }
+td { border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafbfc; }
+
+.badge { padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-dispatched { background: #dbeafe; color: #1e40af; }
+.badge-received { background: #dcfce7; color: #166534; }
+.badge-paid { background: #dcfce7; color: #166534; }
+.badge-unpaid { background: #fee2e2; color: #991b1b; }
+.badge-partial { background: #fef3c7; color: #92400e; }
+.badge-active { background: #dcfce7; color: #166534; }
+.badge-inactive { background: #f3f4f6; color: #6b7280; }
+.badge-cash { background: #fef3c7; color: #78350f; }
+.badge-upi { background: #dbeafe; color: #1e40af; }
+.badge-bank { background: #e0e7ff; color: #3730a3; }
+.badge-cheque { background: #fce7f3; color: #831843; }
+
+.action-icons { display: flex; gap: 4px; }
+.action-icon { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: var(--bg); cursor: pointer; transition: all 0.15s; font-size: 13px; border: none; text-decoration: none; color: inherit; }
+.action-icon:hover { background: var(--primary); color: #fff; transform: scale(1.05); }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-emoji { font-size: 56px; opacity: 0.3; margin-bottom: 12px; display: block; }
+.empty-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.empty-msg { font-size: 13px; margin-bottom: 16px; }
+
+.app-footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 11px; border-top: 1px solid var(--border); margin-top: 40px; }
+.app-footer a { color: var(--accent-dark); text-decoration: none; }
+
+.debug-banner { background: #fef3c7; color: #92400e; padding: 8px 16px; font-size: 12px; text-align: center; font-family: 'JetBrains Mono', monospace; border-bottom: 1px solid #f59e0b; }
+.debug-banner.success { background: #dcfce7; color: #166534; border-color: #16a34a; }
+.debug-banner.error { background: #fee2e2; color: #991b1b; border-color: #dc2626; }
+
+/* ═══════════════════════════════════════════════
+   SEARCHABLE DROPDOWN
+   ═══════════════════════════════════════════════ */
+.search-dd { position: relative; }
+.search-dd-trigger { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; font-family: inherit; font-size: 13px; cursor: pointer; transition: all 0.15s; min-height: 40px; }
+.search-dd-trigger:hover { border-color: var(--accent); }
+.search-dd-trigger.open { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(38,208,206,0.1); }
+.search-dd-icon { color: var(--text-muted); font-size: 12px; }
+.search-dd-text { flex: 1; color: var(--text); }
+.search-dd-text.placeholder { color: var(--text-muted); }
+.search-dd-clear { background: transparent; border: none; cursor: pointer; color: var(--text-muted); padding: 0 4px; font-size: 14px; border-radius: 3px; }
+.search-dd-clear:hover { background: var(--bg); color: var(--danger); }
+.search-dd-arrow { color: var(--text-muted); font-size: 10px; transition: transform 0.2s; }
+.search-dd-trigger.open .search-dd-arrow { transform: rotate(180deg); }
+.search-dd-panel { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,0.12); z-index: 1000; max-height: 320px; overflow: hidden; display: flex; flex-direction: column; }
+.search-dd-search-wrap { padding: 8px; border-bottom: 1px solid var(--border); background: var(--bg); }
+.search-dd-search-input { width: 100%; padding: 7px 10px 7px 30px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 13px; background: #fff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%236b7280' viewBox='0 0 16 16'%3e%3cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3e%3c/svg%3e") no-repeat 9px center; }
+.search-dd-search-input:focus { outline: none; border-color: var(--accent); }
+.search-dd-list { overflow-y: auto; flex: 1; max-height: 260px; }
+.search-dd-option { padding: 9px 12px; cursor: pointer; border-bottom: 1px solid #f3f4f6; transition: all 0.1s; font-size: 13px; }
+.search-dd-option:last-child { border-bottom: none; }
+.search-dd-option:hover, .search-dd-option.highlighted { background: #ecfdfd; }
+.search-dd-option.selected { background: var(--accent); color: var(--primary); font-weight: 700; }
+.search-dd-option-title { font-weight: 600; }
+.search-dd-option-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.search-dd-option.selected .search-dd-option-sub { color: var(--primary); opacity: 0.85; }
+.search-dd-empty { padding: 30px 16px; text-align: center; color: var(--text-muted); font-size: 12px; }
+.search-dd-group { padding: 6px 12px 4px; font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; background: #f9fafb; border-bottom: 1px solid var(--border); }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0B1957; color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.15); max-width: 90%; }
+.toast.success { background: #16a34a; }
+.toast.error { background: #dc2626; }
+.toast.warning { background: #f59e0b; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes toastSlide { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+@media (max-width: 900px) {
+  .container { padding: 16px; }
+  table { font-size: 12px; }
+  th, td { padding: 8px 12px; }
+  .cols-2, .cols-3 { grid-template-columns: 1fr; }
+  .topbar-tagline { display: none; }
+  .topbar-right { display: none; }
+}
+
+
+.form-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+@media (max-width: 1000px) { .form-grid { grid-template-columns: 1fr; } }
+.section-num { width: 22px; height: 22px; background: var(--primary); color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; margin-right: 8px; }
+.toggle-pills { display: flex; gap: 6px; padding: 4px; background: var(--bg); border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--border); }
+.toggle-pill { flex: 1; padding: 9px 12px; text-align: center; cursor: pointer; border-radius: 7px; font-size: 12px; font-weight: 600; color: var(--text-muted); transition: all 0.15s; }
+.toggle-pill.active { background: var(--primary); color: #fff; box-shadow: 0 2px 6px rgba(11,25,87,0.2); }
+
+/* BUNDLE SYSTEM — 7 columns */
+.line-item { display: grid; grid-template-columns: 2fr 1.3fr 1fr 0.8fr 1fr 1.2fr 30px; gap: 6px; align-items: center; padding: 10px; background: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+.line-item input, .line-item select { padding: 7px 8px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; }
+.line-item .line-total { font-weight: 700; color: var(--primary); text-align: right; padding-right: 8px; font-size: 12px; }
+.line-remove { background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 16px; padding: 4px; border-radius: 4px; }
+.line-remove:hover { background: #fee2e2; }
+.line-headers { display: grid; grid-template-columns: 2fr 1.3fr 1fr 0.8fr 1fr 1.2fr 30px; gap: 6px; padding: 0 10px 6px; font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+
+.materials-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.material-chip { padding: 6px 12px; background: #fff; border: 1px solid var(--border); border-radius: 999px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+.material-chip:hover { border-color: var(--accent); background: #ecfdfd; }
+
+.bundle-info-box { background: linear-gradient(135deg,#fef3c7,#fef9c3); border:1px solid #f59e0b; border-radius:8px; padding:8px 12px; margin-bottom:14px; font-size:12px; color:#78350f; }
+
+.summary-sticky { position: sticky; top: 80px; }
+.summary-meta { font-size: 12px; color: var(--text-muted); padding: 4px 0; }
+.summary-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; }
+.summary-row.total { border-top: 2px solid var(--primary); padding-top: 12px; margin-top: 8px; font-size: 16px; font-weight: 800; color: var(--primary); }
+.gps-team-card { background: linear-gradient(135deg,#ecfdfd,#f0f9ff); border:1px solid #26d0ce; border-radius:8px; padding:10px 12px; margin-top:8px; font-size:11px; }
+.team-info-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+.team-info-tag { padding: 2px 8px; background: #fff; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--primary); border: 1px solid #cbd5e1; }
+
+/* CITY ALLOCATION */
+.city-alloc-headers { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 1.2fr; gap: 8px; padding: 0 12px 6px; font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.city-alloc-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 1.2fr; gap: 8px; padding: 10px 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; align-items: center; font-size: 12px; }
+.city-alloc-row.zero-pending { background: #f9fafb; opacity: 0.6; }
+.city-alloc-row input { padding: 6px 8px; font-size: 12px; border: 1px solid var(--accent); border-radius: 6px; text-align: center; font-weight: 700; }
+.city-alloc-row input:focus { outline: none; box-shadow: 0 0 0 3px rgba(38,208,206,0.2); }
+.city-alloc-totals { background: linear-gradient(135deg,#f0f9ff,#ecfdfd); padding: 12px 16px; border-radius: 8px; margin-top: 10px; display: flex; justify-content: space-between; font-size: 13px; border: 1px dashed var(--accent); }
+.city-progress-mini { font-size: 10px; color: var(--text-muted); }
+
+</style>
+</head>
+<body>
+
+
+<div id="debugBanner" class="debug-banner" style="display: none;"></div>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-brand">📦 Prajapati Advertising</div>
+    <div class="topbar-tagline">Operations Suite</div>
+  </div>
+  <div class="topbar-right" id="topbarTime">—</div>
+</div>
+<nav class="subtabs-nav">
+  <div class="subtabs-inner">
+    <a href="index.html" class="subtab">📊 Dashboard</a>
+    <a href="dispatch-list.html" class="subtab active">📋 Dispatches</a>
+    <a href="vendors.html" class="subtab">🏭 Vendors</a>
+    <a href="work-orders.html" class="subtab">📑 Work Orders</a>
+    <a href="payments.html" class="subtab">💰 Payments</a>
+    <a href="reports.html" class="subtab">📈 Reports</a>
+    <span style="border-left:1px solid var(--border);height:24px;align-self:center;margin:0 4px;"></span>
+    <a href="sales.html" class="subtab" style="background:linear-gradient(135deg,#26d0ce,#1eaaa8);color:#fff;font-weight:700;border-radius:6px;margin:6px 0;padding:8px 14px;">💼 Sales CRM</a>
+  </div>
+</nav>
+
+<div class="container">
+
+
+<div class="page-header">
+  <div>
+    <div class="page-title">📝 New Dispatch</div>
+    <div class="page-sub">Auto-numbered: <span class="mono" style="color: var(--primary); font-weight: 700;" id="dispatchNum">DSP-2026-XXXX</span></div>
+  </div>
+  <div style="display: flex; gap: 8px;">
+    <a href="index.html" class="btn btn-ghost">← Back</a>
+  </div>
+</div>
+
+<div class="form-grid">
+  <div>
+    <div class="section">
+      <div class="section-header"><div class="section-title"><span class="section-num">1</span>Work Order</div></div>
+      <div class="section-body">
+        <div class="field">
+          <label>Search & Select Work Order <span class="req">*</span></label>
+          <div id="woDropdownContainer"></div>
+          <div class="helper">Naya WO add karne ke liye <a href="work-orders.html">📑 Work Orders</a> tab pe jao</div>
+          <div id="woCampaignInfo" style="display:none;margin-top:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🏙️ CITY PENDING - DISPATCH ALLOCATION -->
+    <div class="section" id="cityAllocationSection" style="display:none;">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="section-num">2</span>City Allocation</div>
+          <div style="font-size:11px;color:var(--text-muted);">Kaunsi city ko kitna bhejna hai</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="city-alloc-headers">
+          <div>City</div>
+          <div>Order</div>
+          <div>Done</div>
+          <div>Pending</div>
+          <div>This Dispatch</div>
+        </div>
+        <div id="cityAllocList"></div>
+        <div class="city-alloc-totals" id="cityAllocTotals">
+          <span>Total Pending: <strong id="totalPending">0</strong></span>
+          <span>This Dispatch: <strong id="totalThisDispatch" style="color:var(--success);">0</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header"><div class="section-title"><span class="section-num">3</span>Recipient</div></div>
+      <div class="section-body">
+        <div class="toggle-pills">
+          <div class="toggle-pill active" data-recipient="gps_team" onclick="setRecipientType('gps_team')">🛺 GPS Team Member</div>
+          <div class="toggle-pill" data-recipient="direct_client" onclick="setRecipientType('direct_client')">🏢 Direct Client</div>
+        </div>
+        <div id="recipientForm"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title"><span class="section-num">4</span>Vendor (Optional)</div>
+        <a href="vendors.html" target="_blank" class="btn btn-ghost btn-sm">+ New Vendor</a>
+      </div>
+      <div class="section-body">
+        <div class="field">
+          <label>Search & Select Vendor</label>
+          <div id="vendorDropdownContainer"></div>
+        </div>
+        <div class="field-row cols-2">
+          <div class="field"><label>Contact Person</label><select id="f_vendor_contact"><option value="">— Select —</option></select></div>
+          <div class="field"><label>Tracking / LR</label><input type="text" id="f_tracking" placeholder="LR-12345"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📦 MATERIALS WITH BUNDLE SYSTEM -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="section-num">5</span>Materials (Bundle System)</div>
+          <div style="font-size:11px;color:var(--text-muted);" id="itemCount">0 items</div>
+        </div>
+        <button class="btn btn-accent btn-sm" onclick="addItem()">+ Add Material</button>
+      </div>
+      <div class="section-body">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:600;">QUICK ADD:</div>
+        <div class="materials-quick" id="quickMaterials"></div>
+        <div class="bundle-info-box">
+          <strong>📦 Bundle Logic:</strong>
+          <span style="color:var(--text-muted);font-size:11px;">Per Bundle Qty (team ko bheja) × Bundles × Cost/Bundle (transport rate)</span>
+        </div>
+        <div class="line-headers">
+          <div>Material</div><div>Size</div><div>Per Bundle Qty</div><div>Bundles</div><div>Cost/Bundle (₹)</div><div style="text-align:right;">Total</div><div></div>
+        </div>
+        <div id="lineItems"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header"><div class="section-title"><span class="section-num">6</span>Notes</div></div>
+      <div class="section-body">
+        <div class="field"><textarea id="f_notes" rows="3" placeholder="Special instructions..."></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="summary-sticky">
+      <div class="section">
+        <div class="section-header" style="background:var(--primary);color:#fff;border:none;">
+          <div class="section-title" style="color:#fff;">📊 Summary</div>
+        </div>
+        <div class="section-body" id="summaryPanel">
+          <div class="summary-meta" id="sm_num">DSP-2026-XXXX</div>
+          <div class="summary-meta" id="sm_date">—</div>
+          <hr style="border:none;border-top:1px solid var(--border);margin:12px 0;">
+          
+          <div id="summaryCities" style="display:none;margin-bottom:12px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">CITIES</div>
+            <div id="summaryCitiesList"></div>
+          </div>
+          
+          <div id="summaryItems" style="font-size:13px;">
+            <div style="text-align:center;color:var(--text-muted);padding:12px;">No items yet</div>
+          </div>
+          
+          <div class="summary-row" id="totalBundlesRow" style="display:none;font-size:11px;color:var(--text-muted);">
+            <span>Total Bundles</span><span id="sm_bundles">0</span>
+          </div>
+          <div class="summary-row" id="totalPiecesRow" style="display:none;font-size:11px;color:var(--text-muted);">
+            <span>Total Pieces</span><span id="sm_pieces">0</span>
+          </div>
+          <div class="summary-row total"><span>Total Amount</span><span id="sm_total">₹0</span></div>
+          
+          <button class="btn btn-success" style="width:100%;margin-top:14px;padding:12px;font-size:14px;" onclick="createDispatch()">✓ Create Dispatch</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  <footer class="app-footer">
+    <div style="margin-bottom: 6px;">
+      <strong>Prajapati Advertising</strong> · Outdoor Advertising · Vehicle Branding · Print Solutions
+    </div>
+    <div>
+      📍 Nashik & Pune · 📞 <a href="tel:+919922138138">+91 9922138138</a> · 
+      🌐 <a href="https://www.prajapatiadvertising.com" target="_blank">www.prajapatiadvertising.com</a>
+    </div>
+    <div style="margin-top: 8px; opacity: 0.6;">Customised for future</div>
+  </footer>
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+if (typeof window.supabase === 'undefined') {
+  document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"><\/script>');
+}
+</script>
+
+<script>
+
+// ════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://fpbktcgtspqsqpaytslv.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_JhObe56x_zETygpy6y8-DQ_qpQXIz_j';
+const BRAND = {
+  name: 'Prajapati Advertising',
+  phone: '9922138138',
+  website: 'www.prajapatiadvertising.com',
+  whatsapp: '919922138138'
+};
+
+// ════════════════════════════════════════════════════════════
+// DEBUG HELPERS
+// ════════════════════════════════════════════════════════════
+function showDebug(msg, type) {
+  const banner = document.getElementById('debugBanner');
+  if (!banner) return;
+  banner.style.display = 'block';
+  banner.className = 'debug-banner ' + (type || 'info');
+  banner.textContent = msg;
+  console.log('[DEBUG]', msg);
+}
+function hideDebug() {
+  const banner = document.getElementById('debugBanner');
+  if (banner) banner.style.display = 'none';
+}
+
+// ════════════════════════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════════════════════════
+function nowIST() {
+  return new Date().toLocaleString('en-IN', { 
+    timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true
+  });
+}
+function todayIST() {
+  const d = new Date();
+  const ist = new Date(d.getTime() + (5.5 * 60 * 60 * 1000));
+  return ist.toISOString().split('T')[0];
+}
+function todayRangeUTC() {
+  const today = todayIST();
+  return {
+    start: new Date(today + 'T00:00:00+05:30').toISOString(),
+    end: new Date(today + 'T23:59:59+05:30').toISOString()
+  };
+}
+function dateRangeUTC(startDate, endDate) {
+  return {
+    start: new Date(startDate + 'T00:00:00+05:30').toISOString(),
+    end: new Date(endDate + 'T23:59:59+05:30').toISOString()
+  };
+}
+function formatDateIST(dateStr) {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' });
+}
+function formatDateTimeIST(dateStr) {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true });
+}
+function formatTimeIST(dateStr) {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
+}
+function formatINR(amount) {
+  const num = parseFloat(amount) || 0;
+  return '₹' + num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+function formatINRCompact(amount) {
+  const num = parseFloat(amount) || 0;
+  if (num >= 10000000) return '₹' + (num / 10000000).toFixed(1) + 'Cr';
+  if (num >= 100000) return '₹' + (num / 100000).toFixed(1) + 'L';
+  if (num >= 1000) return '₹' + (num / 1000).toFixed(1) + 'K';
+  return '₹' + num.toFixed(0);
+}
+
+// Toast
+function toast(msg, type, duration) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type || 'info');
+  t.style.animation = 'toastSlide 0.3s ease-out';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transition = 'opacity 0.3s';
+    setTimeout(() => t.remove(), 300);
+  }, duration || 3000);
+}
+
+// Confirmation dialog
+function confirmAction(message, onYes, onNo) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:24px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+      <div style="font-size:16px;font-weight:700;color:#111827;margin-bottom:8px;">Are you sure?</div>
+      <div style="font-size:14px;color:#6b7280;margin-bottom:20px;">${message}</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button id="cancelBtn" style="padding:9px 16px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-weight:600;font-size:13px;">Cancel</button>
+        <button id="yesBtn" style="padding:9px 16px;border-radius:8px;border:none;background:#dc2626;color:#fff;cursor:pointer;font-weight:600;font-size:13px;">Yes, Continue</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('yesBtn').onclick = () => { overlay.remove(); if (onYes) onYes(); };
+  document.getElementById('cancelBtn').onclick = () => { overlay.remove(); if (onNo) onNo(); };
+}
+
+// Update top bar time
+function updateTime() {
+  const el = document.getElementById('topbarTime');
+  if (el) el.textContent = nowIST();
+}
+updateTime();
+setInterval(updateTime, 60000);
+
+// ════════════════════════════════════════════════════════════
+// SEARCHABLE DROPDOWN COMPONENT
+// ════════════════════════════════════════════════════════════
+// Usage: 
+//   const dd = createSearchDropdown({
+//     containerId: 'mySelectContainer',
+//     placeholder: 'Select campaign...',
+//     options: [{value: 'apar', title: 'Apar Industries', sub: 'Pune · 500'}],
+//     onSelect: (value, option) => { console.log(value); }
+//   });
+//   dd.setValue('apar');  // programmatically set
+//   dd.getValue();         // get current
+//   dd.setOptions(newOpts); // update options
+
+window._searchDropdowns = {};
+
+function createSearchDropdown(config) {
+  const { containerId, placeholder = 'Select...', options = [], groups = null, onSelect, allowClear = true } = config;
+  const container = document.getElementById(containerId);
+  if (!container) return null;
+  
+  const state = {
+    selectedValue: null,
+    selectedOption: null,
+    isOpen: false,
+    filteredOptions: options.slice(),
+    allOptions: options.slice(),
+    groups: groups,
+    highlightedIndex: -1
+  };
+  
+  // Build initial HTML
+  container.innerHTML = `
+    <div class="search-dd">
+      <div class="search-dd-trigger" data-trigger>
+        <span class="search-dd-icon">🔍</span>
+        <span class="search-dd-text placeholder" data-text>${placeholder}</span>
+        <button class="search-dd-clear" data-clear style="display:none;">×</button>
+        <span class="search-dd-arrow">▼</span>
+      </div>
+      <div class="search-dd-panel" data-panel style="display:none;">
+        <div class="search-dd-search-wrap">
+          <input type="text" class="search-dd-search-input" placeholder="Type to search..." data-search>
+        </div>
+        <div class="search-dd-list" data-list></div>
+      </div>
+    </div>
+  `;
+  
+  const trigger = container.querySelector('[data-trigger]');
+  const text = container.querySelector('[data-text]');
+  const clearBtn = container.querySelector('[data-clear]');
+  const panel = container.querySelector('[data-panel]');
+  const searchInput = container.querySelector('[data-search]');
+  const list = container.querySelector('[data-list]');
+  
+  function render(filtered) {
+    const opts = filtered || state.filteredOptions;
+    
+    if (!opts.length) {
+      list.innerHTML = '<div class="search-dd-empty">No matches found</div>';
+      return;
+    }
+    
+    if (state.groups && Object.keys(state.groups).length) {
+      // Grouped rendering
+      let html = '';
+      const groupedOpts = {};
+      opts.forEach(opt => {
+        const gKey = opt.group || 'default';
+        if (!groupedOpts[gKey]) groupedOpts[gKey] = [];
+        groupedOpts[gKey].push(opt);
+      });
+      
+      Object.keys(groupedOpts).forEach(gKey => {
+        const groupLabel = state.groups[gKey] || gKey;
+        html += `<div class="search-dd-group">${groupLabel}</div>`;
+        groupedOpts[gKey].forEach((opt, i) => {
+          const isSelected = state.selectedValue === opt.value;
+          const idx = opts.indexOf(opt);
+          html += `<div class="search-dd-option ${isSelected ? 'selected' : ''} ${state.highlightedIndex === idx ? 'highlighted' : ''}" data-idx="${idx}" data-value="${opt.value}">
+            <div class="search-dd-option-title">${opt.title}</div>
+            ${opt.sub ? `<div class="search-dd-option-sub">${opt.sub}</div>` : ''}
+          </div>`;
+        });
+      });
+      list.innerHTML = html;
+    } else {
+      // Flat rendering
+      list.innerHTML = opts.map((opt, idx) => {
+        const isSelected = state.selectedValue === opt.value;
+        return `<div class="search-dd-option ${isSelected ? 'selected' : ''} ${state.highlightedIndex === idx ? 'highlighted' : ''}" data-idx="${idx}" data-value="${opt.value}">
+          <div class="search-dd-option-title">${opt.title}</div>
+          ${opt.sub ? `<div class="search-dd-option-sub">${opt.sub}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+    
+    // Click handlers
+    list.querySelectorAll('.search-dd-option').forEach(el => {
+      el.onclick = () => {
+        const value = el.dataset.value;
+        const opt = opts.find(o => o.value === value);
+        if (opt) selectOption(opt);
+      };
+      el.onmouseenter = () => {
+        state.highlightedIndex = parseInt(el.dataset.idx);
+      };
+    });
+  }
+  
+  function selectOption(opt) {
+    state.selectedValue = opt.value;
+    state.selectedOption = opt;
+    text.textContent = opt.title;
+    text.classList.remove('placeholder');
+    if (allowClear) clearBtn.style.display = 'block';
+    close();
+    if (onSelect) onSelect(opt.value, opt);
+  }
+  
+  function clear() {
+    state.selectedValue = null;
+    state.selectedOption = null;
+    text.textContent = placeholder;
+    text.classList.add('placeholder');
+    clearBtn.style.display = 'none';
+    if (onSelect) onSelect(null, null);
+  }
+  
+  function open() {
+    if (state.isOpen) return;
+    state.isOpen = true;
+    panel.style.display = 'flex';
+    trigger.classList.add('open');
+    state.filteredOptions = state.allOptions.slice();
+    state.highlightedIndex = -1;
+    render();
+    setTimeout(() => searchInput.focus(), 50);
+  }
+  
+  function close() {
+    state.isOpen = false;
+    panel.style.display = 'none';
+    trigger.classList.remove('open');
+    searchInput.value = '';
+  }
+  
+  function filter(query) {
+    const q = (query || '').toLowerCase().trim();
+    if (!q) {
+      state.filteredOptions = state.allOptions.slice();
+    } else {
+      state.filteredOptions = state.allOptions.filter(opt => {
+        return opt.title.toLowerCase().includes(q) ||
+               (opt.sub || '').toLowerCase().includes(q) ||
+               (opt.value || '').toLowerCase().includes(q) ||
+               (opt.searchKeys || []).some(k => (k || '').toLowerCase().includes(q));
+      });
+    }
+    state.highlightedIndex = state.filteredOptions.length ? 0 : -1;
+    render();
+  }
+  
+  // Event handlers
+  trigger.onclick = (e) => {
+    if (e.target.closest('[data-clear]')) {
+      e.stopPropagation();
+      clear();
+      return;
+    }
+    if (state.isOpen) close(); else open();
+  };
+  
+  clearBtn.onclick = (e) => {
+    e.stopPropagation();
+    clear();
+  };
+  
+  searchInput.oninput = () => filter(searchInput.value);
+  
+  searchInput.onkeydown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      state.highlightedIndex = Math.min(state.filteredOptions.length - 1, state.highlightedIndex + 1);
+      render();
+      const el = list.querySelector(`[data-idx="${state.highlightedIndex}"]`);
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      state.highlightedIndex = Math.max(0, state.highlightedIndex - 1);
+      render();
+      const el = list.querySelector(`[data-idx="${state.highlightedIndex}"]`);
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (state.highlightedIndex >= 0 && state.filteredOptions[state.highlightedIndex]) {
+        selectOption(state.filteredOptions[state.highlightedIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      close();
+    }
+  };
+  
+  // Click outside to close
+  document.addEventListener('click', (e) => {
+    if (state.isOpen && !container.contains(e.target)) {
+      close();
+    }
+  });
+  
+  // Public API
+  const api = {
+    setValue: (value) => {
+      const opt = state.allOptions.find(o => o.value === value);
+      if (opt) {
+        state.selectedValue = opt.value;
+        state.selectedOption = opt;
+        text.textContent = opt.title;
+        text.classList.remove('placeholder');
+        if (allowClear) clearBtn.style.display = 'block';
+      } else {
+        clear();
+      }
+    },
+    getValue: () => state.selectedValue,
+    getSelectedOption: () => state.selectedOption,
+    setOptions: (newOpts, newGroups) => {
+      state.allOptions = newOpts.slice();
+      state.filteredOptions = newOpts.slice();
+      if (newGroups) state.groups = newGroups;
+      if (state.isOpen) render();
+    },
+    open, close, clear
+  };
+  
+  window._searchDropdowns[containerId] = api;
+  return api;
+}
+
+// ════════════════════════════════════════════════════════════
+// SUPABASE INIT
+// ════════════════════════════════════════════════════════════
+let db = null;
+
+function initDB() {
+  if (typeof window.supabase === 'undefined') {
+    showDebug('❌ Supabase library load nahi hua. Page refresh karo.', 'error');
+    return false;
+  }
+  try {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log('[DEBUG] Supabase client created:', !!db);
+    return true;
+  } catch (err) {
+    showDebug('❌ Supabase init error: ' + err.message, 'error');
+    return false;
+  }
+}
+
+
+
+let workOrders = [];
+let allCampaigns = [];
+let allTeamMembers = [];
+let vendors = [];
+let materials = [];
+let lineItems = [];
+let recipientType = 'gps_team';
+let woDropdown = null;
+let vendorDropdown = null;
+let teamMemberDropdown = null;
+let woCityProgress = []; // City progress for selected WO
+let cityAllocations = {}; // {wo_city_id: qty_to_dispatch}
+
+async function loadInitialData() {
+  if (!db) return;
+  try {
+    const { data: nextNum } = await db.rpc('generate_dispatch_number');
+    document.getElementById('dispatchNum').textContent = nextNum;
+    document.getElementById('sm_num').textContent = nextNum;
+    document.getElementById('sm_date').textContent = nowIST();
+    
+    const [woRes, venRes, matRes, campRes, teamRes] = await Promise.all([
+      db.from('prajapati_work_orders').select('*').eq('status', 'active').order('created_at', { ascending: false }),
+      db.from('prajapati_vendors').select('*, contacts:prajapati_vendor_contacts(*)').eq('active', true).order('name'),
+      db.from('prajapati_materials').select('*').eq('active', true).order('display_order'),
+      db.from('trial_campaigns').select('key, name, client_name, default_city, target_count').eq('active', true),
+      db.from('trial_team_members').select('id, name, phone, role, active, assigned_campaign_key, daily_target').eq('active', true).order('name')
+    ]);
+    
+    workOrders = woRes.data || [];
+    vendors = venRes.data || [];
+    materials = matRes.data || [];
+    allCampaigns = campRes.data || [];
+    allTeamMembers = teamRes.data || [];
+    
+    // WO Dropdown
+    const woOptions = workOrders.map(w => {
+      const linkedCampaign = w.campaign_key ? allCampaigns.find(c => c.key === w.campaign_key) : null;
+      return {
+        value: w.id,
+        title: `${w.wo_number} — ${w.client_name}${w.campaign_key?` 🔗 ${w.campaign_key}`:''}`,
+        sub: w.description ? w.description.substring(0,80) : 'No description',
+        searchKeys: [w.wo_number, w.client_name, w.campaign_key, w.description, linkedCampaign?.name]
+      };
+    });
+    woDropdown = createSearchDropdown({
+      containerId: 'woDropdownContainer',
+      placeholder: workOrders.length===0?'⚠ No work orders':'🔍 Search WO...',
+      options: woOptions,
+      onSelect: (value) => onWorkOrderSelect(value)
+    });
+    
+    // Vendor Dropdown
+    const vendorOptions = vendors.map(v => ({
+      value: v.id, title: v.name,
+      sub: `${v.vendor_type||'other'} · ${v.city||'No city'} · ${v.contacts?.length||0} contacts`,
+      searchKeys: [v.city, v.vendor_type, ...(v.contacts||[]).map(c => c.contact_name+' '+c.phone)]
+    }));
+    vendorDropdown = createSearchDropdown({
+      containerId: 'vendorDropdownContainer',
+      placeholder: '🔍 Search vendor...',
+      options: vendorOptions,
+      onSelect: (value) => onVendorChange(value)
+    });
+    
+    // Quick materials
+    const chipsContainer = document.getElementById('quickMaterials');
+    materials.forEach(m => {
+      const chip = document.createElement('span');
+      chip.className = 'material-chip';
+      chip.textContent = `+ ${m.name}`;
+      chip.onclick = () => addItemFromMaterial(m);
+      chipsContainer.appendChild(chip);
+    });
+    const otherChip = document.createElement('span');
+    otherChip.className = 'material-chip';
+    otherChip.textContent = '+ Other (custom)';
+    otherChip.onclick = () => addItem();
+    chipsContainer.appendChild(otherChip);
+    
+    setRecipientType('gps_team');
+    showDebug('✓ Connected · ' + workOrders.length + ' WOs, ' + allTeamMembers.length + ' team', 'success');
+    setTimeout(hideDebug, 2500);
+  } catch (err) { showDebug('❌ ' + err.message, 'error'); }
+}
+
+async function onWorkOrderSelect(woId) {
+  const infoDiv = document.getElementById('woCampaignInfo');
+  const allocSection = document.getElementById('cityAllocationSection');
+  
+  if (!woId) {
+    infoDiv.style.display = 'none';
+    allocSection.style.display = 'none';
+    woCityProgress = [];
+    cityAllocations = {};
+    updateCityAllocSummary();
+    return;
+  }
+  
+  const wo = workOrders.find(w => w.id === woId);
+  if (!wo) return;
+  
+  // Show campaign info
+  if (wo.campaign_key) {
+    const campaign = allCampaigns.find(c => c.key === wo.campaign_key);
+    if (campaign) {
+      infoDiv.style.display = 'block';
+      infoDiv.innerHTML = `<div class="gps-team-card"><strong style="color:var(--primary);">🔗 GPS Campaign:</strong> <span class="team-info-tag">${wo.campaign_key}</span><div style="margin-top:4px;color:var(--text-muted);">${campaign.name} · ${campaign.default_city||'Multi'} · 🎯 ${campaign.target_count||0}</div></div>`;
+    }
+  } else {
+    infoDiv.style.display = 'none';
+  }
+  
+  // Load city progress for this WO
+  try {
+    const { data, error } = await db.rpc('prajapati_get_wo_progress', { p_wo_id: woId });
+    if (error) throw error;
+    
+    woCityProgress = data || [];
+    cityAllocations = {};
+    woCityProgress.forEach(c => { cityAllocations[c.wo_city_id] = 0; });
+    
+    if (woCityProgress.length === 0) {
+      allocSection.style.display = 'none';
+      toast('⚠ This WO has no cities. Edit WO to add cities first.', 'warning', 4000);
+    } else {
+      allocSection.style.display = 'block';
+      renderCityAllocations();
+    }
+  } catch (err) {
+    toast('Error loading cities: ' + err.message, 'error');
+  }
+}
+
+function renderCityAllocations() {
+  const list = document.getElementById('cityAllocList');
+  if (!list) return;
+  list.innerHTML = woCityProgress.map(c => {
+    const isZero = c.pending_qty <= 0;
+    return `<div class="city-alloc-row ${isZero?'zero-pending':''}">
+      <div><strong>${c.city}</strong>${c.pincode?`<div class="city-progress-mini">${c.pincode}</div>`:''}</div>
+      <div>${c.order_qty}</div>
+      <div style="color:var(--success);font-weight:700;">${c.dispatched_qty}</div>
+      <div style="color:${c.pending_qty>0?'var(--danger)':'var(--success)'};font-weight:700;">${c.pending_qty}</div>
+      <div><input type="number" min="0" max="${c.pending_qty}" value="${cityAllocations[c.wo_city_id]||0}" onchange="updateCityAlloc('${c.wo_city_id}', this.value, ${c.pending_qty})" ${isZero?'disabled':''}></div>
+    </div>`;
+  }).join('');
+  updateCityAllocSummary();
+}
+
+function updateCityAlloc(woCityId, value, maxPending) {
+  let v = parseInt(value) || 0;
+  if (v > maxPending) { v = maxPending; toast(`Max pending is ${maxPending}`, 'warning', 2000); }
+  if (v < 0) v = 0;
+  cityAllocations[woCityId] = v;
+  renderCityAllocations();
+}
+
+function updateCityAllocSummary() {
+  const totalPending = woCityProgress.reduce((s, c) => s + c.pending_qty, 0);
+  const totalThisDispatch = Object.values(cityAllocations).reduce((s, v) => s + (parseInt(v) || 0), 0);
+  const tpEl = document.getElementById('totalPending');
+  const tdEl = document.getElementById('totalThisDispatch');
+  if (tpEl) tpEl.textContent = totalPending;
+  if (tdEl) tdEl.textContent = totalThisDispatch;
+  
+  // Update summary panel
+  const sumCitiesEl = document.getElementById('summaryCities');
+  const sumCitiesListEl = document.getElementById('summaryCitiesList');
+  if (sumCitiesEl && sumCitiesListEl) {
+    const allocated = woCityProgress.filter(c => (cityAllocations[c.wo_city_id] || 0) > 0);
+    if (allocated.length) {
+      sumCitiesEl.style.display = 'block';
+      sumCitiesListEl.innerHTML = allocated.map(c => `<div style="font-size:11px;display:flex;justify-content:space-between;padding:3px 0;"><span>${c.city}</span><strong>${cityAllocations[c.wo_city_id]}</strong></div>`).join('');
+    } else {
+      sumCitiesEl.style.display = 'none';
+    }
+  }
+}
+
+function setRecipientType(type) {
+  recipientType = type;
+  document.querySelectorAll('.toggle-pill').forEach(p => p.classList.toggle('active', p.dataset.recipient === type));
+  const form = document.getElementById('recipientForm');
+  if (type === 'gps_team') {
+    form.innerHTML = `
+      <div class="field">
+        <label>Search & Select Team Member <span class="req">*</span></label>
+        <div id="teamDropdownContainer"></div>
+        ${allTeamMembers.length===0?'<div class="helper" style="color:var(--warning);">⚠ No team members</div>':`<div class="helper">📋 ${allTeamMembers.length} active members</div>`}
+      </div>
+      <div id="teamInfo" style="display:none;"></div>
+      <div class="field-row cols-2">
+        <div class="field"><label>Name <span class="req">*</span></label><input type="text" id="rec_name" placeholder="Aniket Kumar"></div>
+        <div class="field"><label>Phone</label><input type="text" id="rec_phone" placeholder="9876543210"></div>
+      </div>
+    `;
+    setTimeout(() => {
+      const teamOptions = allTeamMembers.map(m => {
+        const campaign = m.assigned_campaign_key ? allCampaigns.find(c => c.key === m.assigned_campaign_key) : null;
+        return {
+          value: m.phone, title: `${m.name} · ${m.phone}`,
+          sub: `${m.role}${m.assigned_campaign_key?` · 🔗 ${m.assigned_campaign_key}`:''}${m.daily_target?` · 🎯 ${m.daily_target}/day`:''}`,
+          group: m.role === 'admin' ? 'admin' : 'field',
+          searchKeys: [m.assigned_campaign_key, m.role, campaign?.name]
+        };
+      });
+      teamMemberDropdown = createSearchDropdown({
+        containerId: 'teamDropdownContainer',
+        placeholder: '🔍 Search by name/phone/campaign...',
+        options: teamOptions,
+        groups: { field: '🛺 Field Team', admin: '👤 Admin' },
+        onSelect: (value) => onTeamMemberSelect(value)
+      });
+    }, 50);
+  } else {
+    form.innerHTML = `
+      <div class="field-row cols-2">
+        <div class="field"><label>Contact Name <span class="req">*</span></label><input type="text" id="rec_name" placeholder="Rajesh Kumar"></div>
+        <div class="field"><label>Phone <span class="req">*</span></label><input type="text" id="rec_phone" placeholder="9876543210"></div>
+      </div>
+      <div class="field"><label>Company</label><input type="text" id="rec_company" placeholder="XYZ Agency"></div>
+      <div class="field"><label>Type</label><select id="rec_subtype"><option value="direct_client">Direct Client</option><option value="agency">Agency</option></select></div>
+    `;
+    teamMemberDropdown = null;
+  }
+}
+
+function onTeamMemberSelect(phone) {
+  if (!phone) { document.getElementById('teamInfo').style.display='none'; document.getElementById('rec_name').value=''; document.getElementById('rec_phone').value=''; return; }
+  const member = allTeamMembers.find(m => m.phone === phone);
+  if (!member) return;
+  document.getElementById('rec_name').value = member.name;
+  document.getElementById('rec_phone').value = member.phone;
+  const campaign = member.assigned_campaign_key ? allCampaigns.find(c => c.key === member.assigned_campaign_key) : null;
+  const infoDiv = document.getElementById('teamInfo');
+  infoDiv.style.display = 'block';
+  infoDiv.innerHTML = `<div class="gps-team-card"><strong style="color:var(--primary);">✨ ${member.name}</strong><div class="team-info-row"><span class="team-info-tag">📞 ${member.phone}</span><span class="team-info-tag">👤 ${member.role}</span>${member.daily_target?`<span class="team-info-tag">🎯 ${member.daily_target}/day</span>`:''}</div>${campaign?`<div style="margin-top:6px;color:var(--text-muted);">🔗 ${campaign.name} (${campaign.key})</div>`:''}</div>`;
+}
+
+function onVendorChange(vendorId) {
+  const contactSelect = document.getElementById('f_vendor_contact');
+  contactSelect.innerHTML = '<option value="">— Select —</option>';
+  if (!vendorId) return;
+  const vendor = vendors.find(v => v.id === vendorId);
+  if (!vendor || !vendor.contacts) return;
+  vendor.contacts.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = `${c.contact_name} (${c.designation||''}) — ${c.phone}${c.is_primary?' ⭐':''}`;
+    if (c.is_primary) opt.selected = true;
+    contactSelect.appendChild(opt);
+  });
+}
+
+function addItem() {
+  lineItems.push({ material_id:null, material_name:'', size:'', per_bundle_qty:1, bundles:1, cost_per_bundle:0, line_total:0 });
+  renderItems();
+}
+
+function addItemFromMaterial(m) {
+  lineItems.push({
+    material_id: m.id, material_name: m.name,
+    size: m.requires_size ? '' : 'Standard',
+    per_bundle_qty: 10, bundles: 1, cost_per_bundle: m.default_rate || 0,
+    line_total: m.default_rate || 0
+  });
+  renderItems();
+}
+
+function updateItem(i, field, value) {
+  if (!lineItems[i]) return;
+  if (['per_bundle_qty','bundles','cost_per_bundle'].includes(field)) {
+    lineItems[i][field] = parseFloat(value) || 0;
+  } else {
+    lineItems[i][field] = value;
+  }
+  // Auto-calculate: bundles × cost_per_bundle
+  lineItems[i].line_total = (parseFloat(lineItems[i].bundles) || 0) * (parseFloat(lineItems[i].cost_per_bundle) || 0);
+  renderItems();
+}
+
+function removeItem(i) { lineItems.splice(i,1); renderItems(); }
+
+function renderItems() {
+  const c = document.getElementById('lineItems');
+  if (!lineItems.length) {
+    c.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">Quick add chips dabao OR "+ Add Material"</div>';
+  } else {
+    c.innerHTML = lineItems.map((it, i) => {
+      const matOpts = materials.map(m => `<option value="${m.id}" ${it.material_id===m.id?'selected':''}>${m.name}</option>`).join('');
+      const totalPcs = (parseFloat(it.bundles)||0) * (parseFloat(it.per_bundle_qty)||0);
+      return `<div class="line-item">
+        <div>
+          <select onchange="onMaterialChange(${i}, this.value)"><option value="">— Custom —</option>${matOpts}</select>
+          ${!it.material_id ? `<input type="text" placeholder="Custom name" value="${it.material_name||''}" style="margin-top:4px;width:100%;" onchange="updateItem(${i},'material_name',this.value)">` : ''}
+          <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Total: <strong>${totalPcs} pcs</strong></div>
+        </div>
+        <input type="text" placeholder="Std" value="${it.size||''}" onchange="updateItem(${i},'size',this.value)">
+        <input type="number" min="1" placeholder="10" value="${it.per_bundle_qty}" onchange="updateItem(${i},'per_bundle_qty',this.value)" title="Pieces in 1 bundle">
+        <input type="number" min="1" placeholder="5" value="${it.bundles}" onchange="updateItem(${i},'bundles',this.value)" title="Total bundles">
+        <input type="number" min="0" step="0.01" placeholder="500" value="${it.cost_per_bundle}" onchange="updateItem(${i},'cost_per_bundle',this.value)" title="Transport rate per bundle">
+        <div class="line-total">${formatINR(it.line_total)}</div>
+        <button class="line-remove" onclick="removeItem(${i})">×</button>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('itemCount').textContent = `${lineItems.length} items`;
+  updateSummary();
+}
+
+function onMaterialChange(i, materialId) {
+  const m = materials.find(x => x.id === materialId);
+  if (!m) {
+    lineItems[i].material_id = null;
+    lineItems[i].material_name = '';
+  } else {
+    lineItems[i].material_id = m.id;
+    lineItems[i].material_name = m.name;
+    if (!lineItems[i].cost_per_bundle || lineItems[i].cost_per_bundle == 0) lineItems[i].cost_per_bundle = m.default_rate || 0;
+    if (!m.requires_size && !lineItems[i].size) lineItems[i].size = 'Standard';
+    lineItems[i].line_total = (parseFloat(lineItems[i].bundles)||0) * (parseFloat(lineItems[i].cost_per_bundle)||0);
+  }
+  renderItems();
+}
+
+function updateSummary() {
+  const total = lineItems.reduce((s, it) => s + (parseFloat(it.line_total)||0), 0);
+  const totalBundles = lineItems.reduce((s, it) => s + (parseFloat(it.bundles)||0), 0);
+  const totalPieces = lineItems.reduce((s, it) => s + ((parseFloat(it.bundles)||0) * (parseFloat(it.per_bundle_qty)||0)), 0);
+  
+  const items = document.getElementById('summaryItems');
+  if (!lineItems.length) {
+    items.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:12px;">No items yet</div>';
+  } else {
+    items.innerHTML = lineItems.map(it => {
+      const totalPcs = (parseFloat(it.bundles)||0) * (parseFloat(it.per_bundle_qty)||0);
+      return `<div class="summary-row" style="border:none;padding:6px 0;font-size:12px;">
+        <div><div>${it.material_name||'Custom'} ${it.size?'· '+it.size:''}</div><div style="font-size:10px;color:var(--text-muted);">${it.bundles} bundle × ${it.per_bundle_qty} pcs = ${totalPcs} pcs</div></div>
+        <strong>${formatINR(it.line_total)}</strong>
+      </div>`;
+    }).join('');
+  }
+  
+  document.getElementById('totalBundlesRow').style.display = totalBundles ? 'flex' : 'none';
+  document.getElementById('totalPiecesRow').style.display = totalPieces ? 'flex' : 'none';
+  document.getElementById('sm_bundles').textContent = totalBundles;
+  document.getElementById('sm_pieces').textContent = totalPieces;
+  document.getElementById('sm_total').textContent = formatINR(total);
+}
+
+async function createDispatch() {
+  const woId = woDropdown ? woDropdown.getValue() : null;
+  if (!woId) return toast('Work Order select karo', 'error');
+  
+  const recName = document.getElementById('rec_name')?.value?.trim();
+  if (!recName) return toast('Recipient name required', 'error');
+  
+  if (!lineItems.length) return toast('Material add karo', 'error');
+  
+  const invalidItem = lineItems.find(it => !it.material_name && !it.material_id);
+  if (invalidItem) return toast('Material name missing', 'error');
+  
+  // Validate city allocations
+  const validAllocations = Object.entries(cityAllocations).filter(([_, qty]) => parseInt(qty) > 0);
+  
+  // Get default city from first allocation or fallback
+  let destCity = 'Multi-city';
+  let destPincode = null;
+  if (validAllocations.length === 1) {
+    const woCity = woCityProgress.find(c => c.wo_city_id === validAllocations[0][0]);
+    if (woCity) { destCity = woCity.city; destPincode = woCity.pincode; }
+  } else if (validAllocations.length > 1) {
+    destCity = validAllocations.map(([id]) => {
+      const woCity = woCityProgress.find(c => c.wo_city_id === id);
+      return woCity ? woCity.city : '';
+    }).filter(Boolean).join(', ');
+  }
+  
+  try {
+    const totalAmount = lineItems.reduce((s, it) => s + (parseFloat(it.line_total)||0), 0);
+    const vendorId = vendorDropdown ? vendorDropdown.getValue() : null;
+    
+    const dispatchData = {
+      work_order_id: woId,
+      vendor_id: vendorId,
+      vendor_contact_id: document.getElementById('f_vendor_contact').value || null,
+      tracking_number: document.getElementById('f_tracking').value.trim() || null,
+      recipient_type: recipientType,
+      recipient_name: recName,
+      recipient_phone: document.getElementById('rec_phone')?.value?.trim() || null,
+      destination_city: destCity,
+      destination_pincode: destPincode,
+      destination_state: 'Maharashtra',
+      notes: document.getElementById('f_notes').value.trim() || null,
+      status: 'dispatched',
+      dispatched_at: new Date().toISOString(),
+      subtotal: totalAmount,
+      total_amount: totalAmount,
+      payment_status: 'unpaid'
+    };
+    
+    if (recipientType === 'gps_team') {
+      const phone = document.getElementById('rec_phone')?.value?.trim() || null;
+      const matchedMember = allTeamMembers.find(m => m.phone === phone);
+      dispatchData.recipient_team_member_phone = matchedMember ? phone : null;
+    } else {
+      dispatchData.recipient_company = document.getElementById('rec_company')?.value?.trim() || null;
+      dispatchData.recipient_type = document.getElementById('rec_subtype')?.value || 'direct_client';
+    }
+    
+    const { data: nextNum } = await db.rpc('generate_dispatch_number');
+    dispatchData.dispatch_number = nextNum;
+    
+    const { data: dispatch, error: dispErr } = await db.from('prajapati_dispatches').insert(dispatchData).select().single();
+    if (dispErr) throw dispErr;
+    
+    // Insert line items with bundle data
+    const items = lineItems.map((it, idx) => ({
+      dispatch_id: dispatch.id,
+      material_id: it.material_id,
+      material_name: it.material_name || (materials.find(m => m.id === it.material_id)?.name || 'Custom'),
+      size: it.size || null,
+      quantity: (parseFloat(it.bundles)||0) * (parseFloat(it.per_bundle_qty)||0),
+      unit: 'piece',
+      rate: parseFloat(it.cost_per_bundle) / Math.max(1, parseFloat(it.per_bundle_qty)) || 0,
+      line_total: parseFloat(it.line_total) || 0,
+      bundles: parseInt(it.bundles) || 1,
+      per_bundle_qty: parseInt(it.per_bundle_qty) || 1,
+      cost_per_bundle: parseFloat(it.cost_per_bundle) || 0,
+      display_order: idx
+    }));
+    const { error: itemErr } = await db.from('prajapati_dispatch_items').insert(items);
+    if (itemErr) throw itemErr;
+    
+    // Insert city allocations
+    if (validAllocations.length) {
+      const cityData = validAllocations.map(([wo_city_id, qty], idx) => {
+        const woCity = woCityProgress.find(c => c.wo_city_id === wo_city_id);
+        return {
+          dispatch_id: dispatch.id,
+          wo_city_id: wo_city_id,
+          city: woCity ? woCity.city : 'Unknown',
+          pincode: woCity ? woCity.pincode : null,
+          qty_dispatched: parseInt(qty) || 0,
+          display_order: idx
+        };
+      });
+      const { error: cityErr } = await db.from('prajapati_dispatch_cities').insert(cityData);
+      if (cityErr) throw cityErr;
+    }
+    
+    toast(`✓ Dispatch ${dispatch.dispatch_number} created · ${validAllocations.length} cities`, 'success');
+    setTimeout(() => { window.location.href = `dispatch-pdf.html?id=${dispatch.id}`; }, 1000);
+  } catch (err) {
+    console.error(err);
+    toast('Error: ' + err.message, 'error');
+  }
+}
+
+window.addEventListener('load', () => { setTimeout(() => { if (initDB()) loadInitialData(); }, 200); });
+
+</script>
+
+</body>
+</html>

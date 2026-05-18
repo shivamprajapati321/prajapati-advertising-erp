@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Order — Prajapati ERP</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+    .header {
+      background: #1246C8;
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+    }
+
+    .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 5px; }
+    .header p { font-size: 13px; opacity: 0.9; }
+
+    .form-section {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1246C8;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .form-group.required label::after {
+      content: " *";
+      color: #e74c3c;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="email"],
+    select,
+    textarea {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    input[type="email"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #1246C8;
+      box-shadow: 0 0 0 3px rgba(18, 70, 200, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    /* Location Tabs */
+    .locations-container {
+      margin-bottom: 20px;
+    }
+
+    .location-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .location-tab {
+      padding: 8px 14px;
+      background: #f5f5f5;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .location-tab:hover {
+      background: #e8e8e8;
+    }
+
+    .location-tab.active {
+      background: #1246C8;
+      color: white;
+      border-color: #1246C8;
+    }
+
+    .location-tab.add-btn {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-color: #2e7d32;
+    }
+
+    .location-tab.delete-btn {
+      background: #ffebee;
+      color: #c62828;
+      font-size: 11px;
+      padding: 6px 10px;
+    }
+
+    .location-tab.delete-btn:hover {
+      background: #ffcdd2;
+    }
+
+    .location-form {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #eee;
+      margin-top: 10px;
+    }
+
+    .location-form .form-grid {
+      gap: 15px;
+    }
+
+    .location-form .form-group label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .location-form input,
+    .location-form textarea {
+      font-size: 12px;
+      padding: 8px 10px;
+    }
+
+    .location-summary {
+      background: #f0f7ff;
+      border: 1px solid #b3d9ff;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+
+    .location-summary strong {
+      color: #1246C8;
+    }
+
+    .total-qty-display {
+      background: #e8f5e9;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: 600;
+      color: #2e7d32;
+      margin-top: 10px;
+    }
+
+    /* Buttons */
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .btn {
+      padding: 11px 22px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: #1246C8;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0a2e8f;
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+
+    .btn-secondary:hover {
+      background: #efefef;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-success {
+      background: #2e7d32;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #1b5e20;
+    }
+
+    .btn-danger {
+      background: #c62828;
+      color: white;
+    }
+
+    /* Alert */
+    .alert {
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+
+    .alert-error {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef5350;
+    }
+
+    .alert-success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #81c784;
+    }
+
+    /* Loading */
+    .loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #1246C8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .hidden { display: none; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .button-group { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h1>➕ Create New Work Order</h1>
+    <p>Fill in the order details and add multiple locations with quantities</p>
+  </div>
+
+  <!-- Alert -->
+  <div id="alertBox" class="alert alert-error hidden"></div>
+
+  <!-- Form -->
+  <form id="orderForm">
+    
+    <!-- Order Details Section -->
+    <div class="form-section">
+      <div class="section-title">📝 Order Details</div>
+      <div class="form-grid">
+        <div class="form-group required">
+          <label>Order Title / Project Name</label>
+          <input type="text" id="orderTitle" placeholder="e.g., MSCIT Rickshaw Branding" required>
+        </div>
+
+        <div class="form-group required">
+          <label>Order Type</label>
+          <select id="orderType" required>
+            <option value="">-- Select Type --</option>
+            <option value="bulk">Bulk</option>
+            <option value="retail">Retail</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+
+        <div class="form-group required">
+          <label>Priority</label>
+          <select id="priority" required>
+            <option value="">-- Select Priority --</option>
+            <option value="high">🔴 High</option>
+            <option value="medium">🟡 Medium</option>
+            <option value="low">🟢 Low</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Section -->
+    <div class="form-section">
+      <div class="section-title">👤 Customer Information</div>
+      <div class="form-grid">
+        <div class="form-group required">
+          <label>Customer Name</label>
+          <input type="text" id="customerName" placeholder="e.g., Ritik Shivaji Koli" required>
+        </div>
+
+        <div class="form-group required">
+          <label>Phone Number</label>
+          <input type="text" id="phone" placeholder="e.g., 8828464833" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service/Product Section -->
+    <div class="form-section">
+      <div class="section-title">🎯 Service / Product</div>
+      <div class="form-grid">
+        <div class="form-group required">
+          <label>Service Type</label>
+          <select id="service" required>
+            <option value="">-- Select Service --</option>
+            <option value="hood-install">Auto Rickshaw Hood with Installation</option>
+            <option value="hood-stitch">Auto Rickshaw Hood Only Stitching</option>
+            <option value="back-panel">Auto Rickshaw Back Panel</option>
+            <option value="strip">Auto Rickshaw Strip</option>
+            <option value="wall-wrap">Digital Wall Wrap</option>
+            <option value="parking-board">No Parking Board</option>
+            <option value="flex-print">Flex Printing</option>
+            <option value="vinyl-print">Vinyls Printing</option>
+            <option value="star-flex">Star Flex</option>
+            <option value="bb-flex">BB Flex</option>
+          </select>
+        </div>
+
+        <div class="form-group required">
+          <label>Total Quantity (across all locations)</label>
+          <input type="number" id="totalQuantity" placeholder="Auto-calculated from locations" readonly style="background: #f5f5f5;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Locations Section -->
+    <div class="form-section">
+      <div class="section-title">📍 Locations & Quantities</div>
+      
+      <div class="locations-container">
+        <div class="location-tabs" id="locationTabs">
+          <button type="button" class="location-tab add-btn" onclick="addLocation(event)">+ Add Location</button>
+        </div>
+
+        <div id="locationsContent"></div>
+
+        <div id="totalDisplay" class="total-qty-display hidden">
+          Total Quantity: <strong id="totalQtyValue">0</strong> units
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule Section -->
+    <div class="form-section">
+      <div class="section-title">📅 Schedule</div>
+      <div class="form-grid">
+        <div class="form-group required">
+          <label>Expected Start Date</label>
+          <input type="date" id="startDate" required>
+        </div>
+
+        <div class="form-group required">
+          <label>Expected Completion Date</label>
+          <input type="date" id="completionDate" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes Section -->
+    <div class="form-section">
+      <div class="section-title">📌 Notes / Special Instructions</div>
+      <div class="form-group">
+        <textarea id="notes" placeholder="Any special instructions or notes..."></textarea>
+      </div>
+    </div>
+
+    <!-- Submit Buttons -->
+    <div class="form-section">
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary">
+          <span>💾</span> Save Order
+        </button>
+        <button type="reset" class="btn btn-secondary">
+          <span>🔄</span> Clear Form
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  // ════════════════════════════════════════════════════════════════
+  // STATE
+  // ════════════════════════════════════════════════════════════════
+  
+  let locations = [];
+  let currentLocationId = null;
+
+  // ════════════════════════════════════════════════════════════════
+  // LOCATIONS MANAGEMENT
+  // ════════════════════════════════════════════════════════════════
+
+  function addLocation(e) {
+    e.preventDefault();
+    const locId = 'loc-' + Date.now();
+    const location = {
+      id: locId,
+      city: '',
+      state: '',
+      quantity: 0,
+      sizeDetails: '',
+      notes: ''
+    };
+    locations.push(location);
+    currentLocationId = locId;
+    renderLocations();
+  }
+
+  function deleteLocation(locId, e) {
+    e.preventDefault();
+    if (confirm('Delete this location?')) {
+      locations = locations.filter(l => l.id !== locId);
+      currentLocationId = locations.length > 0 ? locations[0].id : null;
+      renderLocations();
+    }
+  }
+
+  function selectLocation(locId, e) {
+    e.preventDefault();
+    currentLocationId = locId;
+    renderLocations();
+  }
+
+  function renderLocations() {
+    const tabsContainer = document.getElementById('locationTabs');
+    const contentContainer = document.getElementById('locationsContent');
+
+    if (locations.length === 0) {
+      tabsContainer.innerHTML = '<button type="button" class="location-tab add-btn" onclick="addLocation(event)">+ Add Location</button>';
+      contentContainer.innerHTML = '';
+      updateTotalQuantity();
+      return;
+    }
+
+    // Render tabs
+    let tabsHTML = '';
+    locations.forEach(loc => {
+      const isActive = loc.id === currentLocationId;
+      tabsHTML += `
+        <button type="button" class="location-tab ${isActive ? 'active' : ''}" onclick="selectLocation('${loc.id}', event)">
+          ${loc.city || 'Location'} (${loc.quantity})
+        </button>
+        <button type="button" class="location-tab delete-btn" onclick="deleteLocation('${loc.id}', event)">❌</button>
+      `;
+    });
+    tabsHTML += '<button type="button" class="location-tab add-btn" onclick="addLocation(event)">+ Add</button>';
+    tabsContainer.innerHTML = tabsHTML;
+
+    // Render content
+    const activeLoc = locations.find(l => l.id === currentLocationId) || locations[0];
+    if (activeLoc) {
+      currentLocationId = activeLoc.id;
+      contentContainer.innerHTML = `
+        <div class="location-form">
+          <div class="form-grid">
+            <div class="form-group required">
+              <label>City Name</label>
+              <input type="text" placeholder="e.g., Mumbai" value="${activeLoc.city}" 
+                onchange="updateLocation('${activeLoc.id}', 'city', this.value)">
+            </div>
+
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" placeholder="e.g., Maharashtra" value="${activeLoc.state || ''}" 
+                onchange="updateLocation('${activeLoc.id}', 'state', this.value)">
+            </div>
+
+            <div class="form-group required">
+              <label>Quantity for This Location</label>
+              <input type="number" min="1" placeholder="e.g., 50" value="${activeLoc.quantity || ''}" 
+                onchange="updateLocation('${activeLoc.id}', 'quantity', parseInt(this.value))">
+            </div>
+
+            <div class="form-group">
+              <label>Size Details (Optional)</label>
+              <input type="text" placeholder="e.g., 100cm × 50cm" value="${activeLoc.sizeDetails || ''}" 
+                onchange="updateLocation('${activeLoc.id}', 'sizeDetails', this.value)">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 15px;">
+            <label>Location-Specific Notes (Optional)</label>
+            <textarea placeholder="Any special instructions for this location..." 
+              onchange="updateLocation('${activeLoc.id}', 'notes', this.value)">${activeLoc.notes || ''}</textarea>
+          </div>
+
+          <div class="location-summary">
+            ✓ <strong>${activeLoc.city || 'Location'}</strong> | 
+            Qty: <strong>${activeLoc.quantity || 0}</strong> units | 
+            Size: <strong>${activeLoc.sizeDetails || 'Not specified'}</strong>
+          </div>
+        </div>
+      `;
+    }
+
+    updateTotalQuantity();
+  }
+
+  function updateLocation(locId, field, value) {
+    const loc = locations.find(l => l.id === locId);
+    if (loc) {
+      loc[field] = value;
+      updateTotalQuantity();
+      renderLocations();
+    }
+  }
+
+  function updateTotalQuantity() {
+    const total = locations.reduce((sum, loc) => sum + (loc.quantity || 0), 0);
+    document.getElementById('totalQuantity').value = total;
+    
+    if (locations.length > 0) {
+      document.getElementById('totalDisplay').classList.remove('hidden');
+      document.getElementById('totalQtyValue').textContent = total;
+    } else {
+      document.getElementById('totalDisplay').classList.add('hidden');
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // FORM SUBMISSION
+  // ════════════════════════════════════════════════════════════════
+
+  function showAlert(message, type = 'error') {
+    const box = document.getElementById('alertBox');
+    box.textContent = message;
+    box.className = `alert alert-${type}`;
+    box.classList.remove('hidden');
+    setTimeout(() => box.classList.add('hidden'), 5000);
+  }
+
+  document.getElementById('orderForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Validation
+    if (locations.length === 0) {
+      showAlert('❌ Please add at least one location');
+      return;
+    }
+
+    if (!locations.every(l => l.city && l.quantity > 0)) {
+      showAlert('❌ All locations must have a city name and quantity > 0');
+      return;
+    }
+
+    const totalQty = locations.reduce((sum, l) => sum + l.quantity, 0);
+
+    // Prepare order data
+    const order = {
+      orderId: 'ORD-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 100000)).padStart(5, '0'),
+      orderTitle: document.getElementById('orderTitle').value,
+      orderType: document.getElementById('orderType').value,
+      priority: document.getElementById('priority').value,
+      customerName: document.getElementById('customerName').value,
+      phone: document.getElementById('phone').value,
+      service: document.getElementById('service').value,
+      totalQuantity: totalQty,
+      startDate: document.getElementById('startDate').value,
+      completionDate: document.getElementById('completionDate').value,
+      notes: document.getElementById('notes').value,
+      locations: JSON.parse(JSON.stringify(locations)),
+      status: 'draft',
+      createdAt: new Date().toISOString()
+    };
+
+    // Save to localStorage (for demo)
+    const orders = JSON.parse(localStorage.getItem('prajapati_orders')) || [];
+    orders.push(order);
+    localStorage.setItem('prajapati_orders', JSON.stringify(orders));
+
+    showAlert('✅ Order created successfully: ' + order.orderId, 'success');
+    
+    console.log('Order Created:', order);
+    
+    // Reset form
+    setTimeout(() => {
+      document.getElementById('orderForm').reset();
+      locations = [];
+      currentLocationId = null;
+      renderLocations();
+    }, 1500);
+  });
+
+  // Initialize
+  renderLocations();
+</script>
+
+</body>
+</html>
