@@ -819,9 +819,35 @@ if (!session) {
 }
 
 let totalLeads = 0;
+let leadsDatabase = [];
 
-// STORE LEADS (mock storage)
-let leadsDatabase = JSON.parse(localStorage.getItem('prajapati_leads')) || [];
+// Initialize Supabase
+const SUPABASE_URL = 'https://shafygjbffffjhwhmcgo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE';
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Load leads from database on page load
+async function loadLeadsFromDatabase() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('prajapati_leads')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('❌ Error loading leads:', error);
+      return;
+    }
+    
+    leadsDatabase = data || [];
+    totalLeads = leadsDatabase.length;
+    updateStats();
+    console.log('✅ Loaded', totalLeads, 'leads from database');
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
 
 function switchTab(tabName) {
   // Hide all tabs
@@ -866,9 +892,8 @@ function configureLinkedIn() { alert('LinkedIn settings coming soon!'); }
 function configureCustom() { alert('Custom API settings coming soon!'); }
 
 // MANUAL LEAD ENTRY
-function addLead() {
+async function addLead() {
   const lead = {
-    id: 'LEAD-' + Date.now(),
     name: document.getElementById('lead-name').value,
     company: document.getElementById('company-name').value,
     phone: document.getElementById('phone').value,
@@ -876,12 +901,12 @@ function addLead() {
     city: document.getElementById('city').value,
     state: document.getElementById('state').value,
     source: document.getElementById('source').value,
-    leadValue: document.getElementById('lead-value').value,
-    businessType: document.getElementById('business-type').value,
+    lead_value: parseFloat(document.getElementById('lead-value').value) || 0,
+    business_type: document.getElementById('business-type').value,
     industry: document.getElementById('industry').value,
     notes: document.getElementById('notes').value,
-    createdAt: new Date().toISOString(),
-    status: 'new'
+    status: 'new',
+    created_at: new Date().toISOString()
   };
 
   if (!lead.name || !lead.company || !lead.phone || !lead.source) {
@@ -889,20 +914,33 @@ function addLead() {
     return;
   }
 
-  leadsDatabase.push(lead);
-  localStorage.setItem('prajapati_leads', JSON.stringify(leadsDatabase));
+  try {
+    // Save to Supabase
+    const { data, error } = await supabaseClient
+      .from('prajapati_leads')
+      .insert([lead]);
+    
+    if (error) {
+      console.error('❌ Error adding lead:', error);
+      alert('❌ Error adding lead: ' + error.message);
+      return;
+    }
 
-  totalLeads++;
-  document.getElementById('total-leads').textContent = totalLeads;
+    // Show success message
+    document.getElementById('success-msg').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('success-msg').classList.remove('show');
+    }, 3000);
 
-  // Show success message
-  document.getElementById('success-msg').classList.add('show');
-  setTimeout(() => {
-    document.getElementById('success-msg').classList.remove('show');
-  }, 3000);
-
-  resetForm();
-  console.log('✅ Lead added:', lead);
+    resetForm();
+    
+    // Reload leads from database
+    await loadLeadsFromDatabase();
+    console.log('✅ Lead added successfully!');
+  } catch (err) {
+    console.error('Error:', err);
+    alert('Error: ' + err.message);
+  }
 }
 
 function resetForm() {
@@ -924,15 +962,21 @@ function syncNow() {
   alert('🔄 Syncing leads from all connected platforms...\n\nThis feature will:\n✅ Scrape new leads from all platforms\n✅ Remove duplicates\n✅ Validate contact info\n✅ Save to database\n\nFeature coming soon!');
 }
 
-// LOAD EXISTING LEADS
-document.addEventListener('DOMContentLoaded', () => {
-  totalLeads = leadsDatabase.length;
+function updateStats() {
   document.getElementById('total-leads').textContent = totalLeads;
-  document.getElementById('qualified-leads').textContent = leadsDatabase.filter(l => l.status === 'qualified').length;
-  document.getElementById('converted-leads').textContent = leadsDatabase.filter(l => l.status === 'converted').length;
-});
+  
+  const qualified = leadsDatabase.filter(l => l.status === 'qualified').length;
+  const converted = leadsDatabase.filter(l => l.status === 'converted').length;
+  
+  document.getElementById('qualified-leads').textContent = qualified;
+  document.getElementById('converted-leads').textContent = converted;
+}
 
-console.log('✅ Advanced Leads Management System Loaded');
+// LOAD LEADS ON PAGE LOAD
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadLeadsFromDatabase();
+  updateStats();
+});
 </script>
 
 </body>

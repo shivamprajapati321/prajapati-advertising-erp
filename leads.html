@@ -650,17 +650,134 @@ if (!session) {
 }
 
 let currentView = 'list';
+let allLeads = [];
+
+// Initialize Supabase
+const SUPABASE_URL = 'https://shafygjbffffjhwhmcgo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE';
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Load leads from database
+async function loadLeadsFromDatabase() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('prajapati_leads')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('❌ Error loading leads:', error);
+      showEmptyState();
+      return;
+    }
+    
+    allLeads = data || [];
+    console.log('✅ Loaded', allLeads.length, 'leads from database');
+    
+    if (currentView === 'kanban') {
+      renderKanbanView();
+    } else {
+      renderListView();
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    showEmptyState();
+  }
+}
+
+function showEmptyState() {
+  document.getElementById('kanban-view').innerHTML = `
+    <div style="text-align:center;padding:60px 20px;color:#9ca3af;">
+      <div style="font-size:48px;margin-bottom:16px;">📭</div>
+      <div>No leads found</div>
+      <div style="font-size:12px;margin-top:8px;">Create your first lead to get started</div>
+    </div>
+  `;
+}
+
+// Render Kanban View
+function renderKanbanView() {
+  const statusGroups = {
+    new: { title: '🆕 New', leads: [] },
+    qualified: { title: '✅ Qualified', leads: [] },
+    negotiating: { title: '💬 Negotiating', leads: [] },
+    converted: { title: '🎉 Closed Won', leads: [] }
+  };
+  
+  allLeads.forEach(lead => {
+    const status = lead.status || 'new';
+    if (statusGroups[status]) {
+      statusGroups[status].leads.push(lead);
+    }
+  });
+  
+  let html = '<div class="kanban-board">';
+  
+  Object.values(statusGroups).forEach(group => {
+    html += `<div class="kanban-column">
+      <div class="column-title">${group.title} (${group.leads.length})</div>`;
+    
+    group.leads.forEach(lead => {
+      html += `<div class="lead-card">
+        <div class="lead-name">${lead.name || 'N/A'}</div>
+        <div class="lead-company">${lead.company || 'N/A'}</div>
+        <div class="lead-contact">${lead.phone || 'N/A'}</div>
+        <div class="lead-value">₹${(lead.lead_value || 0).toLocaleString('en-IN')}</div>
+      </div>`;
+    });
+    
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  document.getElementById('kanban-view').innerHTML = html;
+}
+
+// Render List View
+function renderListView() {
+  let html = '<div class="list-view"><div class="list-header">';
+  html += '<div>Lead Name</div><div>Company</div><div>Contact</div><div>Status</div><div>Lead Value</div>';
+  html += '</div>';
+  
+  allLeads.forEach(lead => {
+    const statusColor = {
+      'new': 'status-new',
+      'qualified': 'status-qualified',
+      'negotiating': 'status-negotiating',
+      'converted': 'status-closed'
+    };
+    
+    html += `<div class="list-row">
+      <div>${lead.name || 'N/A'}</div>
+      <div>${lead.company || 'N/A'}</div>
+      <div>${lead.phone || 'N/A'}</div>
+      <div><span class="status-badge ${statusColor[lead.status] || 'status-new'}">${(lead.status || 'new').toUpperCase()}</span></div>
+      <div>₹${(lead.lead_value || 0).toLocaleString('en-IN')}</div>
+    </div>`;
+  });
+  
+  html += '</div>';
+  document.getElementById('list-view').innerHTML = html;
+}
 
 function toggleView(view) {
   currentView = view;
   
   document.getElementById('kanban-view').style.display = view === 'kanban' ? 'block' : 'none';
   document.getElementById('list-view').style.display = view === 'list' ? 'block' : 'none';
+  
+  if (view === 'kanban') {
+    renderKanbanView();
+  } else {
+    renderListView();
+  }
 }
 
-function addNewLead() {
-  alert('New Lead form coming soon!');
-}
+// Load on page load
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadLeadsFromDatabase();
+});
 
 // SEARCH FUNCTIONALITY
 document.getElementById('search').addEventListener('input', (e) => {
