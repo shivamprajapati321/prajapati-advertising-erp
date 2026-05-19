@@ -536,7 +536,7 @@
     let currentFilter = 'all';
 
     window.addEventListener('load', () => {
-      if (!localStorage.getItem('prajapati_session')) {
+      if (!localStorage.getItem('prajapati_erp_session')) {
         window.location.href = 'login.html';
       }
       displayLeads();
@@ -618,7 +618,7 @@
     });
 
     function logout() {
-      localStorage.removeItem('prajapati_session');
+      localStorage.removeItem('prajapati_erp_session');
       window.location.href = 'login.html';
     }
 

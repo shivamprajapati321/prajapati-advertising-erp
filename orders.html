@@ -2,400 +2,230 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Orders · Prajapati ERP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders - Prajapati ERP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f0f9ff;
-      color: #1f2937;
-    }
-
-    .app-layout {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    .sidebar {
-      width: 260px;
-      background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-      color: white;
-      padding: 24px 16px;
-      overflow-y: auto;
-      position: fixed;
-      height: 100vh;
-      left: 0;
-      top: 0;
-      z-index: 100;
-      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .sidebar-section-title {
-      font-size: 10px;
-      font-weight: 800;
-      color: #06b6d4;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin: 20px 0 12px 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .sidebar-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      color: #cbd5e1;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.25s;
-      cursor: pointer;
-    }
-
-    .sidebar-link:hover {
-      background: rgba(6, 182, 212, 0.15);
-      color: #06b6d4;
-    }
-
-    .sidebar-link.active {
-      background: rgba(6, 182, 212, 0.2);
-      color: #06b6d4;
-    }
-
-    .main {
-      flex: 1;
-      margin-left: 260px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .topbar {
-      background: white;
-      padding: 16px 28px;
-      border-bottom: 2px solid #e0f2fe;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(6, 182, 212, 0.08);
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-
-    .topbar h2 {
-      font-size: 18px;
-      color: #0891b2;
-      margin: 0;
-    }
-
-    .page {
-      flex: 1;
-      padding: 32px 40px;
-      overflow-y: auto;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-    }
-
-    .header h1 {
-      font-size: 28px;
-      font-weight: 800;
-      color: #0f172a;
-      margin: 0;
-    }
-
-    .btn-primary {
-      background: #0891b2;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.25s;
-    }
-
-    .btn-primary:hover {
-      background: #06b6d4;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(6, 182, 212, 0.3);
-    }
-
-    .card {
-      background: white;
-      border: 2px solid #e0f2fe;
-      border-radius: 16px;
-      padding: 24px;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 60px 20px;
-      color: #0891b2;
-    }
-
-    .spinner {
-      display: inline-block;
-      width: 40px;
-      height: 40px;
-      border: 4px solid #e0f2fe;
-      border-top: 4px solid #06b6d4;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 16px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .error {
-      background: #fee2e2;
-      border: 2px solid #fecaca;
-      color: #dc2626;
-      padding: 20px;
-      border-radius: 8px;
-      margin: 20px 0;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: #9ca3af;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    .stat-box {
-      background: white;
-      border: 2px solid #e0f2fe;
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .stat-box .label {
-      font-size: 11px;
-      color: #0891b2;
-      font-weight: 800;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .stat-box .value {
-      font-size: 28px;
-      font-weight: 800;
-      color: #06b6d4;
-    }
-
-    .kanban {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 16px;
-    }
-
-    .kanban-column {
-      background: #f0f9ff;
-      border-radius: 12px;
-      padding: 16px;
-      min-height: 400px;
-    }
-
-    .kanban-title {
-      font-weight: 700;
-      color: #0891b2;
-      margin-bottom: 12px;
-      font-size: 13px;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar {
-        width: 70px;
-      }
-      .main {
-        margin-left: 70px;
-      }
-      .page {
-        padding: 16px;
-      }
-      .stats-grid, .kanban {
-        grid-template-columns: 1fr;
-      }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --cyan: #06b6d4; --gold: #fbbf24; --dark: #0f172a; --light: #f0f9ff; --border: #e0f2fe; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--light); }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--dark); color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--cyan), var(--gold)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .sidebar-menu { list-style: none; }
+    .sidebar-menu li { margin-bottom: 10px; }
+    .sidebar-menu a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; transition: all 0.3s; font-size: 14px; }
+    .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(6,182,212,0.2); color: var(--cyan); }
+    .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: white; padding: 20px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .topbar-title { font-size: 24px; font-weight: 700; color: var(--cyan); }
+    .logout-btn { background: var(--cyan); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .logout-btn:hover { background: #0891b2; }
+    .content { padding: 30px; flex: 1; overflow-y: auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .page-header h1 { font-size: 28px; color: var(--dark); }
+    .btn-primary { background: linear-gradient(135deg, var(--cyan), #0891b2); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6,182,212,0.3); }
+    .filters { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .filter-group { display: flex; gap: 10px; align-items: center; }
+    .filter-group label { font-size: 13px; font-weight: 600; color: #6b7280; }
+    .filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; font-family: inherit; }
+    .table-container { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f9fafb; border-bottom: 2px solid var(--border); }
+    th { padding: 15px; text-align: left; font-weight: 600; font-size: 13px; color: #6b7280; text-transform: uppercase; }
+    td { padding: 15px; border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: #f9fafb; }
+    .status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-processing { background: #dbeafe; color: #1e40af; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .modal-header { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--dark); }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 14px; }
+    .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(6,182,212,0.1); }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px; }
+    .btn-cancel { background: #f3f4f6; color: #1f2937; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-small { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .btn-edit { background: var(--cyan); color: white; }
+    .btn-delete { background: #fee2e2; color: #991b1b; }
   </style>
 </head>
 <body>
-
-<div class="app-layout">
-  <aside class="sidebar">
-    <div style="margin-bottom:20px;padding:16px;border-bottom:1px solid rgba(6,182,212,0.2)">
-      <div style="font-weight:800;color:white;margin-bottom:4px">PRAJAPATI ERP</div>
-      <div style="font-size:10px;color:#06b6d4">Orders</div>
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">📦</div>
+        <div style="font-size: 16px; font-weight: 700;">PRAJAPATI</div>
+      </div>
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html">📊 Dashboard</a></li>
+        <li><a href="orders.html" class="active">📋 Orders</a></li>
+        <li><a href="leads.html">🎯 Leads</a></li>
+        <li><a href="quotations.html">📝 Quotations</a></li>
+        <li><a href="invoices.html">💰 Invoices</a></li>
+        <li><a href="#coming">👥 Customers</a></li>
+        <li><a href="#coming">🖨️ Printing</a></li>
+        <li><a href="#coming">✂️ Stitching</a></li>
+        <li><a href="#coming">🎬 Execution</a></li>
+        <li><a href="#coming">🚚 Dispatch</a></li>
+        <li><a href="#coming">👨‍💼 Team</a></li>
+        <li><a href="#coming">⚙️ Settings</a></li>
+      </ul>
     </div>
 
-    <div class="sidebar-section-title">MAIN</div>
-    <a href="dashboard.html" class="sidebar-link">📊 Dashboard</a>
-    <a href="orders.html" class="sidebar-link active">📋 Orders</a>
-
-    <div class="sidebar-section-title">OPERATIONS</div>
-    <a href="printing.html" class="sidebar-link">🖨️ Printing</a>
-    <a href="stitching.html" class="sidebar-link">✂️ Stitching</a>
-    <a href="execution.html" class="sidebar-link">🛺 Execution</a>
-    <a href="dispatch.html" class="sidebar-link">🚚 Dispatch</a>
-
-    <div class="sidebar-section-title">SALES</div>
-    <a href="leads.html" class="sidebar-link">🎯 Leads</a>
-    <a href="quotations.html" class="sidebar-link">📝 Quotations</a>
-    <a href="invoices.html" class="sidebar-link">🧾 Invoices</a>
-  </aside>
-
-  <main class="main">
-    <header class="topbar">
-      <h2>📋 Orders</h2>
-      <span style="font-size:12px;color:#9ca3af">Multi-location order management</span>
-    </header>
-
-    <div class="page">
-      <div class="header">
-        <h1>Orders Manager</h1>
-        <button class="btn-primary" onclick="window.location.href='order-create-sales.html'">+ New Order</button>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title">Orders</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
       </div>
 
-      <div class="stats-grid" id="stats-grid">
-        <div class="stat-box">
-          <div class="label">📦 Total Orders</div>
-          <div class="value">-</div>
+      <div class="content">
+        <div class="page-header">
+          <h1>📋 Order Management</h1>
+          <button class="btn-primary" onclick="openModal()">+ New Order</button>
         </div>
-        <div class="stat-box">
-          <div class="label">⏳ Pending</div>
-          <div class="value">-</div>
-        </div>
-        <div class="stat-box">
-          <div class="label">✅ Completed</div>
-          <div class="value">-</div>
-        </div>
-        <div class="stat-box">
-          <div class="label">💰 Revenue</div>
-          <div class="value">-</div>
-        </div>
-      </div>
 
-      <div class="card">
-        <h3 style="margin-bottom:20px;color:#0891b2">Orders Pipeline (Kanban View)</h3>
-        <div class="kanban" id="kanban">
-          <div class="kanban-column">
-            <div class="kanban-title">📋 Pending</div>
-            <div id="col-pending" style="min-height:300px;"></div>
+        <div class="filters">
+          <div class="filter-group">
+            <label>Search:</label>
+            <input type="text" id="searchInput" placeholder="Order ID or Customer" onkeyup="filterOrders()">
           </div>
-          <div class="kanban-column">
-            <div class="kanban-title">⏳ In Progress</div>
-            <div id="col-progress" style="min-height:300px;"></div>
-          </div>
-          <div class="kanban-column">
-            <div class="kanban-title">🏭 Production</div>
-            <div id="col-production" style="min-height:300px;"></div>
-          </div>
-          <div class="kanban-column">
-            <div class="kanban-title">📦 Ready</div>
-            <div id="col-ready" style="min-height:300px;"></div>
-          </div>
-          <div class="kanban-column">
-            <div class="kanban-title">✅ Completed</div>
-            <div id="col-completed" style="min-height:300px;"></div>
+          <div class="filter-group">
+            <label>Status:</label>
+            <select id="statusFilter" onchange="filterOrders()">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="completed">Completed</option>
+            </select>
           </div>
         </div>
-      </div>
 
-      <div class="empty" id="loading-state" style="display:none">
-        <div class="spinner"></div>
-        <p>Loading orders...</p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </main>
-</div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="lib-config.js"></script>
-<script src="lib-auth.js"></script>
+  <div class="modal" id="orderModal">
+    <div class="modal-content">
+      <div class="modal-header">Create New Order</div>
+      <form id="orderForm">
+        <div class="form-group">
+          <label>Customer Name</label>
+          <input type="text" id="custName" required>
+        </div>
+        <div class="form-group">
+          <label>Customer Phone</label>
+          <input type="tel" id="custPhone" required>
+        </div>
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input type="number" id="custAmount" min="0" step="100" required>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="custStatus" required>
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-<script>
-(async function() {
-  try {
-    const session = AUTH.requireLogin();
-    if (!session) return;
+  <script>
+    let orders = [
+      { id: 'ORD-001', name: 'Amit Kumar', amount: 25000, status: 'completed', date: '2026-05-15' },
+      { id: 'ORD-002', name: 'Priya Singh', amount: 15000, status: 'processing', date: '2026-05-18' },
+      { id: 'ORD-003', name: 'Rajesh Patel', amount: 8500, status: 'pending', date: '2026-05-19' },
+      { id: 'ORD-004', name: 'Neha Gupta', amount: 32000, status: 'processing', date: '2026-05-18' },
+      { id: 'ORD-005', name: 'Vikram Singh', amount: 12000, status: 'pending', date: '2026-05-19' },
+    ];
 
-    document.getElementById('loading-state').style.display = 'block';
-
-    // Simulated data for demo (replace with real Supabase query)
-    const mockData = {
-      stats: {
-        total: 24,
-        pending: 8,
-        completed: 12,
-        revenue: '₹8.5L'
-      },
-      orders: [
-        { id: 'ORD-001', status: 'pending', name: 'Rickshaw Branding - Delhi' },
-        { id: 'ORD-002', status: 'pending', name: 'Hoarding - Mumbai' },
-        { id: 'ORD-003', status: 'progress', name: 'Bus Branding - Pune' },
-        { id: 'ORD-004', status: 'completed', name: 'Wall Painting - Bangalore' },
-      ]
-    };
-
-    // Update stats
-    const statValues = document.querySelectorAll('.stat-box .value');
-    statValues[0].textContent = mockData.stats.total;
-    statValues[1].textContent = mockData.stats.pending;
-    statValues[2].textContent = mockData.stats.completed;
-    statValues[3].textContent = mockData.stats.revenue;
-
-    // Update kanban
-    mockData.orders.forEach(order => {
-      const card = document.createElement('div');
-      card.style.cssText = 'background:white;padding:12px;border-radius:8px;margin-bottom:8px;border-left:4px solid #06b6d4;cursor:pointer;transition:all 0.25s';
-      card.innerHTML = `<div style="font-weight:700;font-size:12px;color:#0f172a">${order.id}</div><div style="font-size:11px;color:#9ca3af">${order.name}</div>`;
-      card.onmouseover = () => card.style.boxShadow = '0 4px 12px rgba(6,182,212,0.2)';
-      card.onmouseout = () => card.style.boxShadow = 'none';
-      
-      if (order.status === 'pending') document.getElementById('col-pending').appendChild(card);
-      else if (order.status === 'progress') document.getElementById('col-progress').appendChild(card);
-      else if (order.status === 'completed') document.getElementById('col-completed').appendChild(card);
+    window.addEventListener('load', () => {
+      const session = localStorage.getItem('prajapati_erp_session');
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      displayOrders(orders);
     });
 
-    document.getElementById('loading-state').style.display = 'none';
+    function displayOrders(data) {
+      const tbody = document.getElementById('ordersBody');
+      tbody.innerHTML = data.map(order => `
+        <tr>
+          <td><strong>${order.id}</strong></td>
+          <td>${order.name}</td>
+          <td><strong>₹${order.amount.toLocaleString()}</strong></td>
+          <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+          <td>${new Date(order.date).toLocaleDateString('en-IN')}</td>
+          <td><button class="btn-small btn-edit" onclick="alert('Viewing Order')">View</button></td>
+        </tr>
+      `).join('');
+    }
 
-  } catch (error) {
-    console.error(error);
-    document.querySelector('.page').innerHTML = `
-      <div class="error">
-        <strong>⚠️ Error:</strong> ${error.message}
-      </div>
-    `;
-  }
-})();
-</script>
+    function filterOrders() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const filtered = orders.filter(o => {
+        const matchSearch = o.id.toLowerCase().includes(search) || o.name.toLowerCase().includes(search);
+        const matchStatus = !status || o.status === status;
+        return matchSearch && matchStatus;
+      });
+      displayOrders(filtered);
+    }
 
+    function openModal() {
+      document.getElementById('orderModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('orderModal').classList.remove('active');
+    }
+
+    function logout() {
+      localStorage.removeItem('prajapati_erp_session');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Order created successfully!');
+      closeModal();
+      document.getElementById('orderForm').reset();
+    });
+
+    document.getElementById('orderModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('orderModal')) closeModal();
+    });
+  </script>
 </body>
 </html>

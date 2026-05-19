@@ -544,7 +544,7 @@
     ];
 
     window.addEventListener('load', () => {
-      if (!localStorage.getItem('prajapati_session')) {
+      if (!localStorage.getItem('prajapati_erp_session')) {
         window.location.href = 'login.html';
       }
       displayQuotes(quotes);
@@ -610,7 +610,7 @@
     });
 
     function logout() {
-      localStorage.removeItem('prajapati_session');
+      localStorage.removeItem('prajapati_erp_session');
       window.location.href = 'login.html';
     }
 

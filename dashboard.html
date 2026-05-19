@@ -307,18 +307,18 @@
       </div>
 
       <ul class="sidebar-menu">
-        <li><a href="#" class="active">📊 Dashboard</a></li>
-        <li><a href="#">📋 Orders</a></li>
-        <li><a href="#">🎯 Leads</a></li>
-        <li><a href="#">📝 Quotations</a></li>
-        <li><a href="#">💰 Invoices</a></li>
-        <li><a href="#">👥 Customers</a></li>
-        <li><a href="#">🖨️ Printing</a></li>
-        <li><a href="#">✂️ Stitching</a></li>
-        <li><a href="#">🎬 Execution</a></li>
-        <li><a href="#">🚚 Dispatch</a></li>
-        <li><a href="#">👨‍💼 Team</a></li>
-        <li><a href="#">⚙️ Settings</a></li>
+        <li><a href="dashboard.html" class="active">📊 Dashboard</a></li>
+        <li><a href="orders.html">📋 Orders</a></li>
+        <li><a href="leads.html">🎯 Leads</a></li>
+        <li><a href="quotations.html">📝 Quotations</a></li>
+        <li href="invoices.html">💰 Invoices</a></li>
+        <li><a href="#coming-soon">👥 Customers</a></li>
+        <li><a href="#coming-soon">🖨️ Printing</a></li>
+        <li><a href="#coming-soon">✂️ Stitching</a></li>
+        <li><a href="#coming-soon">🎬 Execution</a></li>
+        <li><a href="#coming-soon">🚚 Dispatch</a></li>
+        <li><a href="#coming-soon">👨‍💼 Team</a></li>
+        <li><a href="#coming-soon">⚙️ Settings</a></li>
       </ul>
     </div>
 
@@ -457,13 +457,13 @@
 
   <script>
     function logout() {
-      localStorage.removeItem('prajapati_session');
+      localStorage.removeItem('prajapati_erp_session');
       window.location.href = 'login.html';
     }
 
     // Check if logged in
     window.addEventListener('load', () => {
-      const session = localStorage.getItem('prajapati_session');
+      const session = localStorage.getItem('prajapati_erp_session');
       if (!session) {
         window.location.href = 'login.html';
       }
