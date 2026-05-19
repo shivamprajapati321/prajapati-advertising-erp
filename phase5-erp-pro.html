@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prajapati ERP Pro | Phase 5</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="phase5-erp-pro.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">PA</div><div><strong>Prajapati ERP</strong><span>Web Control Center</span></div></div>
+    <nav>
+      <button class="nav active" data-view="dashboard">Dashboard</button>
+      <button class="nav" data-view="orders">Order Master</button>
+      <button class="nav" data-view="production">Production</button>
+      <button class="nav" data-view="execution">Execution</button>
+      <button class="nav" data-view="expenses">Expenses</button>
+      <button class="nav" data-view="accounting">Accounting</button>
+      <button class="nav" data-view="client">Client Portal</button>
+      <button class="nav" data-view="analytics">Profit Analytics</button>
+    </nav>
+    <div class="role-box"><label>Role Preview</label><select id="roleSelect"><option value="admin">Admin</option><option value="sales">Sales</option><option value="operation">Operation</option><option value="printing">Printing</option><option value="stitching">Stitching</option><option value="execution">Execution</option><option value="accountant">Accountant</option><option value="client">Client</option></select></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><h1 id="pageTitle">Dashboard</h1><p>Lead → Quotation → Order → Invoice → Printing → Stitching → Execution → Reporting → Payment Close</p></div><button class="primary" id="newOrderBtn">+ New Order</button></header>
+    <section id="app"></section>
+  </main>
+
+  <dialog id="orderDialog" class="modal"><form method="dialog" id="orderForm"><h2>Create Professional Order</h2><div class="grid two"><label>Client Name<input name="client" required value="Aakash Institute"></label><label>Project City<input name="city" required value="Pune"></label><label>Service<select name="service"><option>Auto Rickshaw Hood Branding</option><option>Back Panel Branding</option><option>No Parking Board</option><option>Wall Wrap</option></select></label><label>Quantity<input name="quantity" type="number" required value="500"></label><label>Client Amount<input name="amount" type="number" required value="275000"></label><label>Deadline<input name="deadline" type="date" required></label></div><menu><button value="cancel" class="ghost">Cancel</button><button class="primary" value="default">Create Order</button></menu></form></dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="phase5-erp-pro.js"></script>
+</body>
+</html>
