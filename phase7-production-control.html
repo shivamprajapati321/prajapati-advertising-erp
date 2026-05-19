@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prajapati ERP Phase 7 - Production Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="phase7-production-control.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="logo">PA</div><div><strong>Prajapati ERP</strong><span>Production Control</span></div></div>
+      <nav>
+        <a class="active" href="#dashboard">Command Center</a>
+        <a href="#orders">Order Control</a>
+        <a href="#documents">Document Center</a>
+        <a href="#client">Client Share</a>
+        <a href="#closure">Closure Checklist</a>
+        <a href="#risks">Risk Alerts</a>
+      </nav>
+      <div class="sidebar-note">Finance data is protected by role-based privacy.</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><p class="eyebrow">Phase 7</p><h1>Production Control Center</h1></div>
+        <div class="role-switch"><label>View as</label><select id="roleSelect"><option value="admin">Admin</option><option value="sales">Sales</option><option value="operation">Operation</option><option value="printing">Printing</option><option value="stitching">Stitching</option><option value="execution">Execution</option><option value="accountant">Accountant</option><option value="client">Client</option></select></div>
+      </header>
+
+      <section class="grid stats" id="dashboard"></section>
+
+      <section class="panel" id="orders">
+        <div class="panel-head"><div><p class="eyebrow">Order Master</p><h2>Live Project Status</h2></div><button onclick="openClientPreview()">Preview Client View</button></div>
+        <div class="order-card">
+          <div><h3 id="projectTitle"></h3><p id="projectMeta"></p></div>
+          <div class="progress-wrap"><div class="progress-label"><span>Overall Progress</span><strong id="overallPct"></strong></div><div class="progress"><span id="overallBar"></span></div></div>
+        </div>
+        <div class="stage-grid" id="stageGrid"></div>
+      </section>
+
+      <section class="two-col">
+        <div class="panel" id="documents">
+          <div class="panel-head"><div><p class="eyebrow">Document Center</p><h2>Files & PDFs</h2></div><button onclick="addDocument()">Add Document</button></div>
+          <div id="documentList" class="list"></div>
+        </div>
+        <div class="panel" id="risks">
+          <div class="panel-head"><div><p class="eyebrow">Risk Engine</p><h2>Delay & Issue Alerts</h2></div></div>
+          <div id="riskList" class="list"></div>
+        </div>
+      </section>
+
+      <section class="two-col">
+        <div class="panel" id="closure">
+          <div class="panel-head"><div><p class="eyebrow">Closure</p><h2>Project Close Checklist</h2></div><button onclick="markReadyToClose()">Mark Ready</button></div>
+          <div id="checklist" class="checklist"></div>
+        </div>
+        <div class="panel finance-panel" id="profitPanel">
+          <div class="panel-head"><div><p class="eyebrow">Admin / Accounts</p><h2>Profitability Snapshot</h2></div></div>
+          <div id="profitSummary"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="client">
+        <div class="panel-head"><div><p class="eyebrow">Client Portal Preview</p><h2>Client Visible Progress</h2></div><button onclick="copyShareText()">Copy Share Text</button></div>
+        <div id="clientPreview" class="client-preview"></div>
+      </section>
+    </main>
+  </div>
+  <script src="phase7-production-control.js"></script>
+</body>
+</html>
