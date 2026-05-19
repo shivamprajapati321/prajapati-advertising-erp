@@ -3,871 +3,421 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team Management - Prajapati ERP</title>
+  <title>Team - Prajapati ERP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: linear-gradient(135deg, #f0f9ff 0%, #f5f3ff 100%);
-      color: #1f2937;
-    }
-
-    .container {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    /* SIDEBAR */
-    .sidebar {
-      width: 280px;
-      background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-      color: white;
-      padding: 20px;
-      position: fixed;
-      height: 100vh;
-      overflow-y: auto;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 30px;
-      font-weight: 700;
-      font-size: 18px;
-    }
-
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #06b6d4, #fbbf24);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-
-    .nav-section {
-      margin-bottom: 25px;
-    }
-
-    .nav-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #06b6d4;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 15px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
-
-    .nav-item:hover {
-      background: rgba(6, 182, 212, 0.1);
-    }
-
-    .nav-item.active {
-      background: rgba(6, 182, 212, 0.2);
-      color: #06b6d4;
-    }
-
-    /* MAIN CONTENT */
-    .main-content {
-      margin-left: 280px;
-      flex: 1;
-      padding: 20px;
-    }
-
-    /* TOPBAR */
-    .topbar {
-      background: white;
-      padding: 20px 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .topbar-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: #06b6d4;
-    }
-
-    .topbar-subtitle {
-      font-size: 14px;
-      color: #9ca3af;
-      margin-top: 5px;
-    }
-
-    .topbar-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      font-size: 14px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #06b6d4, #0891b2);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(6, 182, 212, 0.3);
-    }
-
-    .btn-secondary {
-      background: #e0f2fe;
-      color: #06b6d4;
-    }
-
-    /* FILTERS */
-    .filters {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-    }
-
-    .filter-group {
-      display: flex;
-      gap: 10px;
-    }
-
-    .filter-input, .filter-select {
-      padding: 10px 15px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14px;
-      background: white;
-    }
-
-    .filter-input {
-      width: 300px;
-    }
-
-    .filter-select {
-      width: 150px;
-      cursor: pointer;
-    }
-
-    /* STATS */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
-    .stat-card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: #06b6d4;
-    }
-
-    .stat-label {
-      font-size: 14px;
-      color: #9ca3af;
-      margin-top: 5px;
-    }
-
-    /* STAFF TABLE */
-    .staff-table {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      overflow: hidden;
-    }
-
-    .table-header {
-      display: grid;
-      grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1.5fr 1fr;
-      gap: 15px;
-      padding: 20px;
-      background: linear-gradient(135deg, #f0f9ff, #f5f3ff);
-      font-weight: 600;
-      color: #06b6d4;
-      border-bottom: 2px solid #e0f2fe;
-    }
-
-    .table-row {
-      display: grid;
-      grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1.5fr 1fr;
-      gap: 15px;
-      padding: 20px;
-      border-bottom: 1px solid #f3f4f6;
-      align-items: center;
-      transition: all 0.3s ease;
-    }
-
-    .table-row:hover {
-      background: #fafafa;
-    }
-
-    .staff-name {
-      font-weight: 600;
-      color: #1f2937;
-    }
-
-    .staff-role {
-      font-size: 14px;
-      color: #6b7280;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .badge-admin {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .badge-manager {
-      background: #fef3c7;
-      color: #d97706;
-    }
-
-    .badge-staff {
-      background: #dcfce7;
-      color: #16a34a;
-    }
-
-    .badge-designer {
-      background: #e0e7ff;
-      color: #4f46e5;
-    }
-
-    .badge-sales {
-      background: #cffafe;
-      color: #0891b2;
-    }
-
-    .badge-active {
-      background: #d1fae5;
-      color: #059669;
-    }
-
-    .badge-inactive {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-small {
-      padding: 6px 12px;
-      font-size: 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-edit {
-      background: #bfdbfe;
-      color: #0284c7;
-    }
-
-    .btn-edit:hover {
-      background: #7dd3fc;
-    }
-
-    .btn-delete {
-      background: #fecaca;
-      color: #991b1b;
-    }
-
-    .btn-delete:hover {
-      background: #fca5a5;
-    }
-
-    /* MODAL */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .modal.show {
-      display: flex;
-    }
-
-    .modal-content {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 500px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    }
-
-    .modal-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #06b6d4;
-      margin-bottom: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #374151;
-      font-size: 14px;
-    }
-
-    .form-input, .form-select {
-      width: 100%;
-      padding: 10px 15px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14px;
-    }
-
-    .form-input:focus, .form-select:focus {
-      outline: none;
-      border-color: #06b6d4;
-      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
-    }
-
-    .modal-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 25px;
-    }
-
-    .modal-buttons button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .btn-save {
-      background: linear-gradient(135deg, #06b6d4, #0891b2);
-      color: white;
-    }
-
-    .btn-cancel {
-      background: #f3f4f6;
-      color: #374151;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-      .sidebar {
-        width: 60px;
-        padding: 10px;
-      }
-
-      .main-content {
-        margin-left: 60px;
-        padding: 15px;
-      }
-
-      .table-header, .table-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-
-      .filter-input {
-        width: 100%;
-      }
-
-      .topbar {
-        flex-direction: column;
-        gap: 15px;
-      }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --cyan: #06b6d4; --gold: #fbbf24; --dark: #0f172a; --light: #f0f9ff; --border: #e0f2fe; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--light); }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--dark); color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--cyan), var(--gold)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .sidebar-menu { list-style: none; }
+    .sidebar-menu li { margin-bottom: 10px; }
+    .sidebar-menu a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; transition: all 0.3s; font-size: 14px; }
+    .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(6,182,212,0.2); color: var(--cyan); }
+    .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: white; padding: 20px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .topbar-title { font-size: 24px; font-weight: 700; color: var(--cyan); }
+    .logout-btn { background: var(--cyan); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .logout-btn:hover { background: #0891b2; }
+    .content { padding: 30px; flex: 1; overflow-y: auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .page-header h1 { font-size: 28px; color: var(--dark); }
+    .btn-primary { background: linear-gradient(135deg, var(--cyan), #0891b2); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6,182,212,0.3); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: white; padding: 25px; border-radius: 12px; border-left: 4px solid var(--cyan); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-number { font-size: 28px; font-weight: 700; color: var(--cyan); margin-bottom: 5px; }
+    .stat-label { font-size: 13px; color: #6b7280; }
+    .filters { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .filter-group { display: flex; gap: 10px; align-items: center; }
+    .filter-group label { font-size: 13px; font-weight: 600; color: #6b7280; }
+    .filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; font-family: inherit; }
+    .table-container { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f9fafb; border-bottom: 2px solid var(--border); }
+    th { padding: 15px; text-align: left; font-weight: 600; font-size: 13px; color: #6b7280; text-transform: uppercase; }
+    td { padding: 15px; border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: #f9fafb; }
+    .role-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 11px; }
+    .role-admin { background: #fecaca; color: #991b1b; }
+    .role-manager { background: #bfdbfe; color: #1e40af; }
+    .role-supervisor { background: #fcd34d; color: #92400e; }
+    .role-staff { background: #d1fae5; color: #065f46; }
+    .status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 11px; }
+    .status-active { background: #d1fae5; color: #065f46; }
+    .status-inactive { background: #fee2e2; color: #991b1b; }
+    .action-buttons { display: flex; gap: 8px; }
+    .btn-small { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .btn-edit { background: var(--cyan); color: white; }
+    .btn-delete { background: #fee2e2; color: #991b1b; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 30px; max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .modal-header { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--dark); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 14px; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(6,182,212,0.1); }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancel { background: #f3f4f6; color: #1f2937; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    @media (max-width: 768px) { .sidebar { width: 200px; } .main { margin-left: 200px; } .form-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div class="container">
     <!-- SIDEBAR -->
     <div class="sidebar">
-      <div class="logo">
-        <div class="logo-icon">👥</div>
-        <div>PRAJAPATI</div>
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">📦</div>
+        <div style="font-size: 16px; font-weight: 700;">PRAJAPATI</div>
       </div>
-
-      <div class="nav-section">
-        <div class="nav-label">MAIN</div>
-        <div class="nav-item" onclick="goTo('dashboard.html')">📊 Dashboard</div>
-        <div class="nav-item" onclick="goTo('orders.html')">📦 Orders</div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-label">SALES</div>
-        <div class="nav-item" onclick="goTo('leads.html')">🎯 Leads CRM</div>
-        <div class="nav-item" onclick="goTo('leads-advanced.html')">🔧 Advanced Leads</div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-label">OPERATIONS</div>
-        <div class="nav-item" onclick="goTo('printing.html')">🖨️ Printing</div>
-        <div class="nav-item" onclick="goTo('stitching.html')">✂️ Stitching</div>
-        <div class="nav-item" onclick="goTo('execution.html')">🛺 Execution</div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-label">ADMIN</div>
-        <div class="nav-item active" onclick="goTo('team.html')">👥 Team</div>
-        <div class="nav-item" onclick="goTo('settings.html')">⚙️ Settings</div>
-      </div>
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html">📊 Dashboard</a></li>
+        <li><a href="orders.html">📋 Orders</a></li>
+        <li><a href="leads.html">🎯 Leads</a></li>
+        <li><a href="quotations.html">📝 Quotations</a></li>
+        <li><a href="invoices.html">💰 Invoices</a></li>
+        <li><a href="#coming">👥 Customers</a></li>
+        <li><a href="#coming">🖨️ Printing</a></li>
+        <li><a href="#coming">✂️ Stitching</a></li>
+        <li><a href="#coming">🎬 Execution</a></li>
+        <li><a href="#coming">🚚 Dispatch</a></li>
+        <li><a href="#team" class="active">👨‍💼 Team</a></li>
+        <li><a href="#coming">⚙️ Settings</a></li>
+      </ul>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-      <!-- TOPBAR -->
+    <!-- MAIN -->
+    <div class="main">
       <div class="topbar">
-        <div>
-          <div class="topbar-title">👥 Team Management</div>
-          <div class="topbar-subtitle">Manage your team members and staff</div>
-        </div>
-        <div class="topbar-actions">
-          <button class="btn btn-primary" onclick="openAddStaffModal()">+ Add Staff Member</button>
-        </div>
+        <div class="topbar-title">Team Management</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
       </div>
 
-      <!-- STATS -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value" id="total-staff">0</div>
-          <div class="stat-label">Total Staff</div>
+      <div class="content">
+        <div class="page-header">
+          <h1>👨‍💼 Team Management (38 Staff)</h1>
+          <button class="btn-primary" onclick="openModal()">+ Add Staff Member</button>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" id="active-staff">0</div>
-          <div class="stat-label">Active Members</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="avg-performance">0%</div>
-          <div class="stat-label">Avg Performance</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="total-tasks">0</div>
-          <div class="stat-label">Tasks Completed</div>
-        </div>
-      </div>
 
-      <!-- FILTERS -->
-      <div class="filters">
-        <div class="filter-group">
-          <input type="text" class="filter-input" id="search-input" placeholder="Search by name or phone...">
+        <!-- STATS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalStaff">0</div>
+            <div class="stat-label">Total Staff</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="activeCount">0</div>
+            <div class="stat-label">Active</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="deptCount">0</div>
+            <div class="stat-label">Departments</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="avgPerf">0%</div>
+            <div class="stat-label">Avg Performance</div>
+          </div>
         </div>
-        <select class="filter-select" id="role-filter">
-          <option value="">All Roles</option>
-          <option value="admin">Admin</option>
-          <option value="manager">Manager</option>
-          <option value="execution">Execution</option>
-          <option value="printing">Printing</option>
-          <option value="stitching">Stitching</option>
-          <option value="sales">Sales</option>
-          <option value="designer">Designer</option>
-          <option value="hr">HR</option>
-        </select>
-        <select class="filter-select" id="status-filter">
-          <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-      </div>
 
-      <!-- STAFF TABLE -->
-      <div class="staff-table">
-        <div class="table-header">
-          <div>Name</div>
-          <div>Role</div>
-          <div>Phone</div>
-          <div>Performance</div>
-          <div>Tasks</div>
-          <div>Status</div>
+        <!-- FILTERS -->
+        <div class="filters">
+          <div class="filter-group">
+            <label>Search:</label>
+            <input type="text" id="searchInput" placeholder="Name or phone" onkeyup="filterStaff()">
+          </div>
+          <div class="filter-group">
+            <label>Department:</label>
+            <select id="deptFilter" onchange="filterStaff()">
+              <option value="">All Departments</option>
+              <option value="Operations">Operations</option>
+              <option value="Printing">Printing</option>
+              <option value="Stitching">Stitching</option>
+              <option value="Sales">Sales</option>
+              <option value="Design">Design</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Role:</label>
+            <select id="roleFilter" onchange="filterStaff()">
+              <option value="">All Roles</option>
+              <option value="Admin">Admin</option>
+              <option value="Manager">Manager</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Staff">Staff</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Status:</label>
+            <select id="statusFilter" onchange="filterStaff()">
+              <option value="">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
         </div>
-        <div id="staff-list"></div>
+
+        <!-- TABLE -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Performance</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="staffBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ADD/EDIT MODAL -->
-  <div class="modal" id="staff-modal">
+  <!-- MODAL -->
+  <div class="modal" id="staffModal">
     <div class="modal-content">
-      <div class="modal-title" id="modal-title">Add Staff Member</div>
-      
-      <div class="form-group">
-        <label class="form-label">Name *</label>
-        <input type="text" class="form-input" id="staff-name" placeholder="Full name">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Phone *</label>
-        <input type="text" class="form-input" id="staff-phone" placeholder="Phone number">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input type="email" class="form-input" id="staff-email" placeholder="Email address">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Role *</label>
-        <select class="form-select" id="staff-role">
-          <option value="">Select Role</option>
-          <option value="admin">Admin</option>
-          <option value="manager">Manager</option>
-          <option value="execution">Execution</option>
-          <option value="printing">Printing</option>
-          <option value="stitching">Stitching</option>
-          <option value="sales">Sales</option>
-          <option value="designer">Designer</option>
-          <option value="hr">HR</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Status *</label>
-        <select class="form-select" id="staff-status">
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Performance Score (0-100)</label>
-        <input type="number" class="form-input" id="staff-performance" placeholder="0" min="0" max="100">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" style="margin-bottom: 15px;">Module Access Permissions</label>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: #f9fafb; border-radius: 8px;">
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="orders" checked>
-            <span style="font-size: 14px;">📦 Orders</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="leads" checked>
-            <span style="font-size: 14px;">🎯 Leads</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="quotations" checked>
-            <span style="font-size: 14px;">📝 Quotations</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="invoices" checked>
-            <span style="font-size: 14px;">💰 Invoices</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="customers" checked>
-            <span style="font-size: 14px;">👥 Customers</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="printing" checked>
-            <span style="font-size: 14px;">🖨️ Printing</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="stitching" checked>
-            <span style="font-size: 14px;">✂️ Stitching</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="execution" checked>
-            <span style="font-size: 14px;">🛺 Execution</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="reports">
-            <span style="font-size: 14px;">📊 Reports</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="analytics" checked>
-            <span style="font-size: 14px;">📈 Analytics</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="team">
-            <span style="font-size: 14px;">👨‍💼 Team Management</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="access-check" value="settings">
-            <span style="font-size: 14px;">⚙️ Settings</span>
-          </label>
+      <div class="modal-header" id="modalTitle">Add Staff Member</div>
+      <form id="staffForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="staffName" required>
+          </div>
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="tel" id="staffPhone" required>
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="staffEmail" required>
+          </div>
+          <div class="form-group">
+            <label>Role *</label>
+            <select id="staffRole" required>
+              <option value="">Select Role</option>
+              <option value="Admin">Admin</option>
+              <option value="Manager">Manager</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Staff">Staff</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Department *</label>
+            <select id="staffDept" required>
+              <option value="">Select Department</option>
+              <option value="Operations">Operations</option>
+              <option value="Printing">Printing</option>
+              <option value="Stitching">Stitching</option>
+              <option value="Sales">Sales</option>
+              <option value="Design">Design</option>
+              <option value="HR">HR</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status *</label>
+            <select id="staffStatus" required>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="On Leave">On Leave</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Performance (0-100)</label>
+            <input type="number" id="staffPerf" min="0" max="100" value="80">
+          </div>
+          <div class="form-group">
+            <label>Tasks Completed</label>
+            <input type="number" id="staffTasks" min="0" value="0">
+          </div>
         </div>
-      </div>
-
-      <div class="modal-buttons">
-        <button class="btn-save" onclick="saveStaff()">Save</button>
-        <button class="btn-cancel" onclick="closeStaffModal()">Cancel</button>
-      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Staff</button>
+        </div>
+      </form>
     </div>
   </div>
-
-  <script src="lib-config.js"></script>
-  <script src="lib-auth.js"></script>
 
   <script>
-    // Check authentication
-    const session = AUTH.requireLogin();
-    if (!session) {
+    // 38 STAFF MEMBERS - PRAJAPATI TEAM
+    let staff = [
+      { id: 1, name: 'Shivam Prajapati', phone: '+91-8484038138', email: 'shivam@prajapati.com', role: 'Admin', dept: 'Operations', status: 'Active', perf: 95, tasks: 450 },
+      { id: 2, name: 'Ravi Kumar', phone: '+91-9876543210', email: 'ravi@prajapati.com', role: 'Manager', dept: 'Operations', status: 'Active', perf: 88, tasks: 320 },
+      { id: 3, name: 'Vivek Kumar', phone: '+91-9876543211', email: 'vivek@prajapati.com', role: 'Manager', dept: 'Printing', status: 'Active', perf: 85, tasks: 280 },
+      { id: 4, name: 'Rekha Prajapati', phone: '+91-9876543212', email: 'rekha@prajapati.com', role: 'Manager', dept: 'Stitching', status: 'Active', perf: 90, tasks: 300 },
+      { id: 5, name: 'Rajendra Yelwande', phone: '+91-9876543213', email: 'rajendra@prajapati.com', role: 'Manager', dept: 'Sales', status: 'Active', perf: 87, tasks: 250 },
+      { id: 6, name: 'Mahima', phone: '+91-9876543214', email: 'mahima@prajapati.com', role: 'Supervisor', dept: 'Design', status: 'Active', perf: 92, tasks: 180 },
+      { id: 7, name: 'Sushant Kadam', phone: '+91-9876543215', email: 'sushant@prajapati.com', role: 'Supervisor', dept: 'Design', status: 'Active', perf: 89, tasks: 175 },
+      { id: 8, name: 'Anurag Gautam', phone: '+91-9876543216', email: 'anurag@prajapati.com', role: 'Supervisor', dept: 'Printing', status: 'Active', perf: 84, tasks: 200 },
+      { id: 9, name: 'Ranjit Gautam', phone: '+91-9876543217', email: 'ranjit@prajapati.com', role: 'Supervisor', dept: 'Printing', status: 'Active', perf: 83, tasks: 195 },
+      { id: 10, name: 'Nisha Saini', phone: '+91-9876543218', email: 'nisha@prajapati.com', role: 'Supervisor', dept: 'Sales', status: 'Active', perf: 91, tasks: 160 },
+      { id: 11, name: 'Shamali Bodhe', phone: '+91-9876543219', email: 'shamali@prajapati.com', role: 'Supervisor', dept: 'Sales', status: 'Active', perf: 86, tasks: 155 },
+      { id: 12, name: 'Md Dulare', phone: '+91-9876543220', email: 'dulare@prajapati.com', role: 'Supervisor', dept: 'Stitching', status: 'Active', perf: 88, tasks: 185 },
+      { id: 13, name: 'Abbas', phone: '+91-9876543221', email: 'abbas@prajapati.com', role: 'Staff', dept: 'Operations', status: 'Active', perf: 78, tasks: 120 },
+      { id: 14, name: 'Adarsh', phone: '+91-9876543222', email: 'adarsh@prajapati.com', role: 'Staff', dept: 'Operations', status: 'Active', perf: 80, tasks: 125 },
+      { id: 15, name: 'Akash', phone: '+91-9876543223', email: 'akash@prajapati.com', role: 'Staff', dept: 'Operations', status: 'Active', perf: 79, tasks: 122 },
+      { id: 16, name: 'Ajay', phone: '+91-9876543224', email: 'ajay@prajapati.com', role: 'Staff', dept: 'Operations', status: 'Active', perf: 81, tasks: 128 },
+      { id: 17, name: 'Ankit', phone: '+91-9876543225', email: 'ankit@prajapati.com', role: 'Staff', dept: 'Printing', status: 'Active', perf: 77, tasks: 115 },
+      { id: 18, name: 'Amit', phone: '+91-9876543226', email: 'amit@prajapati.com', role: 'Staff', dept: 'Printing', status: 'Active', perf: 76, tasks: 112 },
+      { id: 19, name: 'Arjun', phone: '+91-9876543227', email: 'arjun@prajapati.com', role: 'Staff', dept: 'Printing', status: 'Active', perf: 78, tasks: 118 },
+      { id: 20, name: 'Ashok', phone: '+91-9876543228', email: 'ashok@prajapati.com', role: 'Staff', dept: 'Printing', status: 'Active', perf: 75, tasks: 110 },
+      { id: 21, name: 'Rohan', phone: '+91-9876543229', email: 'rohan@prajapati.com', role: 'Staff', dept: 'Stitching', status: 'Active', perf: 82, tasks: 130 },
+      { id: 22, name: 'Rahul', phone: '+91-9876543230', email: 'rahul@prajapati.com', role: 'Staff', dept: 'Stitching', status: 'Active', perf: 80, tasks: 125 },
+      { id: 23, name: 'Ravi', phone: '+91-9876543231', email: 'ravi2@prajapati.com', role: 'Staff', dept: 'Stitching', status: 'Active', perf: 79, tasks: 122 },
+      { id: 24, name: 'Rajesh', phone: '+91-9876543232', email: 'rajesh@prajapati.com', role: 'Staff', dept: 'Stitching', status: 'Active', perf: 81, tasks: 128 },
+      { id: 25, name: 'Ramesh', phone: '+91-9876543233', email: 'ramesh@prajapati.com', role: 'Staff', dept: 'Stitching', status: 'Active', perf: 78, tasks: 120 },
+      { id: 26, name: 'Priya Sharma', phone: '+91-9876543234', email: 'priya@prajapati.com', role: 'Staff', dept: 'Sales', status: 'Active', perf: 85, tasks: 135 },
+      { id: 27, name: 'Preeti Singh', phone: '+91-9876543235', email: 'preeti@prajapati.com', role: 'Staff', dept: 'Sales', status: 'Active', perf: 84, tasks: 132 },
+      { id: 28, name: 'Pooja Patel', phone: '+91-9876543236', email: 'pooja@prajapati.com', role: 'Staff', dept: 'Sales', status: 'Active', perf: 83, tasks: 130 },
+      { id: 29, name: 'Pallavi Desai', phone: '+91-9876543237', email: 'pallavi@prajapati.com', role: 'Staff', dept: 'Sales', status: 'Active', perf: 82, tasks: 128 },
+      { id: 30, name: 'Payal Khanna', phone: '+91-9876543238', email: 'payal@prajapati.com', role: 'Staff', dept: 'Sales', status: 'Active', perf: 81, tasks: 125 },
+      { id: 31, name: 'Vikrant Kumar', phone: '+91-9876543239', email: 'vikrant@prajapati.com', role: 'Staff', dept: 'Operations', status: 'Active', perf: 80, tasks: 125 },
+      { id: 32, name: 'Vinay Singh', phone: '+91-9876543240', email: 'vinay@prajapati.com', role: 'Staff', dept: 'Operations', status: 'Active', perf: 79, tasks: 122 },
+      { id: 33, name: 'Varun Patel', phone: '+91-9876543241', email: 'varun@prajapati.com', role: 'Staff', dept: 'Operations', status: 'Active', perf: 78, tasks: 120 },
+      { id: 34, name: 'Vishal Desai', phone: '+91-9876543242', email: 'vishal@prajapati.com', role: 'Staff', dept: 'Operations', status: 'Active', perf: 77, tasks: 118 },
+      { id: 35, name: 'Vipul Joshi', phone: '+91-9876543243', email: 'vipul@prajapati.com', role: 'Staff', dept: 'Design', status: 'Active', perf: 88, tasks: 140 },
+      { id: 36, name: 'Vishal Gupta', phone: '+91-9876543244', email: 'vishal.g@prajapati.com', role: 'Staff', dept: 'Design', status: 'Active', perf: 87, tasks: 138 },
+      { id: 37, name: 'Vikas Rao', phone: '+91-9876543245', email: 'vikas@prajapati.com', role: 'Staff', dept: 'Operations', status: 'Inactive', perf: 0, tasks: 0 },
+      { id: 38, name: 'Vikram Singh', phone: '+91-9876543246', email: 'vikram@prajapati.com', role: 'Staff', dept: 'Operations', status: 'On Leave', perf: 80, tasks: 120 },
+    ];
+
+    window.addEventListener('load', () => {
+      const session = localStorage.getItem('prajapati_erp_session');
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      displayStaff(staff);
+      updateStats();
+    });
+
+    function displayStaff(data) {
+      const tbody = document.getElementById('staffBody');
+      tbody.innerHTML = data.map(s => `
+        <tr>
+          <td><strong>${s.name}</strong></td>
+          <td>${s.phone}</td>
+          <td>${s.email}</td>
+          <td><span class="role-badge role-${s.role.toLowerCase()}">${s.role}</span></td>
+          <td>${s.dept}</td>
+          <td>${s.perf}%</td>
+          <td><span class="status-badge status-${s.status.toLowerCase()}">${s.status}</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-small btn-edit" onclick="editStaff(${s.id})">Edit</button>
+              <button class="btn-small btn-delete" onclick="deleteStaff(${s.id})">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updateStats() {
+      document.getElementById('totalStaff').textContent = staff.length;
+      document.getElementById('activeCount').textContent = staff.filter(s => s.status === 'Active').length;
+      const depts = new Set(staff.map(s => s.dept));
+      document.getElementById('deptCount').textContent = depts.size;
+      const avgPerf = Math.round(staff.reduce((a, b) => a + b.perf, 0) / staff.length);
+      document.getElementById('avgPerf').textContent = avgPerf + '%';
+    }
+
+    function filterStaff() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const dept = document.getElementById('deptFilter').value;
+      const role = document.getElementById('roleFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      const filtered = staff.filter(s => {
+        const matchSearch = s.name.toLowerCase().includes(search) || s.phone.includes(search);
+        const matchDept = !dept || s.dept === dept;
+        const matchRole = !role || s.role === role;
+        const matchStatus = !status || s.status === status;
+        return matchSearch && matchDept && matchRole && matchStatus;
+      });
+
+      displayStaff(filtered);
+    }
+
+    function openModal() {
+      document.getElementById('modalTitle').textContent = 'Add Staff Member';
+      document.getElementById('staffForm').reset();
+      document.getElementById('staffForm').dataset.id = '';
+      document.getElementById('staffModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('staffModal').classList.remove('active');
+    }
+
+    function editStaff(id) {
+      const s = staff.find(x => x.id === id);
+      if (!s) return;
+      document.getElementById('modalTitle').textContent = 'Edit Staff Member';
+      document.getElementById('staffName').value = s.name;
+      document.getElementById('staffPhone').value = s.phone;
+      document.getElementById('staffEmail').value = s.email;
+      document.getElementById('staffRole').value = s.role;
+      document.getElementById('staffDept').value = s.dept;
+      document.getElementById('staffStatus').value = s.status;
+      document.getElementById('staffPerf').value = s.perf;
+      document.getElementById('staffTasks').value = s.tasks;
+      document.getElementById('staffForm').dataset.id = id;
+      document.getElementById('staffModal').classList.add('active');
+    }
+
+    function deleteStaff(id) {
+      if (confirm('Are you sure you want to delete this staff member?')) {
+        staff = staff.filter(s => s.id !== id);
+        displayStaff(staff);
+        updateStats();
+      }
+    }
+
+    document.getElementById('staffForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('staffForm').dataset.id;
+      const data = {
+        name: document.getElementById('staffName').value,
+        phone: document.getElementById('staffPhone').value,
+        email: document.getElementById('staffEmail').value,
+        role: document.getElementById('staffRole').value,
+        dept: document.getElementById('staffDept').value,
+        status: document.getElementById('staffStatus').value,
+        perf: parseInt(document.getElementById('staffPerf').value),
+        tasks: parseInt(document.getElementById('staffTasks').value),
+      };
+
+      if (id) {
+        const s = staff.find(x => x.id === parseInt(id));
+        if (s) Object.assign(s, data);
+      } else {
+        staff.push({ id: Math.max(...staff.map(s => s.id)) + 1, ...data });
+      }
+
+      displayStaff(staff);
+      updateStats();
+      closeModal();
+    });
+
+    function logout() {
+      localStorage.removeItem('prajapati_erp_session');
       window.location.href = 'login.html';
     }
 
-    const SUPABASE_URL = 'https://shafygjbffffjhwhmcgo.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE';
-    
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let staffDatabase = [];
-    let editingId = null;
-
-    // SAMPLE DATA (will replace with real database)
-    const sampleStaff = [
-      { id: 1, name: 'Shivam Prajapati', phone: '+91-8484038138', email: 'shivam@prajapati.com', role: 'admin', status: 'active', performance: 95, tasks: 150 },
-      { id: 2, name: 'Ravi Kumar', phone: '+91-9876543210', email: 'ravi@prajapati.com', role: 'manager', status: 'active', performance: 87, tasks: 120 },
-      { id: 3, name: 'Rekha Prajapati', phone: '+91-8765432109', email: 'rekha@prajapati.com', role: 'stitching', status: 'active', performance: 83, tasks: 98 },
-      { id: 4, name: 'Anurag Gautam', phone: '+91-7654321098', email: 'anurag@prajapati.com', role: 'printing', status: 'active', performance: 93, tasks: 145 },
-      { id: 5, name: 'Vivek Kumar', phone: '+91-6543210987', email: 'vivek@prajapati.com', role: 'execution', status: 'active', performance: 89, tasks: 167 },
-      { id: 6, name: 'Nisha Saini', phone: '+91-5432109876', email: 'nisha@prajapati.com', role: 'sales', status: 'active', performance: 91, tasks: 110 },
-      { id: 7, name: 'Mahima', phone: '+91-4321098765', email: 'mahima@prajapati.com', role: 'designer', status: 'active', performance: 88, tasks: 95 },
-      { id: 8, name: 'Rajendra Yelwande', phone: '+91-3210987654', email: 'rajendra@prajapati.com', role: 'hr', status: 'active', performance: 86, tasks: 78 },
-    ];
-
-    // Load staff
-    async function loadStaff() {
-      try {
-        // Try to fetch from database
-        const { data, error } = await supabaseClient
-          .from('prajapati_staff')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error && error.code === 'PGRST116') {
-          // Table doesn't exist, use sample data
-          console.log('Using sample staff data');
-          staffDatabase = sampleStaff;
-        } else if (data) {
-          staffDatabase = data;
-        } else {
-          staffDatabase = sampleStaff;
-        }
-        
-        renderStaff(staffDatabase);
-        updateStats();
-      } catch (err) {
-        console.error('Error:', err);
-        staffDatabase = sampleStaff;
-        renderStaff(staffDatabase);
-        updateStats();
-      }
-    }
-
-    // Render staff table
-    function renderStaff(staff) {
-      let html = '';
-      
-      staff.forEach(member => {
-        const roleBadgeClass = `badge-${member.role || 'staff'}`;
-        const statusBadgeClass = `badge-${member.status || 'active'}`;
-        
-        html += `
-          <div class="table-row">
-            <div>
-              <div class="staff-name">${member.name}</div>
-              <div class="staff-role">${member.email || 'N/A'}</div>
-            </div>
-            <div><span class="badge ${roleBadgeClass}">${(member.role || 'Staff').toUpperCase()}</span></div>
-            <div>${member.phone || 'N/A'}</div>
-            <div>${member.performance || 0}%</div>
-            <div>${member.tasks || 0}</div>
-            <div><span class="badge ${statusBadgeClass}">${(member.status || 'Active').toUpperCase()}</span></div>
-          </div>
-        `;
-      });
-
-      document.getElementById('staff-list').innerHTML = html || '<div style="padding:40px;text-align:center;color:#9ca3af;">No staff members found</div>';
-    }
-
-    // Update statistics
-    function updateStats() {
-      const total = staffDatabase.length;
-      const active = staffDatabase.filter(s => s.status === 'active').length;
-      const avgPerf = Math.round(staffDatabase.reduce((sum, s) => sum + (s.performance || 0), 0) / total) || 0;
-      const totalTasks = staffDatabase.reduce((sum, s) => sum + (s.tasks || 0), 0);
-
-      document.getElementById('total-staff').textContent = total;
-      document.getElementById('active-staff').textContent = active;
-      document.getElementById('avg-performance').textContent = avgPerf + '%';
-      document.getElementById('total-tasks').textContent = totalTasks;
-    }
-
-    // Open add modal
-    function openAddStaffModal() {
-      editingId = null;
-      document.getElementById('modal-title').textContent = 'Add Staff Member';
-      document.getElementById('staff-name').value = '';
-      document.getElementById('staff-phone').value = '';
-      document.getElementById('staff-email').value = '';
-      document.getElementById('staff-role').value = '';
-      document.getElementById('staff-status').value = 'active';
-      document.getElementById('staff-performance').value = '0';
-      
-      // Check all permissions by default for new members
-      document.querySelectorAll('.access-check').forEach(check => {
-        check.checked = !['team', 'settings', 'reports'].includes(check.value);
-      });
-      
-      document.getElementById('staff-modal').classList.add('show');
-    }
-
-    // Close modal
-    function closeStaffModal() {
-      document.getElementById('staff-modal').classList.remove('show');
-      editingId = null;
-    }
-
-    // Save staff
-    function saveStaff() {
-      const name = document.getElementById('staff-name').value;
-      const phone = document.getElementById('staff-phone').value;
-      const email = document.getElementById('staff-email').value;
-      const role = document.getElementById('staff-role').value;
-      const status = document.getElementById('staff-status').value;
-      const performance = parseInt(document.getElementById('staff-performance').value) || 0;
-
-      if (!name || !phone || !role) {
-        alert('❌ Please fill all required fields!');
-        return;
-      }
-
-      // Get selected access permissions
-      const accessChecks = document.querySelectorAll('.access-check');
-      const access = {};
-      accessChecks.forEach(check => {
-        access[check.value] = check.checked;
-      });
-
-      const newMember = {
-        id: editingId || Date.now(),
-        name, phone, email, role, status, performance,
-        access: access,
-        tasks: editingId ? (staffDatabase.find(s => s.id === editingId)?.tasks || 0) : 0,
-        createdAt: new Date().toISOString()
-      };
-
-      if (editingId) {
-        const index = staffDatabase.findIndex(s => s.id === editingId);
-        staffDatabase[index] = newMember;
-      } else {
-        staffDatabase.push(newMember);
-      }
-
-      renderStaff(staffDatabase);
-      updateStats();
-      closeStaffModal();
-      console.log('✅ Staff member saved with access permissions!', newMember);
-      alert(`✅ ${name} saved with ${Object.values(access).filter(Boolean).length} module permissions!`);
-    }
-
-    // Search functionality
-    document.getElementById('search-input').addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
-      const filtered = staffDatabase.filter(s =>
-        s.name.toLowerCase().includes(query) ||
-        s.phone.includes(query)
-      );
-      renderStaff(filtered);
-    });
-
-    // Role filter
-    document.getElementById('role-filter').addEventListener('change', (e) => {
-      const role = e.target.value;
-      const filtered = role ? 
-        staffDatabase.filter(s => s.role === role) : 
-        staffDatabase;
-      renderStaff(filtered);
-    });
-
-    // Status filter
-    document.getElementById('status-filter').addEventListener('change', (e) => {
-      const status = e.target.value;
-      const filtered = status ? 
-        staffDatabase.filter(s => s.status === status) : 
-        staffDatabase;
-      renderStaff(filtered);
-    });
-
-    // Navigation
-    function goTo(page) {
-      window.location.href = page;
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      loadStaff();
-    });
-
-    // Close modal on background click
-    document.getElementById('staff-modal').addEventListener('click', (e) => {
-      if (e.target.id === 'staff-modal') {
-        closeStaffModal();
-      }
+    document.getElementById('staffModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('staffModal')) closeModal();
     });
   </script>
 </body>

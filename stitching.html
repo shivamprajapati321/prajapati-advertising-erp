@@ -1,470 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Stitching · Prajapati ERP</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css">
-<style>
-.role-tabs.stitch .role-tab.active { background: var(--stitch); color: white; }
-.role-tabs.stitch .role-tab:hover { color: var(--stitch); }
-.role-tabs.stitch .role-tab.active:hover { color: white; }
-.btn.primary.stitch { background: var(--stitch); }
-.btn.primary.stitch:hover { background: #DB2777; box-shadow: 0 8px 18px rgba(236,72,153,0.3); }
-
-.bulk-card {
-  background: var(--white); border: 1px solid var(--line);
-  border-radius: 16px; padding: 28px; margin-bottom: 24px;
-  position: relative; overflow: hidden;
-}
-.bulk-card::before {
-  content: ''; position: absolute; top: 0; left: 0;
-  width: 100%; height: 4px;
-  background: linear-gradient(90deg, var(--stitch), #F472B6);
-}
-
-.bulk-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
-.bulk-head h2 { font-size: 22px; font-weight: 800; color: var(--nav); display: inline-flex; align-items: center; gap: 12px; }
-.bulk-head h2 .icon-bg {
-  width: 40px; height: 40px; border-radius: 10px;
-  background: var(--stitch-soft); color: var(--stitch);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-}
-.bulk-total {
-  background: linear-gradient(135deg, var(--stitch-soft), #FFE4F1);
-  border: 1px solid var(--stitch);
-  padding: 10px 18px; border-radius: 10px;
-  display: flex; align-items: center; gap: 8px;
-}
-.bulk-total .lbl { font-size: 11px; font-weight: 700; color: var(--stitch); letter-spacing: 0.05em; text-transform: uppercase; }
-.bulk-total .val { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; color: var(--ink); }
-
-.bulk-top { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 18px; }
-@media (max-width: 760px) { .bulk-top { grid-template-columns: 1fr; } }
-
-.form-field input:focus, .form-field select:focus { border-color: var(--stitch)!important; box-shadow: 0 0 0 3px rgba(236,72,153,0.1)!important; }
-
-.type-toggle-bar {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 16px; background: var(--soft);
-  border-radius: 10px; margin-bottom: 18px; flex-wrap: wrap;
-}
-.type-toggle-bar .lbl { font-size: 12px; font-weight: 700; color: var(--ink-2); }
-.type-btn {
-  padding: 8px 16px; border-radius: 8px;
-  font-size: 12px; font-weight: 700;
-  display: inline-flex; align-items: center; gap: 6px;
-  cursor: pointer; border: 1px solid var(--line);
-  background: var(--white); color: var(--mute);
-  transition: all 0.15s;
-}
-.type-btn:hover { transform: translateY(-1px); }
-.type-btn.regular.active { background: var(--green); color: white; border-color: var(--green); }
-.type-btn.ot.active { background: var(--amber); color: white; border-color: var(--amber); }
-.type-toggle-bar .helper { font-size: 11px; color: var(--mute); margin-left: auto; }
-
-.bulk-table-wrap {
-  background: var(--white); border: 1px solid var(--line);
-  border-radius: 12px; overflow: hidden; margin-bottom: 18px; overflow-x: auto;
-}
-.bulk-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
-.bulk-table thead th {
-  text-align: left; padding: 12px;
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 0.05em; text-transform: uppercase;
-  color: var(--mute); background: var(--soft);
-  border-bottom: 1px solid var(--line); white-space: nowrap;
-}
-.bulk-table thead th.center { text-align: center; }
-.bulk-table thead th.right { text-align: right; }
-.bulk-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
-.bulk-table tbody tr:last-child td { border-bottom: none; }
-.bulk-table tbody tr:hover td { background: rgba(236,72,153,0.04); }
-.bulk-table .row-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--mute); text-align: center; width: 36px; }
-.bulk-table input, .bulk-table select {
-  padding: 8px 10px; background: var(--white);
-  border: 1px solid var(--line); border-radius: 7px;
-  font-size: 13px; font-weight: 600; color: var(--ink);
-  width: 100%;
-}
-.bulk-table input:focus, .bulk-table select:focus { outline: none; border-color: var(--stitch); }
-.bulk-table input.qty { font-family: 'JetBrains Mono', monospace; font-weight: 800; text-align: center; width: 70px; }
-.bulk-table input.amount { font-family: 'JetBrains Mono', monospace; font-weight: 800; text-align: right; width: 90px; background: var(--soft); }
-
-.bulk-table .type-mini {
-  display: inline-flex; padding: 5px 12px; border-radius: 6px;
-  font-size: 10px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
-  cursor: pointer; user-select: none; border: 1px solid transparent;
-  transition: all 0.15s; align-items: center; gap: 4px;
-}
-.bulk-table .type-mini:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-.type-mini.regular { background: var(--green-soft); color: var(--green-dk); border-color: var(--green); }
-.type-mini.ot { background: var(--amber-soft); color: var(--amber); border-color: var(--amber); }
-.type-mini::before { content: '🔄'; font-size: 9px; opacity: 0.6; }
-
-.bulk-actions { display: flex; gap: 10px; margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
-.bulk-actions .btn { padding: 13px 20px; font-size: 14px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stitching - Prajapati ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --cyan: #06b6d4; --gold: #fbbf24; --dark: #0f172a; --light: #f0f9ff; --border: #e0f2fe; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--light); }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--dark); color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--cyan), var(--gold)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .sidebar-menu { list-style: none; }
+    .sidebar-menu li { margin-bottom: 10px; }
+    .sidebar-menu a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; transition: all 0.3s; font-size: 14px; }
+    .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(6,182,212,0.2); color: var(--cyan); }
+    .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: white; padding: 20px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .topbar-title { font-size: 24px; font-weight: 700; color: var(--cyan); }
+    .logout-btn { background: var(--cyan); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .logout-btn:hover { background: #0891b2; }
+    .content { padding: 30px; flex: 1; overflow-y: auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .page-header h1 { font-size: 28px; color: var(--dark); }
+    .btn-primary { background: linear-gradient(135deg, var(--cyan), #0891b2); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6,182,212,0.3); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: white; padding: 25px; border-radius: 12px; border-left: 4px solid var(--cyan); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-number { font-size: 28px; font-weight: 700; color: var(--cyan); margin-bottom: 5px; }
+    .stat-label { font-size: 13px; color: #6b7280; }
+    .filters { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .filter-group { display: flex; gap: 10px; align-items: center; }
+    .filter-group label { font-size: 13px; font-weight: 600; color: #6b7280; }
+    .filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; font-family: inherit; }
+    .table-container { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f9fafb; border-bottom: 2px solid var(--border); }
+    th { padding: 15px; text-align: left; font-weight: 600; font-size: 13px; color: #6b7280; text-transform: uppercase; }
+    td { padding: 15px; border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: #f9fafb; }
+    .status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 11px; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-progress { background: #dbeafe; color: #1e40af; }
+    .status-qc { background: #f3e8ff; color: #6b21a8; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .quality-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 11px; }
+    .quality-pass { background: #d1fae5; color: #065f46; }
+    .quality-fail { background: #fee2e2; color: #991b1b; }
+    .quality-pending { background: #e5e7eb; color: #374151; }
+    .progress-bar { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--cyan); }
+    .btn-small { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .btn-edit { background: var(--cyan); color: white; }
+    .btn-delete { background: #fee2e2; color: #991b1b; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 30px; max-width: 700px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .modal-header { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--dark); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 14px; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(6,182,212,0.1); }
+    .form-group-full { grid-column: 1 / -1; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancel { background: #f3f4f6; color: #1f2937; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    @media (max-width: 768px) { .sidebar { width: 200px; } .main { margin-left: 200px; } .form-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-
-<div class="app-layout">
-
-  <aside class="sidebar" id="sidebar"></aside>
-
-  <main class="main">
-
-    <header class="topbar" id="topbar"></header>
-
-    <div class="page">
-
-      <div class="page-head">
-        <div>
-          <h1 class="page-title">Stitching <em style="color:var(--stitch)">Department</em></h1>
-          <div class="page-sub">Bulk entry · 7 masters · ₹15 regular / ₹20 OT</div>
-        </div>
+  <div class="container">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">📦</div>
+        <div style="font-size: 16px; font-weight: 700;">PRAJAPATI</div>
       </div>
-
-      <div class="role-tabs stitch">
-        <button class="role-tab active" data-view="bulk">📝 Bulk Entry</button>
-        <button class="role-tab" data-view="dashboard">📊 Manager Dashboard</button>
-      </div>
-
-      <div class="stats-row">
-        <div class="stat-mini"><div class="label">Today's PCS</div><div class="num" id="stat-today">—</div></div>
-        <div class="stat-mini"><div class="label">Today's ₹</div><div class="num" id="stat-amt">—</div></div>
-        <div class="stat-mini"><div class="label">Active Masters</div><div class="num">7</div></div>
-        <div class="stat-mini"><div class="label">This Week</div><div class="num" id="stat-week">—</div></div>
-        <div class="stat-mini"><div class="label">Outstanding</div><div class="num" id="stat-pending">—</div></div>
-      </div>
-
-      <!-- VIEW 1: BULK ENTRY -->
-      <div class="view-section active" data-view="bulk">
-
-        <div class="bulk-card">
-          <div class="bulk-head">
-            <h2><div class="icon-bg">✂️</div> Bulk Stitch Entry</h2>
-            <div class="bulk-total">
-              <span class="lbl">Total:</span>
-              <span class="val" id="bulk-total">₹0</span>
-            </div>
-          </div>
-
-          <div class="bulk-top">
-            <div class="form-field">
-              <label>Work Order *</label>
-              <select id="bulk-order" required>
-                <option value="">— Select Order —</option>
-              </select>
-            </div>
-            <div class="form-field">
-              <label>Default Date</label>
-              <input type="date" id="bulk-date" value="">
-            </div>
-          </div>
-
-          <div class="type-toggle-bar">
-            <span class="lbl">Bulk apply:</span>
-            <button class="type-btn regular active" onclick="applyBulkType('regular')">🟢 All Regular</button>
-            <button class="type-btn ot" onclick="applyBulkType('ot')">🟡 All OT</button>
-            <span class="helper">💡 Ya neeche table mein <strong>Regular/OT badge</strong> click karke per-row toggle karo</span>
-          </div>
-
-          <div class="bulk-table-wrap">
-            <table class="bulk-table">
-              <thead>
-                <tr>
-                  <th class="center">#</th>
-                  <th>Master *</th>
-                  <th>Location</th>
-                  <th class="center">Qty *</th>
-                  <th>Date</th>
-                  <th>Type 👆</th>
-                  <th class="right">₹ Amt</th>
-                </tr>
-              </thead>
-              <tbody id="bulk-tbody">
-                <!-- Rows generated dynamically -->
-              </tbody>
-            </table>
-          </div>
-
-          <div class="bulk-actions">
-            <button type="button" class="btn ghost" style="flex:1" onclick="resetBulk()">🔄 Reset</button>
-            <button type="button" id="submit-btn" class="btn primary stitch" style="flex:2" onclick="submitBulk()">
-              ✨ Sab Submit Karo (0 entries · ₹0)
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- VIEW 2: MANAGER DASHBOARD -->
-      <div class="view-section" data-view="dashboard">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title">All <em style="color:var(--stitch)">Stitch Entries</em></div>
-            <button class="btn ghost" style="padding:6px 12px;font-size:11px" onclick="loadManager()">🔄 Refresh</button>
-          </div>
-          <div id="manager-list">
-            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
-          </div>
-        </div>
-      </div>
-
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html">📊 Dashboard</a></li>
+        <li><a href="orders.html">📋 Orders</a></li>
+        <li><a href="leads.html">🎯 Leads</a></li>
+        <li><a href="quotations.html">📝 Quotations</a></li>
+        <li><a href="invoices.html">💰 Invoices</a></li>
+        <li><a href="customers.html">👥 Customers</a></li>
+        <li><a href="printing.html">🖨️ Printing</a></li>
+        <li><a href="#stitching" class="active">✂️ Stitching</a></li>
+        <li><a href="#coming">🎬 Execution</a></li>
+        <li><a href="#coming">🚚 Dispatch</a></li>
+        <li><a href="team.html">👨‍💼 Team</a></li>
+        <li><a href="#coming">⚙️ Settings</a></li>
+      </ul>
     </div>
-  </main>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="lib-config.js"></script>
-<script src="lib-auth.js"></script>
-<script src="lib-ui.js"></script>
-<script>
-const session = AUTH.requireModule('stitching');
-if (!session) throw new Error('Not logged in');
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title">Stitching</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
 
-document.getElementById('sidebar').innerHTML = UI.renderSidebar('stitching');
-document.getElementById('topbar').innerHTML = UI.renderTopbar('Stitching', { searchPlaceholder: 'Search master, order, location...' });
+      <div class="content">
+        <div class="page-header">
+          <h1>✂️ Stitching Work Allocation</h1>
+          <button class="btn-primary" onclick="openModal()">+ Allocate Work</button>
+        </div>
 
-document.getElementById('bulk-date').value = new Date().toISOString().slice(0, 10);
+        <!-- STATS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalWorks">0</div>
+            <div class="stat-label">Total Works</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="pendingWorks">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="inProgressWorks">0</div>
+            <div class="stat-label">In Progress</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="completedWorks">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
 
-let masters = [];
-let orders = [];
+        <!-- FILTERS -->
+        <div class="filters">
+          <div class="filter-group">
+            <label>Search:</label>
+            <input type="text" id="searchInput" placeholder="Job ID or assigned staff" onkeyup="filterWorks()">
+          </div>
+          <div class="filter-group">
+            <label>Status:</label>
+            <select id="statusFilter" onchange="filterWorks()">
+              <option value="">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="QC">QC Check</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>QC Status:</label>
+            <select id="qcFilter" onchange="filterWorks()">
+              <option value="">All QC</option>
+              <option value="Pass">Pass</option>
+              <option value="Fail">Fail</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </div>
+        </div>
 
-async function loadMasters() {
-  const { data } = await sb()
-    .from('prajapati_stitching_masters')
-    .select('*')
-    .eq('status', 'active')
-    .order('master_id');
-  masters = data || [];
-  buildBulkRows();
-}
+        <!-- TABLE -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Job ID</th>
+                <th>Items</th>
+                <th>Assigned To</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>QC Check</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="worksBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
-async function loadOrders() {
-  const { data } = await sb()
-    .from('prajapati_work_orders')
-    .select('id, wo_number, client_name, total_value, status')
-    .order('created_at', { ascending: false })
-    .limit(50);
-  orders = data || [];
-  
-  const sel = document.getElementById('bulk-order');
-  sel.innerHTML = '<option value="">— Select Order —</option>';
-  orders.forEach(o => {
-    const opt = document.createElement('option');
-    opt.value = o.id;
-    opt.dataset.number = o.wo_number || '';
-    opt.textContent = `${o.wo_number || 'WO-' + o.id.slice(0,6)} · ${o.client_name || 'Client'}`;
-    sel.appendChild(opt);
-  });
-}
+  <!-- MODAL -->
+  <div class="modal" id="workModal">
+    <div class="modal-content">
+      <div class="modal-header">Allocate Stitching Work</div>
+      <form id="workForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Items Count *</label>
+            <input type="number" id="workItems" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>Assign To *</label>
+            <select id="workStaff" required>
+              <option value="">Select Staff</option>
+              <option value="Rekha Prajapati">Rekha Prajapati</option>
+              <option value="Md Dulare">Md Dulare</option>
+              <option value="Rohan">Rohan</option>
+              <option value="Rahul">Rahul</option>
+              <option value="Ravi">Ravi</option>
+              <option value="Rajesh">Rajesh</option>
+              <option value="Ramesh">Ramesh</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status *</label>
+            <select id="workStatus" required>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="QC">QC Check</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Progress (%)</label>
+            <input type="number" id="workProgress" min="0" max="100" value="0">
+          </div>
+          <div class="form-group">
+            <label>QC Check</label>
+            <select id="workQC">
+              <option value="Pending">Pending</option>
+              <option value="Pass">Pass</option>
+              <option value="Fail">Fail</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" id="workDueDate">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Allocation</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-function buildBulkRows() {
-  const tbody = document.getElementById('bulk-tbody');
-  tbody.innerHTML = '';
-  masters.forEach((m, idx) => {
-    const tr = document.createElement('tr');
-    tr.dataset.masterId = m.id;
-    tr.innerHTML = `
-      <td class="row-num">${idx + 1}</td>
-      <td><strong style="font-size:13px">${m.full_name}</strong><div style="font-size:10px;color:var(--mute);font-family:'JetBrains Mono',monospace">${m.master_id}</div></td>
-      <td><input type="text" class="row-loc" placeholder="City/Area"></td>
-      <td><input type="number" class="qty row-qty" value="0" min="0"></td>
-      <td><input type="date" class="row-date" value="${new Date().toISOString().slice(0, 10)}"></td>
-      <td><button type="button" class="type-mini regular" onclick="toggleRowType(this)">Regular</button></td>
-      <td><input type="text" class="amount" value="₹0" readonly></td>
-    `;
-    tbody.appendChild(tr);
-  });
+  <script>
+    let works = [
+      { id: 'STI-001', items: 500, staff: 'Rekha Prajapati', status: 'Pending', progress: 0, qc: 'Pending', dueDate: '2026-05-25' },
+      { id: 'STI-002', items: 750, staff: 'Md Dulare', status: 'In Progress', progress: 35, qc: 'Pending', dueDate: '2026-05-24' },
+      { id: 'STI-003', items: 600, staff: 'Rohan', status: 'QC', progress: 95, qc: 'Pass', dueDate: '2026-05-22' },
+      { id: 'STI-004', items: 400, staff: 'Rahul', status: 'Completed', progress: 100, qc: 'Pass', dueDate: '2026-05-20' },
+      { id: 'STI-005', items: 800, staff: 'Ravi', status: 'In Progress', progress: 50, qc: 'Pending', dueDate: '2026-05-23' },
+    ];
 
-  // Wire qty inputs
-  tbody.querySelectorAll('.row-qty').forEach(i => i.addEventListener('input', updateBulkTotal));
-  updateBulkTotal();
-}
-
-function toggleRowType(btn) {
-  if (btn.classList.contains('regular')) {
-    btn.classList.remove('regular');
-    btn.classList.add('ot');
-    btn.textContent = 'OT';
-  } else {
-    btn.classList.remove('ot');
-    btn.classList.add('regular');
-    btn.textContent = 'Regular';
-  }
-  updateBulkTotal();
-}
-
-function applyBulkType(type) {
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.type-btn.${type}`).classList.add('active');
-  document.querySelectorAll('.bulk-table .type-mini').forEach(b => {
-    b.classList.remove('regular', 'ot');
-    b.classList.add(type);
-    b.textContent = type === 'regular' ? 'Regular' : 'OT';
-  });
-  updateBulkTotal();
-}
-
-function updateBulkTotal() {
-  let total = 0;
-  let count = 0;
-  document.querySelectorAll('#bulk-tbody tr').forEach(tr => {
-    const qty = parseInt(tr.querySelector('.row-qty').value) || 0;
-    const isOT = tr.querySelector('.type-mini.ot');
-    const rate = isOT ? 20 : 15;
-    const amt = qty * rate;
-    tr.querySelector('.amount').value = '₹' + amt;
-    total += amt;
-    if (qty > 0) count++;
-  });
-  document.getElementById('bulk-total').textContent = '₹' + total.toLocaleString('en-IN');
-  document.getElementById('submit-btn').textContent = `✨ Sab Submit Karo (${count} entries · ₹${total.toLocaleString('en-IN')})`;
-}
-
-async function submitBulk() {
-  const orderSel = document.getElementById('bulk-order');
-  const orderOpt = orderSel.options[orderSel.selectedIndex];
-  
-  if (!orderSel.value) {
-    UI.toast('⚠️ Pehle order select karo', 'warning');
-    return;
-  }
-
-  const entries = [];
-  document.querySelectorAll('#bulk-tbody tr').forEach(tr => {
-    const qty = parseInt(tr.querySelector('.row-qty').value) || 0;
-    if (qty <= 0) return;
-    const isOT = !!tr.querySelector('.type-mini.ot');
-    const rate = isOT ? 20 : 15;
-    entries.push({
-      entry_date: tr.querySelector('.row-date').value || new Date().toISOString().slice(0, 10),
-      work_order_id: orderSel.value,
-      wo_number: orderOpt.dataset.number,
-      master_id: tr.dataset.masterId,
-      master_name: tr.querySelector('strong').textContent,
-      location: tr.querySelector('.row-loc').value || null,
-      qty: qty,
-      type: isOT ? 'ot' : 'regular',
-      rate_per_piece: rate,
-      amount: qty * rate
+    window.addEventListener('load', () => {
+      const session = localStorage.getItem('prajapati_erp_session');
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      displayWorks(works);
+      updateStats();
     });
-  });
 
-  if (entries.length === 0) {
-    UI.toast('⚠️ Koi qty enter nahi kiya', 'warning');
-    return;
-  }
-
-  try {
-    const btn = document.getElementById('submit-btn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Saving...';
-
-    const { error } = await sb().from('prajapati_stitching_entries').insert(entries);
-    if (error) throw error;
-
-    UI.toast(`✅ ${entries.length} entries saved!`, 'success');
-    resetBulk();
-    await loadStats();
-  } catch (err) {
-    UI.toast('❌ Save failed: ' + err.message, 'error');
-  } finally {
-    document.getElementById('submit-btn').disabled = false;
-    updateBulkTotal();
-  }
-}
-
-function resetBulk() {
-  document.querySelectorAll('#bulk-tbody .row-qty').forEach(i => i.value = 0);
-  document.querySelectorAll('#bulk-tbody .row-loc').forEach(i => i.value = '');
-  applyBulkType('regular');
-  updateBulkTotal();
-}
-
-async function loadStats() {
-  try {
-    const today = new Date().toISOString().slice(0, 10);
-    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-
-    const [todayData, weekData, pendingData] = await Promise.all([
-      sb().from('prajapati_stitching_entries').select('qty, amount').eq('entry_date', today),
-      sb().from('prajapati_stitching_entries').select('qty').gte('entry_date', weekAgo),
-      sb().from('prajapati_stitching_entries').select('amount').eq('payment_status', 'pending')
-    ]);
-
-    const todayPcs = (todayData.data || []).reduce((s, x) => s + (x.qty || 0), 0);
-    const todayAmt = (todayData.data || []).reduce((s, x) => s + (Number(x.amount) || 0), 0);
-    const weekPcs = (weekData.data || []).reduce((s, x) => s + (x.qty || 0), 0);
-    const pendingAmt = (pendingData.data || []).reduce((s, x) => s + (Number(x.amount) || 0), 0);
-
-    document.getElementById('stat-today').textContent = todayPcs;
-    document.getElementById('stat-amt').textContent = UI.fmtINR(todayAmt);
-    document.getElementById('stat-week').textContent = weekPcs;
-    document.getElementById('stat-pending').textContent = UI.fmtINR(pendingAmt);
-  } catch (e) { console.error(e); }
-}
-
-async function loadManager() {
-  const list = document.getElementById('manager-list');
-  try {
-    const { data } = await sb()
-      .from('prajapati_stitching_entries')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100);
-    
-    if (!data || data.length === 0) {
-      UI.showEmpty(list, 'No entries yet');
-      return;
+    function displayWorks(data) {
+      const tbody = document.getElementById('worksBody');
+      tbody.innerHTML = data.map((w, idx) => `
+        <tr>
+          <td><strong>${w.id}</strong></td>
+          <td>${w.items.toLocaleString()} items</td>
+          <td>${w.staff}</td>
+          <td><span class="status-badge status-${w.status.toLowerCase().replace(' ', '')}">${w.status}</span></td>
+          <td>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${w.progress}%"></div>
+            </div>
+            ${w.progress}%
+          </td>
+          <td><span class="quality-badge quality-${w.qc.toLowerCase()}">${w.qc}</span></td>
+          <td>${new Date(w.dueDate).toLocaleDateString('en-IN')}</td>
+          <td>
+            <button class="btn-small btn-edit" onclick="editWork(${idx})">Edit</button>
+          </td>
+        </tr>
+      `).join('');
     }
 
-    list.innerHTML = `
-      <table class="data-table">
-        <thead><tr>
-          <th>Date</th><th>Master</th><th>Order</th><th>Location</th><th>Type</th><th class="right">Qty</th><th class="right">Amount</th><th>Pay Status</th>
-        </tr></thead>
-        <tbody>
-          ${data.map(r => `
-            <tr>
-              <td>${UI.fmtDate(r.entry_date)}</td>
-              <td><strong>${r.master_name}</strong></td>
-              <td><span class="ord">${r.wo_number || '—'}</span></td>
-              <td>${r.location || '—'}</td>
-              <td><span class="pill ${r.type === 'ot' ? 'pill-warning' : 'pill-success'}">${r.type}</span></td>
-              <td class="right mono">${r.qty}</td>
-              <td class="right mono">${UI.fmtINRfull(r.amount)}</td>
-              <td><span class="pill ${r.payment_status === 'paid' ? 'pill-success' : 'pill-warning'}">${r.payment_status}</span></td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
-  } catch (e) {
-    UI.showError(list, e.message);
-  }
-}
+    function updateStats() {
+      document.getElementById('totalWorks').textContent = works.length;
+      document.getElementById('pendingWorks').textContent = works.filter(w => w.status === 'Pending').length;
+      document.getElementById('inProgressWorks').textContent = works.filter(w => w.status === 'In Progress').length;
+      document.getElementById('completedWorks').textContent = works.filter(w => w.status === 'Completed').length;
+    }
 
-document.querySelectorAll('.role-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-    document.querySelector(`.view-section[data-view="${tab.dataset.view}"]`).classList.add('active');
-    if (tab.dataset.view === 'dashboard') loadManager();
-  });
-});
+    function filterWorks() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const qc = document.getElementById('qcFilter').value;
 
-loadMasters();
-loadOrders();
-loadStats();
-</script>
+      const filtered = works.filter(w => {
+        const matchSearch = w.id.toLowerCase().includes(search) || w.staff.toLowerCase().includes(search);
+        const matchStatus = !status || w.status === status;
+        const matchQC = !qc || w.qc === qc;
+        return matchSearch && matchStatus && matchQC;
+      });
 
+      displayWorks(filtered);
+    }
+
+    function openModal() {
+      document.getElementById('workForm').reset();
+      document.getElementById('workForm').dataset.id = '';
+      document.getElementById('workModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('workModal').classList.remove('active');
+    }
+
+    function editWork(idx) {
+      const w = works[idx];
+      document.getElementById('workItems').value = w.items;
+      document.getElementById('workStaff').value = w.staff;
+      document.getElementById('workStatus').value = w.status;
+      document.getElementById('workProgress').value = w.progress;
+      document.getElementById('workQC').value = w.qc;
+      document.getElementById('workDueDate').value = w.dueDate;
+      document.getElementById('workForm').dataset.id = idx;
+      openModal();
+    }
+
+    document.getElementById('workForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const idx = document.getElementById('workForm').dataset.id;
+      const data = {
+        items: parseInt(document.getElementById('workItems').value),
+        staff: document.getElementById('workStaff').value,
+        status: document.getElementById('workStatus').value,
+        progress: parseInt(document.getElementById('workProgress').value),
+        qc: document.getElementById('workQC').value,
+        dueDate: document.getElementById('workDueDate').value,
+      };
+
+      if (idx !== '') {
+        Object.assign(works[parseInt(idx)], data);
+      } else {
+        const newId = 'STI-' + String(Math.max(...works.map(w => parseInt(w.id.split('-')[1]))) + 1).padStart(3, '0');
+        works.push({ id: newId, ...data });
+      }
+
+      displayWorks(works);
+      updateStats();
+      closeModal();
+    });
+
+    function logout() {
+      localStorage.removeItem('prajapati_erp_session');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('workModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('workModal')) closeModal();
+    });
+  </script>
 </body>
 </html>

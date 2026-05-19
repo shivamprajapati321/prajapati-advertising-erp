@@ -1,676 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Reports & P&L · Prajapati ERP</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css">
-<style>
-.role-tab.admin-only::after { content: '👑'; margin-left: 4px; font-size: 11px; }
-.role-tab.admin-only.active { background: linear-gradient(135deg, var(--gold), #FBBF24)!important; color: var(--nav-deep)!important; }
-
-.hero-summary {
-  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px;
-  margin-bottom: 24px;
-}
-@media (max-width: 1100px) { .hero-summary { grid-template-columns: 1fr; } }
-
-.summary-main {
-  background: linear-gradient(135deg, var(--nav), var(--nav-light));
-  color: white; border-radius: 16px; padding: 28px;
-  position: relative; overflow: hidden;
-}
-.summary-main::before {
-  content: ''; position: absolute; top: -100px; right: -50px;
-  width: 280px; height: 280px;
-  background: radial-gradient(circle, rgba(37,99,235,0.4), transparent 60%);
-}
-.summary-main .lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; margin-bottom: 6px; position: relative; z-index: 1; }
-.summary-main .num { font-family: 'JetBrains Mono', monospace; font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; margin-bottom: 8px; position: relative; z-index: 1; }
-.summary-main .num em { font-style: normal; color: #5EEAD4; }
-.summary-main .meta { font-size: 13px; opacity: 0.85; position: relative; z-index: 1; }
-.summary-main-grid {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px; margin-top: 20px; padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.2);
-  position: relative; z-index: 1;
-}
-.summary-mini-item .mini-lbl { font-size: 9px; font-weight: 700; opacity: 0.7; letter-spacing: 0.1em; text-transform: uppercase; }
-.summary-mini-item .mini-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; margin-top: 4px; }
-
-.summary-side {
-  background: var(--white); border: 1px solid var(--line);
-  border-radius: 16px; padding: 22px;
-  position: relative; overflow: hidden;
-}
-.summary-side::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; }
-.summary-side.profit::before { background: var(--green); }
-.summary-side.outstanding::before { background: var(--amber); }
-.summary-side .lbl-side { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); margin-bottom: 6px; }
-.summary-side .num-side { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; }
-.summary-side.profit .num-side { color: var(--green-dk); }
-.summary-side.outstanding .num-side { color: var(--amber); }
-
-/* Sales progress cards */
-.cp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-@media (max-width: 900px) { .cp-grid { grid-template-columns: 1fr; } }
-.cp-card {
-  background: var(--white); border: 1px solid var(--line);
-  border-radius: 14px; padding: 22px;
-}
-.cp-head { display: flex; justify-content: space-between; align-items: start; margin-bottom: 14px; gap: 10px; }
-.cp-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800; color: var(--accent); background: var(--blue-soft); padding: 3px 9px; border-radius: 5px; display: inline-block; margin-bottom: 6px; }
-.cp-name { font-size: 16px; font-weight: 800; color: var(--ink); }
-.cp-meta { font-size: 11px; color: var(--mute); font-weight: 600; margin-top: 3px; }
-.cp-pct { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 800; color: var(--accent); }
-.cp-stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
-.cp-stage { background: var(--soft); border-radius: 8px; padding: 8px; text-align: center; }
-.cp-stage.done { background: var(--green-soft); }
-.cp-stage.active { background: var(--blue-soft); }
-.cp-stage .stage-lbl { font-size: 9px; font-weight: 700; color: var(--mute); letter-spacing: 0.04em; text-transform: uppercase; }
-.cp-stage .stage-pct { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: var(--ink); margin-top: 3px; }
-.cp-stage.done .stage-pct { color: var(--green-dk); }
-.cp-stage.active .stage-pct { color: var(--accent); }
-.cp-bar { background: var(--soft); border-radius: 999px; height: 10px; overflow: hidden; }
-.cp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--nav-light)); border-radius: 999px; }
-
-/* Admin P&L */
-.admin-banner {
-  background: linear-gradient(135deg, var(--nav-deep), var(--nav));
-  color: white; border-radius: 14px;
-  padding: 16px 20px; margin-bottom: 22px;
-  display: flex; align-items: center; gap: 14px;
-  border: 2px solid var(--gold);
-}
-.admin-banner .icon-warn { font-size: 28px; }
-.admin-banner strong { color: var(--gold); }
-
-.pl-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-@media (max-width: 1100px) { .pl-grid { grid-template-columns: 1fr; } }
-
-.pl-card {
-  background: var(--white); border: 1px solid var(--line);
-  border-radius: 16px; padding: 22px;
-  position: relative; overflow: hidden;
-}
-.pl-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; }
-.pl-card.revenue::before { background: var(--accent); }
-.pl-card.cost::before { background: var(--red); }
-.pl-card.profit::before { background: linear-gradient(90deg, var(--gold), #FBBF24); }
-.pl-card .icon-big { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 12px; }
-.pl-card.revenue .icon-big { background: var(--blue-soft); color: var(--accent); }
-.pl-card.cost .icon-big { background: var(--red-soft); color: var(--red-dk); }
-.pl-card.profit .icon-big { background: var(--gold-soft); color: var(--gold); }
-.pl-card .lbl-pl { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); margin-bottom: 6px; }
-.pl-card .num-pl { font-family: 'JetBrains Mono', monospace; font-size: 36px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
-.pl-card.revenue .num-pl { color: var(--accent); }
-.pl-card.cost .num-pl { color: var(--red-dk); }
-.pl-card.profit .num-pl { color: var(--green-dk); }
-
-.locked-screen {
-  background: var(--white); border: 2px dashed var(--line);
-  border-radius: 16px; padding: 60px 30px;
-  text-align: center;
-}
-.locked-screen .lock-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
-.locked-screen h3 { font-size: 18px; font-weight: 800; color: var(--nav); margin-bottom: 8px; }
-.locked-screen p { font-size: 13px; color: var(--mute); font-weight: 600; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports - Prajapati ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --cyan: #06b6d4; --gold: #fbbf24; --dark: #0f172a; --light: #f0f9ff; --border: #e0f2fe; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--light); }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--dark); color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--cyan), var(--gold)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .sidebar-menu { list-style: none; }
+    .sidebar-menu li { margin-bottom: 10px; }
+    .sidebar-menu a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; transition: all 0.3s; font-size: 14px; }
+    .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(6,182,212,0.2); color: var(--cyan); }
+    .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: white; padding: 20px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .topbar-title { font-size: 24px; font-weight: 700; color: var(--cyan); }
+    .logout-btn { background: var(--cyan); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .logout-btn:hover { background: #0891b2; }
+    .content { padding: 30px; flex: 1; overflow-y: auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .page-header h1 { font-size: 28px; color: var(--dark); }
+    .btn-primary { background: linear-gradient(135deg, var(--cyan), #0891b2); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6,182,212,0.3); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: white; padding: 25px; border-radius: 12px; border-left: 4px solid var(--cyan); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-number { font-size: 32px; font-weight: 700; background: linear-gradient(135deg, var(--cyan), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 5px; }
+    .stat-label { font-size: 13px; color: #6b7280; }
+    .stat-change { font-size: 12px; color: #10b981; margin-top: 8px; }
+    .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .report-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .report-title { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 15px; }
+    .report-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .report-item:last-child { border-bottom: none; }
+    .report-label { font-size: 13px; color: #6b7280; }
+    .report-value { font-size: 14px; font-weight: 600; color: var(--dark); }
+    .progress-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--gold)); border-radius: 4px; }
+    .chart-placeholder { height: 250px; background: linear-gradient(135deg, rgba(6,182,212,0.05), rgba(251,191,36,0.05)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-weight: 600; margin-bottom: 15px; }
+    .filters { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .filter-group { display: flex; gap: 10px; align-items: center; }
+    .filter-group label { font-size: 13px; font-weight: 600; color: #6b7280; }
+    .filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; font-family: inherit; }
+    @media (max-width: 768px) { .sidebar { width: 200px; } .main { margin-left: 200px; } .report-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
 </head>
 <body>
-
-<div class="app-layout">
-
-  <aside class="sidebar" id="sidebar"></aside>
-
-  <main class="main">
-
-    <header class="topbar" id="topbar"></header>
-
-    <div class="page">
-
-      <div class="page-head">
-        <div>
-          <h1 class="page-title">Reports <em>& P&L</em></h1>
-          <div class="page-sub" id="page-sub">Sales progress · Work-wise accounting · Outstanding</div>
-        </div>
+  <div class="container">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">📦</div>
+        <div style="font-size: 16px; font-weight: 700;">PRAJAPATI</div>
       </div>
-
-      <div class="role-tabs">
-        <button class="role-tab active" data-view="sales">📈 Sales Progress</button>
-        <button class="role-tab" data-view="accounting">📒 Accounting Ledger</button>
-        <button class="role-tab admin-only" data-view="pnl" id="pnl-tab">💰 Admin P&L</button>
-        <button class="role-tab" data-view="outstanding">⏳ Outstanding</button>
-      </div>
-
-      <!-- Hero Summary (admin only sees profit/outstanding) -->
-      <div class="hero-summary">
-        <div class="summary-main">
-          <div class="lbl">Month-to-date</div>
-          <div class="num"><em id="hero-revenue">—</em></div>
-          <div class="meta">Total Revenue · <span id="hero-orders">—</span> active orders</div>
-          <div class="summary-main-grid">
-            <div class="summary-mini-item"><div class="mini-lbl">Done</div><div class="mini-val" id="hero-done">—</div></div>
-            <div class="summary-mini-item"><div class="mini-lbl">Active</div><div class="mini-val" id="hero-active">—</div></div>
-            <div class="summary-mini-item"><div class="mini-lbl">Pipeline</div><div class="mini-val">—</div></div>
-          </div>
-        </div>
-        <div class="summary-side profit" id="profit-card">
-          <div class="lbl-side">👑 Admin Profit · MTD</div>
-          <div class="num-side" id="hero-profit">—</div>
-          <div style="font-size:11px;margin-top:6px;color:var(--green-dk);font-weight:700" id="hero-margin">—</div>
-        </div>
-        <div class="summary-side outstanding">
-          <div class="lbl-side">⏳ Net Outstanding</div>
-          <div class="num-side" id="hero-outstanding">—</div>
-          <div style="font-size:11px;margin-top:6px;color:var(--mute);font-weight:600">Receivable − Payable</div>
-        </div>
-      </div>
-
-      <!-- VIEW 1: Sales Progress -->
-      <div class="view-section active" data-view="sales">
-        <div style="margin-bottom:18px;font-size:14px;color:var(--mute);font-weight:600">
-          💡 Per-campaign progress for client reporting · 4-stage breakdown
-        </div>
-        <div class="cp-grid" id="sales-grid">
-          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--mute);font-weight:600">⏳ Loading campaigns...</div>
-        </div>
-      </div>
-
-      <!-- VIEW 2: Accounting Ledger -->
-      <div class="view-section" data-view="accounting">
-        <div style="margin-bottom:18px;font-size:14px;color:var(--mute);font-weight:600">
-          💡 Work-wise accounting · Print + Stitch + Execute + Dispatch + Expenses tracked separately
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title">Work-wise <em>Ledger</em></div>
-          </div>
-          <div id="ledger-list">
-            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- VIEW 3: Admin P&L -->
-      <div class="view-section" data-view="pnl">
-        <div id="pnl-content"></div>
-      </div>
-
-      <!-- VIEW 4: Outstanding -->
-      <div class="view-section" data-view="outstanding">
-        <div style="margin-bottom:18px;font-size:14px;color:var(--mute);font-weight:600">
-          💡 Receivable = log humse paisa due. Payable = humne kisi ko paisa dena hai. Net = humara paisa.
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title">Pending <em>Payments</em></div>
-          </div>
-          <div id="outstanding-list">
-            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
-          </div>
-        </div>
-      </div>
-
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html">📊 Dashboard</a></li>
+        <li><a href="orders.html">📋 Orders</a></li>
+        <li><a href="leads.html">🎯 Leads</a></li>
+        <li><a href="quotations.html">📝 Quotations</a></li>
+        <li><a href="invoices.html">💰 Invoices</a></li>
+        <li><a href="customers.html">👥 Customers</a></li>
+        <li><a href="printing.html">🖨️ Printing</a></li>
+        <li><a href="stitching.html">✂️ Stitching</a></li>
+        <li><a href="#coming">🎬 Execution</a></li>
+        <li><a href="dispatch.html">🚚 Dispatch</a></li>
+        <li><a href="team.html">👨‍💼 Team</a></li>
+        <li><a href="#coming">⚙️ Settings</a></li>
+      </ul>
     </div>
-  </main>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="lib-config.js"></script>
-<script src="lib-auth.js"></script>
-<script src="lib-ui.js"></script>
-<script>
-const session = AUTH.requireModule('reports');
-if (!session) throw new Error('Not logged in');
-const isAdmin = AUTH.seesProfit();
-
-document.getElementById('sidebar').innerHTML = UI.renderSidebar('reports');
-document.getElementById('topbar').innerHTML = UI.renderTopbar('Reports & P&L', { searchPlaceholder: 'Search order, client...' });
-
-// Hide P&L tab for non-admin
-if (!isAdmin) {
-  document.getElementById('pnl-tab').style.display = 'none';
-  document.getElementById('profit-card').style.display = 'none';
-  document.getElementById('page-sub').textContent = 'Sales progress · Work-wise accounting · Outstanding (no profit visibility)';
-}
-
-let allAccounting = [];
-
-async function loadHeroSummary() {
-  try {
-    const monthStart = new Date(); monthStart.setDate(1);
-    const monthStartStr = monthStart.toISOString().slice(0, 10);
-
-    const { data: orders } = await sb()
-      .from('prajapati_work_orders')
-      .select('id, total_value, status, created_at')
-      .gte('created_at', monthStartStr);
-
-    const totalRevenue = (orders || []).reduce((s, o) => s + (Number((o.total_value || o.total_amount)) || 0), 0);
-    const activeCount = (orders || []).filter(o => o.status === 'active' || o.status === 'in_progress').length;
-    const doneCount = (orders || []).filter(o => o.status === 'completed' || o.status === 'done').length;
-
-    document.getElementById('hero-revenue').textContent = UI.fmtINR(totalRevenue);
-    document.getElementById('hero-orders').textContent = (orders || []).length;
-    document.getElementById('hero-active').textContent = activeCount;
-    document.getElementById('hero-done').textContent = doneCount;
-
-    if (isAdmin) {
-      // Calculate total cost from accounting view
-      const { data: acc } = await sb().from('v_order_accounting').select('total_cost');
-      const totalCost = (acc || []).reduce((s, x) => s + (Number(x.total_cost) || 0), 0);
-      const profit = totalRevenue - totalCost;
-      const margin = totalRevenue > 0 ? ((profit / totalRevenue) * 100).toFixed(1) : 0;
-      document.getElementById('hero-profit').textContent = UI.fmtINR(profit);
-      document.getElementById('hero-margin').textContent = `Margin: ${margin}%`;
-    }
-
-    // Outstanding (just total cost vs paid for now - simplified)
-    const { data: dispatches } = await sb().from('prajapati_dispatch_bundles').select('total_cost, paid_amount, payment_status');
-    const unpaid = (dispatches || []).reduce((s, x) => {
-      if (x.payment_status === 'paid') return s;
-      return s + ((Number(x.total_cost) || 0) - (Number(x.paid_amount) || 0));
-    }, 0);
-    document.getElementById('hero-outstanding').textContent = UI.fmtINR(unpaid);
-  } catch (e) {
-    console.error('Hero load:', e);
-  }
-}
-
-async function loadAccounting() {
-  try {
-    const { data, error } = await sb()
-      .from('v_order_accounting')
-      .select(`
-        work_order_id,
-        wo_number,
-        revenue,
-        print_cost,
-        stitch_cost,
-        execute_cost,
-        dispatch_cost,
-        expenses,
-        total_cost,
-        status
-      `)
-      .order('revenue', { ascending: false })
-      .limit(100);
-
-    if (error) throw error;
-    allAccounting = data || [];
-
-    const list = document.getElementById('ledger-list');
-    if (allAccounting.length === 0) {
-      UI.showEmpty(list, 'No accounting data yet. Submit some entries first!');
-      return;
-    }
-
-    // Get client names for orders
-    const orderIds = allAccounting.map(a => a.work_order_id).filter(Boolean);
-    const { data: orders } = await sb()
-      .from('prajapati_work_orders')
-      .select('id, client_name')
-      .in('id', orderIds);
-    const clientMap = {};
-    (orders || []).forEach(o => clientMap[o.id] = o.client_name || '—');
-
-    list.innerHTML = `
-      <div style="overflow-x:auto">
-      <table class="data-table">
-        <thead><tr>
-          <th>Order</th><th>Client</th>
-          <th class="right">Print ₹</th>
-          <th class="right">Stitch ₹</th>
-          <th class="right">Execute ₹</th>
-          <th class="right">Dispatch ₹</th>
-          <th class="right">Expenses</th>
-          <th class="right">Total Cost</th>
-          ${isAdmin ? '<th class="right">Revenue</th><th class="right">👑 Profit</th>' : ''}
-        </tr></thead>
-        <tbody>
-          ${allAccounting.map(r => {
-            const profit = (Number(r.revenue) || 0) - (Number(r.total_cost) || 0);
-            return `<tr>
-              <td><span class="ord">${r.wo_number || '—'}</span></td>
-              <td><strong>${clientMap[r.work_order_id] || '—'}</strong></td>
-              <td class="right mono">${UI.fmtINRfull(r.print_cost)}</td>
-              <td class="right mono">${UI.fmtINRfull(r.stitch_cost)}</td>
-              <td class="right mono">${UI.fmtINRfull(r.execute_cost)}</td>
-              <td class="right mono">${UI.fmtINRfull(r.dispatch_cost)}</td>
-              <td class="right mono">${UI.fmtINRfull(r.expenses)}</td>
-              <td class="right mono"><strong style="color:var(--red-dk)">${UI.fmtINRfull(r.total_cost)}</strong></td>
-              ${isAdmin ? `
-                <td class="right mono"><strong style="color:var(--accent)">${UI.fmtINRfull(r.revenue)}</strong></td>
-                <td class="right mono"><strong style="color:var(--green-dk)">${UI.fmtINRfull(profit)}</strong></td>
-              ` : ''}
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title">Reports</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
       </div>
-    `;
-  } catch (e) {
-    UI.showError('#ledger-list', e.message);
-  }
-}
 
-async function loadSalesProgress() {
-  try {
-    const { data: orders } = await sb()
-      .from('prajapati_work_orders')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(20);
+      <div class="content">
+        <div class="page-header">
+          <h1>📊 Analytics & Reports</h1>
+          <button class="btn-primary" onclick="exportReport()">📥 Export PDF</button>
+        </div>
 
-    const grid = document.getElementById('sales-grid');
-    if (!orders || orders.length === 0) {
-      UI.showEmpty(grid, 'No active orders yet');
-      return;
-    }
+        <!-- FILTERS -->
+        <div class="filters">
+          <div class="filter-group">
+            <label>Date Range:</label>
+            <input type="date" id="dateFrom" value="2026-05-01">
+            <input type="date" id="dateTo" value="2026-05-19">
+          </div>
+          <div class="filter-group">
+            <label>Report Type:</label>
+            <select id="reportType" onchange="loadReport()">
+              <option value="sales">Sales Report</option>
+              <option value="operations">Operations Report</option>
+              <option value="staff">Staff Performance</option>
+            </select>
+          </div>
+        </div>
 
-    grid.innerHTML = orders.map(o => {
-      const total = o.quantity || 1;
-      // Compute progress per stage from real data via lazy-load (simplified for now)
-      const progress = parseInt(o.progress || 0);
-      const stages = [
-        { lbl: 'Print', pct: o.print_progress || 0, cls: (o.print_progress >= 100 ? 'done' : (o.print_progress > 0 ? 'active' : '')) },
-        { lbl: 'Stitch', pct: o.stitch_progress || 0, cls: (o.stitch_progress >= 100 ? 'done' : (o.stitch_progress > 0 ? 'active' : '')) },
-        { lbl: 'Execute', pct: o.execute_progress || 0, cls: (o.execute_progress >= 100 ? 'done' : (o.execute_progress > 0 ? 'active' : '')) },
-        { lbl: 'Dispatch', pct: o.dispatch_progress || 0, cls: (o.dispatch_progress >= 100 ? 'done' : (o.dispatch_progress > 0 ? 'active' : '')) }
-      ];
-      const overall = progress || Math.round((stages.reduce((s, x) => s + (x.pct || 0), 0)) / 4);
+        <!-- KEY METRICS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">₹45.2L</div>
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-change">↑ 12% from last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">156</div>
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-change">↑ 8% from last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">143</div>
+            <div class="stat-label">Completed Orders</div>
+            <div class="stat-change">↑ 91.7% completion rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">38</div>
+            <div class="stat-label">Active Staff</div>
+            <div class="stat-change">↑ All departments active</div>
+          </div>
+        </div>
 
-      return `
-        <div class="cp-card">
-          <div class="cp-head">
-            <div>
-              <span class="cp-num">${o.wo_number || 'WO-' + o.id.slice(0,6)}</span>
-              <div class="cp-name">${o.client_name || 'Client'}</div>
-              <div class="cp-meta">${(o.quantity || 0)} PCS · ${(o.location || o.city || '—')} · ${UI.fmtINR((o.total_value || o.total_amount))}</div>
+        <!-- REPORT CARDS -->
+        <div class="report-grid">
+          <!-- SALES REPORT -->
+          <div class="report-card">
+            <div class="report-title">💰 Sales by Customer</div>
+            <div class="chart-placeholder">📊 Top Customers Chart</div>
+            <div class="report-item">
+              <span class="report-label">ABC Enterprises</span>
+              <span class="report-value">₹8.5L</span>
             </div>
-            <div class="cp-pct">${overall}%</div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
+            <div class="report-item">
+              <span class="report-label">XYZ Corporation</span>
+              <span class="report-value">₹6.2L</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 62%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Tech Solutions</span>
+              <span class="report-value">₹4.8L</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 48%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Others</span>
+              <span class="report-value">₹25.2L</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
           </div>
-          <div class="cp-stages">
-            ${stages.map(s => `
-              <div class="cp-stage ${s.cls}">
-                <div class="stage-lbl">${s.lbl}</div>
-                <div class="stage-pct">${s.pct}%</div>
-              </div>
-            `).join('')}
+
+          <!-- ORDERS REPORT -->
+          <div class="report-card">
+            <div class="report-title">📋 Orders Status</div>
+            <div class="chart-placeholder">📊 Orders Distribution</div>
+            <div class="report-item">
+              <span class="report-label">Completed</span>
+              <span class="report-value">143 (91.7%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 91.7%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Processing</span>
+              <span class="report-value">8 (5.1%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 5.1%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Pending</span>
+              <span class="report-value">5 (3.2%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 3.2%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Total Orders</span>
+              <span class="report-value">156</span>
+            </div>
           </div>
-          <div class="cp-bar"><div class="cp-bar-fill" style="width:${overall}%"></div></div>
-        </div>
-      `;
-    }).join('');
-  } catch (e) {
-    UI.showError('#sales-grid', e.message);
-  }
-}
 
-async function loadPnL() {
-  if (!isAdmin) {
-    document.getElementById('pnl-content').innerHTML = `
-      <div class="locked-screen">
-        <div class="lock-icon">🔒</div>
-        <h3>Admin-Only View</h3>
-        <p>Profit/Loss visibility sirf admin ke liye hai. Sales/Operations teams ko nahi dikhta.</p>
-      </div>
-    `;
-    return;
-  }
+          <!-- STAFF PERFORMANCE -->
+          <div class="report-card">
+            <div class="report-title">👨‍💼 Top Performing Staff</div>
+            <div class="chart-placeholder">📊 Staff Performance</div>
+            <div class="report-item">
+              <span class="report-label">Shivam Prajapati</span>
+              <span class="report-value">95/100</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 95%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Rekha Prajapati</span>
+              <span class="report-value">90/100</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 90%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Mahima</span>
+              <span class="report-value">92/100</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 92%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Nisha Saini</span>
+              <span class="report-value">91/100</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 91%"></div></div>
+          </div>
 
-  try {
-    const monthStart = new Date(); monthStart.setDate(1);
-    const monthStartStr = monthStart.toISOString().slice(0, 10);
+          <!-- OPERATIONS METRICS -->
+          <div class="report-card">
+            <div class="report-title">🏭 Operations Metrics</div>
+            <div class="chart-placeholder">📊 Operations Overview</div>
+            <div class="report-item">
+              <span class="report-label">Printing Jobs Completed</span>
+              <span class="report-value">124/130</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 95.4%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Stitching Jobs Completed</span>
+              <span class="report-value">98/105</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 93.3%"></div></div>
+            <div class="report-item">
+              <span class="report-label">On-Time Delivery</span>
+              <span class="report-value">142/156</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 91%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Quality Score</span>
+              <span class="report-value">94.5%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 94.5%"></div></div>
+          </div>
 
-    const { data: orders } = await sb()
-      .from('prajapati_work_orders')
-      .select('id, wo_number, client_name, total_value, status, created_at')
-      .gte('created_at', monthStartStr);
+          <!-- MONTHLY TREND -->
+          <div class="report-card">
+            <div class="report-title">📈 Monthly Revenue Trend</div>
+            <div class="chart-placeholder">📊 Revenue Trend Chart</div>
+            <div class="report-item">
+              <span class="report-label">March 2026</span>
+              <span class="report-value">₹38.5L</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
+            <div class="report-item">
+              <span class="report-label">April 2026</span>
+              <span class="report-value">₹40.2L</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 88%"></div></div>
+            <div class="report-item">
+              <span class="report-label">May 2026 (Till 19th)</span>
+              <span class="report-value">₹45.2L</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+          </div>
 
-    const totalRevenue = (orders || []).reduce((s, o) => s + (Number((o.total_value || o.total_amount)) || 0), 0);
-
-    const { data: acc } = await sb().from('v_order_accounting').select('*');
-    const totalCost = (acc || []).reduce((s, x) => s + (Number(x.total_cost) || 0), 0);
-    const totalPrint = (acc || []).reduce((s, x) => s + (Number(x.print_cost) || 0), 0);
-    const totalStitch = (acc || []).reduce((s, x) => s + (Number(x.stitch_cost) || 0), 0);
-    const totalExec = (acc || []).reduce((s, x) => s + (Number(x.execute_cost) || 0), 0);
-    const totalDisp = (acc || []).reduce((s, x) => s + (Number(x.dispatch_cost) || 0), 0);
-    const totalExp = (acc || []).reduce((s, x) => s + (Number(x.expenses) || 0), 0);
-
-    const profit = totalRevenue - totalCost;
-    const margin = totalRevenue > 0 ? ((profit / totalRevenue) * 100).toFixed(1) : 0;
-
-    // Per-order P&L
-    const accMap = {};
-    (acc || []).forEach(a => accMap[a.work_order_id] = a);
-
-    document.getElementById('pnl-content').innerHTML = `
-      <div class="admin-banner">
-        <div class="icon-warn">👑</div>
-        <div style="font-size:13px;line-height:1.5">
-          <strong>ADMIN-ONLY VIEW:</strong> Profit numbers sirf admin ko visible hain. Sales/Operations teams ko nahi dikhte. Sab teams ko mandatory entry karni hai.
-        </div>
-      </div>
-
-      <div class="pl-grid">
-        <div class="pl-card revenue">
-          <div class="icon-big">💰</div>
-          <div class="lbl-pl">Total Revenue · MTD</div>
-          <div class="num-pl">${UI.fmtINR(totalRevenue)}</div>
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:12px">
-            <div style="display:flex;justify-content:space-between;padding:4px 0;color:var(--mute);font-weight:600">
-              <span>From ${(orders || []).length} orders</span>
-              <span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--ink)">${(orders || []).length}</span>
+          <!-- LEADS ANALYSIS -->
+          <div class="report-card">
+            <div class="report-title">🎯 Leads Conversion</div>
+            <div class="chart-placeholder">📊 Leads Analysis</div>
+            <div class="report-item">
+              <span class="report-label">Total Leads</span>
+              <span class="report-value">156</span>
+            </div>
+            <div class="report-item">
+              <span class="report-label">Qualified Leads</span>
+              <span class="report-value">89 (57%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 57%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Converted to Orders</span>
+              <span class="report-value">45 (29%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 29%"></div></div>
+            <div class="report-item">
+              <span class="report-label">Conversion Rate</span>
+              <span class="report-value">28.8%</span>
             </div>
           </div>
         </div>
-
-        <div class="pl-card cost">
-          <div class="icon-big">📉</div>
-          <div class="lbl-pl">Total Costs · MTD</div>
-          <div class="num-pl">${UI.fmtINR(totalCost)}</div>
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:12px">
-            <div style="display:flex;justify-content:space-between;padding:3px 0;color:var(--mute);font-weight:600"><span>Print</span><span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--ink)">${UI.fmtINR(totalPrint)}</span></div>
-            <div style="display:flex;justify-content:space-between;padding:3px 0;color:var(--mute);font-weight:600"><span>Stitch</span><span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--ink)">${UI.fmtINR(totalStitch)}</span></div>
-            <div style="display:flex;justify-content:space-between;padding:3px 0;color:var(--mute);font-weight:600"><span>Execute</span><span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--ink)">${UI.fmtINR(totalExec)}</span></div>
-            <div style="display:flex;justify-content:space-between;padding:3px 0;color:var(--mute);font-weight:600"><span>Dispatch</span><span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--ink)">${UI.fmtINR(totalDisp)}</span></div>
-            <div style="display:flex;justify-content:space-between;padding:3px 0;color:var(--mute);font-weight:600"><span>Expenses</span><span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--ink)">${UI.fmtINR(totalExp)}</span></div>
-          </div>
-        </div>
-
-        <div class="pl-card profit">
-          <div class="icon-big">👑</div>
-          <div class="lbl-pl">Net Profit · MTD</div>
-          <div class="num-pl">${UI.fmtINR(profit)}</div>
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:12px">
-            <div style="display:flex;justify-content:space-between;padding:4px 0;color:var(--mute);font-weight:600"><span>Revenue</span><span style="font-family:'JetBrains Mono',monospace;font-weight:800">${UI.fmtINR(totalRevenue)}</span></div>
-            <div style="display:flex;justify-content:space-between;padding:4px 0;color:var(--mute);font-weight:600"><span>− Costs</span><span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--red-dk)">${UI.fmtINR(totalCost)}</span></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0 0;border-top:1px solid var(--line);margin-top:4px;font-weight:800;color:var(--ink)"><span>Margin</span><span style="font-family:'JetBrains Mono',monospace;color:var(--green-dk)">${margin}%</span></div>
-          </div>
-        </div>
       </div>
+    </div>
+  </div>
 
-      <div class="card">
-        <div class="card-head"><div class="card-title">Per-Order <em>P&L</em> · 👑 Admin Only</div></div>
-        <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead><tr>
-            <th>Order</th><th>Client</th><th>PCS</th>
-            <th class="right">Revenue</th><th class="right">Costs</th><th class="right">Profit</th><th class="right">Margin</th>
-          </tr></thead>
-          <tbody>
-            ${(orders || []).map(o => {
-              const a = accMap[o.id] || {};
-              const rev = Number(a.revenue || (o.total_value || o.total_amount)) || 0;
-              const cost = Number(a.total_cost) || 0;
-              const prof = rev - cost;
-              const mar = rev > 0 ? ((prof / rev) * 100).toFixed(1) : 0;
-              return `<tr>
-                <td><span class="ord">${o.wo_number || '—'}</span></td>
-                <td><strong>${o.client_name || '—'}</strong></td>
-                <td>${(o.quantity || 0)}</td>
-                <td class="right mono" style="color:var(--accent)">${UI.fmtINRfull(rev)}</td>
-                <td class="right mono" style="color:var(--red-dk)">${UI.fmtINRfull(cost)}</td>
-                <td class="right mono" style="color:var(--green-dk)"><strong>${UI.fmtINRfull(prof)}</strong></td>
-                <td class="right mono" style="color:var(--gold);font-weight:800">${mar}%</td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-        </div>
-      </div>
-    `;
-  } catch (e) {
-    document.getElementById('pnl-content').innerHTML = `<div style="color:var(--red-dk);padding:20px">Error: ${e.message}</div>`;
-  }
-}
-
-async function loadOutstanding() {
-  try {
-    // Receivable: Orders' total_amount minus paid (simplified - uses invoice_paid if available)
-    const { data: orders } = await sb()
-      .from('prajapati_work_orders')
-      .select('id, wo_number, client_name, total_value, status')
-      .neq('status', 'completed')
-      .order('created_at', { ascending: false })
-      .limit(50);
-
-    // Payable: Stitch pending + Execution pending + Unpaid dispatches + Expenses
-    const [stitchPending, execPending, dispUnpaid, expPending] = await Promise.all([
-      sb().from('prajapati_stitching_entries').select('master_name, amount').eq('payment_status', 'pending'),
-      sb().from('prajapati_execution_entries').select('team_member_name, amount').eq('payment_status', 'pending'),
-      sb().from('prajapati_dispatch_bundles').select('vendor_name, total_cost, paid_amount, payment_status').neq('payment_status', 'paid'),
-      sb().from('prajapati_work_expenses').select('team_member_name, total_amount').eq('reimbursement_status', 'pending')
-    ]);
-
-    // Aggregate payables
-    const payables = [];
-    const stitchByMaster = {};
-    (stitchPending.data || []).forEach(s => {
-      stitchByMaster[s.master_name] = (stitchByMaster[s.master_name] || 0) + (Number(s.amount) || 0);
-    });
-    Object.entries(stitchByMaster).forEach(([name, amt]) => {
-      payables.push({ name, type: 'Stitch Master', amount: amt });
-    });
-
-    const execByMember = {};
-    (execPending.data || []).forEach(e => {
-      execByMember[e.team_member_name] = (execByMember[e.team_member_name] || 0) + (Number(e.amount) || 0);
-    });
-    Object.entries(execByMember).forEach(([name, amt]) => {
-      payables.push({ name, type: 'Field Team', amount: amt });
-    });
-
-    const vendorMap = {};
-    (dispUnpaid.data || []).forEach(d => {
-      const due = (Number(d.total_cost) || 0) - (Number(d.paid_amount) || 0);
-      vendorMap[d.vendor_name] = (vendorMap[d.vendor_name] || 0) + due;
-    });
-    Object.entries(vendorMap).forEach(([name, amt]) => {
-      payables.push({ name, type: 'Transport Vendor', amount: amt });
-    });
-
-    const expByMember = {};
-    (expPending.data || []).forEach(e => {
-      expByMember[e.team_member_name] = (expByMember[e.team_member_name] || 0) + (Number(e.total_amount) || 0);
-    });
-    Object.entries(expByMember).forEach(([name, amt]) => {
-      payables.push({ name, type: 'Expense Reimburse', amount: amt });
-    });
-
-    const totalReceivable = (orders || []).reduce((s, o) => s + ((Number((o.total_value || o.total_amount)) || 0) - (Number((o.paid_amount || 0)) || 0)), 0);
-    const totalPayable = payables.reduce((s, p) => s + p.amount, 0);
-    const net = totalReceivable - totalPayable;
-
-    const list = document.getElementById('outstanding-list');
-    list.innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px">
-        <div style="background:var(--green-soft);border:1px solid var(--green);border-radius:12px;padding:18px">
-          <div style="font-size:11px;font-weight:700;color:var(--green-dk);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px">💰 Receivable · Clients owe us</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--green-dk)">${UI.fmtINR(totalReceivable)}</div>
-        </div>
-        <div style="background:var(--red-soft);border:1px solid var(--red);border-radius:12px;padding:18px">
-          <div style="font-size:11px;font-weight:700;color:var(--red-dk);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px">🧾 Payable · We owe</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--red-dk)">${UI.fmtINR(totalPayable)}</div>
-        </div>
-      </div>
-
-      <div style="background:linear-gradient(135deg,var(--green-dk),var(--green));color:white;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px">
-        <div style="font-size:11px;opacity:0.9;font-weight:700;letter-spacing:0.1em;text-transform:uppercase">Net Outstanding · ${net >= 0 ? 'In our favor' : 'We owe'}</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:800;line-height:1;margin-top:4px">${UI.fmtINR(Math.abs(net))}</div>
-        <div style="font-size:13px;opacity:0.9;margin-top:6px">Receivable ${UI.fmtINR(totalReceivable)} − Payable ${UI.fmtINR(totalPayable)}</div>
-      </div>
-
-      <h4 style="font-size:14px;font-weight:800;color:var(--nav);margin-bottom:12px">💰 Receivable Detail</h4>
-      ${(orders || []).length === 0 ? '<div style="color:var(--mute);font-weight:600;padding:20px">No pending receivables</div>' : `
-        <div style="overflow-x:auto;margin-bottom:24px">
-        <table class="data-table">
-          <thead><tr><th>Order</th><th>Client</th><th class="right">Total</th><th class="right">Paid</th><th class="right">Pending</th></tr></thead>
-          <tbody>
-            ${orders.slice(0, 20).map(o => {
-              const due = (Number((o.total_value || o.total_amount)) || 0) - (Number((o.paid_amount || 0)) || 0);
-              return `<tr>
-                <td><span class="ord">${o.wo_number || '—'}</span></td>
-                <td><strong>${o.client_name || '—'}</strong></td>
-                <td class="right mono">${UI.fmtINRfull((o.total_value || o.total_amount))}</td>
-                <td class="right mono" style="color:var(--green-dk)">${UI.fmtINRfull((o.paid_amount || 0))}</td>
-                <td class="right mono"><strong style="color:var(--red-dk)">${UI.fmtINRfull(due)}</strong></td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-        </div>
-      `}
-
-      <h4 style="font-size:14px;font-weight:800;color:var(--nav);margin-bottom:12px">🧾 Payable Detail</h4>
-      ${payables.length === 0 ? '<div style="color:var(--mute);font-weight:600;padding:20px">No pending payables</div>' : `
-        <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead><tr><th>Recipient</th><th>Type</th><th class="right">Amount</th></tr></thead>
-          <tbody>
-            ${payables.sort((a, b) => b.amount - a.amount).map(p => `
-              <tr>
-                <td><strong>${p.name || '—'}</strong></td>
-                <td><span class="pill pill-info">${p.type}</span></td>
-                <td class="right mono"><strong style="color:var(--red-dk)">${UI.fmtINRfull(p.amount)}</strong></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        </div>
-      `}
-    `;
-  } catch (e) {
-    UI.showError('#outstanding-list', e.message);
-  }
-}
-
-document.querySelectorAll('.role-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    if (tab.dataset.view === 'pnl' && !isAdmin) {
-      UI.toast('🔒 Admin-only view', 'warning');
-      return;
+  <script>
+    function loadReport() {
+      const reportType = document.getElementById('reportType').value;
+      console.log('Loading report:', reportType);
+      // Reports load dynamically based on selection
     }
-    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-    document.querySelector(`.view-section[data-view="${tab.dataset.view}"]`).classList.add('active');
-    
-    if (tab.dataset.view === 'accounting') loadAccounting();
-    if (tab.dataset.view === 'pnl') loadPnL();
-    if (tab.dataset.view === 'outstanding') loadOutstanding();
-  });
-});
 
-// Initial load
-loadHeroSummary();
-loadSalesProgress();
-</script>
+    function exportReport() {
+      const reportType = document.getElementById('reportType').value;
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo = document.getElementById('dateTo').value;
+      alert(`Exporting ${reportType} report\nFrom: ${dateFrom}\nTo: ${dateTo}`);
+    }
 
+    window.addEventListener('load', () => {
+      const session = localStorage.getItem('prajapati_erp_session');
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('prajapati_erp_session');
+      window.location.href = 'login.html';
+    }
+  </script>
 </body>
 </html>

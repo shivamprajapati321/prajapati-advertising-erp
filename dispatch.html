@@ -1,1592 +1,379 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Dispatch · Prajapati ERP</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css">
-<style>
-.role-tabs.disp .role-tab.active { background: var(--dispatch); color: white; }
-.role-tabs.disp .role-tab:hover { color: var(--dispatch); }
-.role-tabs.disp .role-tab.active:hover { color: white; }
-.btn.primary.disp { background: var(--dispatch); }
-.btn.primary.disp:hover { background: var(--dispatch-dk); box-shadow: 0 8px 18px rgba(99,102,241,0.3); }
-
-.entry-card {
-  background: var(--white); border: 1px solid var(--line);
-  border-radius: 16px; padding: 28px; margin-bottom: 24px;
-  position: relative; overflow: hidden;
-}
-.entry-card::before {
-  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-  background: linear-gradient(90deg, var(--dispatch), #818CF8);
-}
-.entry-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
-.entry-head h2 { font-size: 20px; font-weight: 800; color: var(--nav); display: inline-flex; align-items: center; gap: 10px; }
-.entry-head h2 .icon-bg {
-  width: 36px; height: 36px; border-radius: 10px;
-  background: var(--dispatch-soft); color: var(--dispatch);
-  display: flex; align-items: center; justify-content: center; font-size: 18px;
-}
-
-.entry-form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-@media (max-width: 1100px) { .entry-form-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 760px) { .entry-form-grid { grid-template-columns: 1fr; } }
-.form-field.full-2 { grid-column: span 2; }
-.form-field.full { grid-column: 1 / -1; }
-.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--dispatch)!important; box-shadow: 0 0 0 3px rgba(99,102,241,0.1)!important; }
-
-.bundle-calc {
-  background: linear-gradient(135deg, var(--dispatch-soft), #EEF2FF);
-  border: 1px solid var(--dispatch); border-radius: 12px;
-  padding: 18px; margin-top: 18px;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
-}
-@media (max-width: 760px) { .bundle-calc { grid-template-columns: repeat(2, 1fr); } }
-.bundle-calc-item .lbl-mini { font-size: 10px; font-weight: 700; color: var(--dispatch-dk); letter-spacing: 0.05em; text-transform: uppercase; }
-.bundle-calc-item .val-big { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 800; color: var(--ink); margin-top: 4px; letter-spacing: -0.02em; }
-.bundle-calc-item .val-big.disp { color: var(--dispatch-dk); }
-
-.payment-toggle {
-  display: flex; gap: 10px; padding: 14px;
-  background: var(--soft); border-radius: 10px;
-  margin-top: 18px; align-items: center; flex-wrap: wrap;
-}
-.payment-toggle .lbl-toggle { font-size: 12px; font-weight: 700; color: var(--ink-2); }
-.payment-btn {
-  padding: 9px 18px; border-radius: 8px;
-  font-size: 12px; font-weight: 700;
-  display: inline-flex; align-items: center; gap: 6px;
-  cursor: pointer; border: 1px solid var(--line);
-  background: var(--white); color: var(--mute);
-  transition: all 0.15s;
-}
-.payment-btn.paid.active { background: var(--green); color: white; border-color: var(--green); }
-.payment-btn.unpaid.active { background: var(--red); color: white; border-color: var(--red); }
-.payment-btn.partial.active { background: var(--amber); color: white; border-color: var(--amber); }
-
-.entry-submit { display: flex; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
-.entry-submit .btn { flex: 1; padding: 13px 20px; font-size: 14px; }
-
-/* PDF preview */
-.pdf-paper {
-  background: var(--white); border: 1px solid var(--line);
-  border-radius: 12px; padding: 36px 40px;
-  box-shadow: 0 20px 50px rgba(11,25,87,0.08);
-  font-size: 13px; position: relative;
-}
-.pdf-paper::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
-  background: linear-gradient(90deg, var(--nav), var(--dispatch));
-  border-radius: 12px 12px 0 0;
-}
-.pdf-head {
-  display: flex; justify-content: space-between; align-items: start;
-  padding-bottom: 20px; border-bottom: 2px solid var(--nav); margin-bottom: 20px;
-}
-.pdf-brand-mark {
-  width: 50px; height: 50px; background: var(--nav); border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-weight: 800; font-size: 18px;
-}
-.pdf-brand-name { font-size: 22px; font-weight: 800; color: var(--nav); }
-.pdf-brand-sub { font-size: 11px; color: var(--mute); font-weight: 600; margin-top: 2px; }
-.pdf-doc-id .lbl-id { font-size: 10px; font-weight: 700; color: var(--mute); letter-spacing: 0.1em; text-transform: uppercase; }
-.pdf-doc-id .val-id { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; color: var(--dispatch); margin-top: 2px; }
-.pdf-doc-id .date-stamp { font-size: 11px; color: var(--mute); margin-top: 6px; font-weight: 600; }
-
-.pdf-section { margin-bottom: 18px; }
-.pdf-section-title { font-size: 11px; font-weight: 800; color: var(--mute); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
-.pdf-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 12px; }
-.pdf-meta-item .lbl-meta { font-size: 10px; color: var(--mute); font-weight: 600; }
-.pdf-meta-item .val-meta { font-weight: 800; color: var(--ink); margin-top: 2px; }
-
-.pdf-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-.pdf-table th { text-align: left; padding: 8px 10px; font-size: 10px; font-weight: 800; color: var(--mute); letter-spacing: 0.05em; text-transform: uppercase; background: var(--soft); border-bottom: 1px solid var(--line); }
-.pdf-table th.right { text-align: right; }
-.pdf-table td { padding: 10px; font-size: 12px; font-weight: 600; color: var(--ink); border-bottom: 1px solid var(--line); }
-.pdf-table td.right { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 800; }
-
-.pdf-totals { display: flex; justify-content: flex-end; margin-top: 16px; }
-.pdf-totals-box { background: var(--soft); border-radius: 8px; padding: 14px 20px; min-width: 240px; }
-.pdf-tot-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; }
-.pdf-tot-row.grand { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 10px; font-size: 16px; font-weight: 800; color: var(--nav); }
-.pdf-tot-row.grand .val { font-family: 'JetBrains Mono', monospace; }
-.pdf-pay-stamp {
-  position: absolute; right: 50px; bottom: 100px;
-  border: 3px solid var(--green-dk); padding: 8px 20px; border-radius: 6px;
-  color: var(--green-dk); font-weight: 800; font-size: 14px;
-  transform: rotate(-12deg); letter-spacing: 0.1em;
-  background: var(--green-soft); opacity: 0.85;
-}
-.pdf-pay-stamp.unpaid { border-color: var(--red-dk); color: var(--red-dk); background: var(--red-soft); }
-.pdf-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 10px; color: var(--mute); display: flex; justify-content: space-between; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dispatch - Prajapati ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --cyan: #06b6d4; --gold: #fbbf24; --dark: #0f172a; --light: #f0f9ff; --border: #e0f2fe; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--light); }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--dark); color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--cyan), var(--gold)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .sidebar-menu { list-style: none; }
+    .sidebar-menu li { margin-bottom: 10px; }
+    .sidebar-menu a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; transition: all 0.3s; font-size: 14px; }
+    .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(6,182,212,0.2); color: var(--cyan); }
+    .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: white; padding: 20px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .topbar-title { font-size: 24px; font-weight: 700; color: var(--cyan); }
+    .logout-btn { background: var(--cyan); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .logout-btn:hover { background: #0891b2; }
+    .content { padding: 30px; flex: 1; overflow-y: auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .page-header h1 { font-size: 28px; color: var(--dark); }
+    .btn-primary { background: linear-gradient(135deg, var(--cyan), #0891b2); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6,182,212,0.3); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: white; padding: 25px; border-radius: 12px; border-left: 4px solid var(--cyan); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-number { font-size: 28px; font-weight: 700; color: var(--cyan); margin-bottom: 5px; }
+    .stat-label { font-size: 13px; color: #6b7280; }
+    .timeline { background: white; border-radius: 12px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .timeline-item { display: flex; gap: 15px; margin-bottom: 20px; position: relative; }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .timeline-item:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 40px; width: 2px; height: 60px; background: var(--border); }
+    .timeline-dot { width: 32px; height: 32px; background: var(--cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0; }
+    .timeline-content { flex: 1; }
+    .timeline-title { font-weight: 600; color: var(--dark); margin-bottom: 3px; }
+    .timeline-time { font-size: 12px; color: #9ca3af; }
+    .filters { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .filter-group { display: flex; gap: 10px; align-items: center; }
+    .filter-group label { font-size: 13px; font-weight: 600; color: #6b7280; }
+    .filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; font-family: inherit; }
+    .table-container { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f9fafb; border-bottom: 2px solid var(--border); }
+    th { padding: 15px; text-align: left; font-weight: 600; font-size: 13px; color: #6b7280; text-transform: uppercase; }
+    td { padding: 15px; border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: #f9fafb; }
+    .status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 11px; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-shipped { background: #bfdbfe; color: #1e40af; }
+    .status-transit { background: #dbeafe; color: #0369a1; }
+    .status-delivered { background: #d1fae5; color: #065f46; }
+    .btn-small { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .btn-edit { background: var(--cyan); color: white; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 30px; max-width: 700px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .modal-header { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--dark); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 14px; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(6,182,212,0.1); }
+    .form-group-full { grid-column: 1 / -1; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancel { background: #f3f4f6; color: #1f2937; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    @media (max-width: 768px) { .sidebar { width: 200px; } .main { margin-left: 200px; } .form-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-
-<div class="app-layout">
-
-  <aside class="sidebar" id="sidebar"></aside>
-
-  <main class="main">
-
-    <header class="topbar" id="topbar"></header>
-
-    <div class="page">
-
-      <div class="page-head">
-        <div>
-          <h1 class="page-title">Dispatch <em style="color:var(--dispatch)">Department</em></h1>
-          <div class="page-sub">Bundle entry · Vendor · PDF receipt generation</div>
-        </div>
+  <div class="container">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">📦</div>
+        <div style="font-size: 16px; font-weight: 700;">PRAJAPATI</div>
       </div>
-
-      <div class="role-tabs disp">
-        <button class="role-tab active" data-view="new">📝 New Dispatch</button>
-        <button class="role-tab" data-view="dashboard">📊 Manager Dashboard</button>
-        <button class="role-tab" data-view="pdf" id="pdf-tab" style="display:none">🧾 PDF / Receipt</button>
-      </div>
-
-      <div class="stats-row">
-        <div class="stat-mini"><div class="label">Today's Dispatch</div><div class="num" id="stat-today">—</div></div>
-        <div class="stat-mini"><div class="label">PCS Out</div><div class="num" id="stat-pcs">—</div></div>
-        <div class="stat-mini finance-only"><div class="label">Today's ₹</div><div class="num" id="stat-cost">—</div></div>
-        <div class="stat-mini"><div class="label">Active Vendors</div><div class="num" id="stat-vendors">—</div></div>
-        <div class="stat-mini finance-only"><div class="label">Unpaid</div><div class="num" id="stat-unpaid">—</div></div>
-      </div>
-
-      <!-- VIEW 1: NEW DISPATCH -->
-      <div class="view-section active" data-view="new">
-
-        <div class="entry-card">
-          <div class="entry-head">
-            <h2><div class="icon-bg">🚚</div> Create New Dispatch</h2>
-            <span style="font-size:12px;color:var(--mute);font-weight:600" id="today-label">📅 Today</span>
-          </div>
-
-          <form id="dispatch-form">
-            <div class="entry-form-grid">
-              <div class="form-field full-2">
-                <label>Order / Work Order * <span style="color:var(--mute);font-weight:500;font-size:10px">(Quote, PI, or Invoice)</span></label>
-                <div style="position:relative">
-                  <input type="text" id="d-order-search" placeholder="🔍 Search by order number or work name..." autocomplete="off" 
-                    style="width:100%;padding:11px 14px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit">
-                  <input type="hidden" id="d-order" required>
-                  <input type="hidden" id="d-order-source-type">
-                  <input type="hidden" id="d-order-source-number">
-                  <input type="hidden" id="d-order-work-name">
-                  <div id="d-order-results" style="display:none;position:absolute;top:100%;left:0;right:0;max-height:300px;overflow-y:auto;background:#fff;border:1.5px solid #e0e0e0;border-top:none;border-radius:0 0 8px 8px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,0.12)"></div>
-                </div>
-                <div id="d-order-selected" style="display:none;margin-top:8px;padding:10px 12px;background:linear-gradient(135deg,#f0f4ff,#e8f0fe);border-radius:8px;border:1px solid #d0d9ff">
-                  <div style="display:flex;justify-content:space-between;align-items:start;gap:10px">
-                    <div style="flex:1;min-width:0">
-                      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                        <span style="font-size:11px;font-weight:700;color:var(--p);text-transform:uppercase;letter-spacing:0.4px" id="sel-source-label">Quote</span>
-                        <span style="font-size:13px;font-weight:700;color:var(--p);font-family:monospace" id="sel-source-number">—</span>
-                      </div>
-                      <div id="sel-client-label" style="font-size:12px;font-weight:700;color:#854d0e;background:#fef3c7;display:inline-block;padding:3px 10px;border-radius:99px;margin-top:6px"></div>
-                      <div style="font-size:12px;color:#555;margin-top:4px" id="sel-work-name">—</div>
-                    </div>
-                    <button type="button" onclick="clearOrderSelection()" style="background:#fee;border:1px solid #fcc;color:#c33;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">✕ Change</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-field">
-                <label>Dispatch Date</label>
-                <input type="date" id="d-date" required>
-              </div>
-
-              <div class="form-field">
-                <label>Field Team / Recipient</label>
-                <div style="position:relative">
-                  <input type="text" id="d-team" placeholder="🔍 Search team or type name..." autocomplete="off" required>
-                  <input type="hidden" id="d-team-id">
-                  <input type="hidden" id="d-team-phone">
-                  <input type="hidden" id="d-team-type" value="manual">
-                  <div id="d-team-results" style="display:none;position:absolute;top:100%;left:0;right:0;max-height:280px;overflow-y:auto;background:#fff;border:1.5px solid #e0e0e0;border-top:none;border-radius:0 0 8px 8px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,0.12)"></div>
-                </div>
-                <div id="d-team-badge" style="display:none;margin-top:4px;font-size:11px;font-weight:600">
-                  <span id="d-team-type-display" style="padding:2px 8px;border-radius:99px;background:#dcfce7;color:#15803d">✓ Team Member</span>
-                </div>
-                <div class="helper" style="font-size:11px">Type to search team or enter custom name (for direct client/external delivery)</div>
-              </div>
-
-              <div class="form-field">
-                <label>Destination *</label>
-                <input type="text" id="d-dest" placeholder="City / Area" required>
-              </div>
-
-              <div class="form-field">
-                <label>State / Region</label>
-                <select id="d-state">
-                  <option>Maharashtra</option>
-                  <option>Gujarat</option>
-                  <option>Karnataka</option>
-                  <option>Delhi NCR</option>
-                  <option>Rajasthan</option>
-                  <option>Madhya Pradesh</option>
-                  <option>Tamil Nadu</option>
-                  <option>Other</option>
-                </select>
-              </div>
-
-              <div class="form-field">
-                <label>Total Quantity (PCS) *</label>
-                <input type="number" class="mono" id="d-qty" min="1" required value="50">
-              </div>
-
-              <div class="form-field">
-                <label>PCS per Bundle</label>
-                <input type="number" class="mono" id="d-per-bundle" value="10" min="1">
-                <div class="helper">Standard: 10 PCS = 1 bundle</div>
-              </div>
-
-              <div class="form-field finance-only">
-                <label>Price per Bundle (₹)</label>
-                <input type="number" class="mono" id="d-price" value="250" min="0">
-                <div class="helper">Transport cost / bundle</div>
-              </div>
-
-              <div class="form-field full-2">
-                <label>Transport Vendor * <span style="color:var(--mute);font-weight:500;font-size:10px">(Type to search or add new)</span></label>
-                <div style="position:relative">
-                  <input type="text" id="d-vendor" placeholder="🔍 VRL Logistics, Gati, Bluedart, Local etc." required autocomplete="off">
-                  <input type="hidden" id="d-vendor-id">
-                  <div id="d-vendor-results" style="display:none;position:absolute;top:100%;left:0;right:0;max-height:300px;overflow-y:auto;background:#fff;border:1.5px solid #e0e0e0;border-top:none;border-radius:0 0 8px 8px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,0.12)"></div>
-                </div>
-                <div class="helper" style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-                  <button type="button" onclick="openVendorModal()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px">
-                    ➕ Add New Transporter
-                  </button>
-                  <a href="javascript:void(0)" onclick="showAllVendors()" style="color:var(--p);font-weight:600;text-decoration:none;font-size:12px">📋 View All</a>
-                </div>
-              </div>
-
-              <div class="form-field">
-                <label>Vendor Phone</label>
-                <input type="tel" class="mono" id="d-vendor-phone" placeholder="+91-XXXXX">
-              </div>
-
-              <div class="form-field full">
-                <label>Notes / Special Instructions</label>
-                <textarea id="d-notes" rows="2" placeholder="Optional"></textarea>
-              </div>
-            </div>
-
-            <div class="bundle-calc">
-              <div class="bundle-calc-item">
-                <div class="lbl-mini">Total PCS</div>
-                <div class="val-big" id="calc-pcs">50</div>
-              </div>
-              <div class="bundle-calc-item">
-                <div class="lbl-mini">Bundles</div>
-                <div class="val-big disp" id="calc-bundles">5</div>
-              </div>
-              <div class="bundle-calc-item finance-only">
-                <div class="lbl-mini">Per Bundle</div>
-                <div class="val-big" id="calc-rate">₹250</div>
-              </div>
-              <div class="bundle-calc-item finance-only">
-                <div class="lbl-mini">Total Cost</div>
-                <div class="val-big disp" id="calc-total">₹1,250</div>
-              </div>
-            </div>
-
-            <div class="payment-toggle finance-only">
-              <span class="lbl-toggle">Payment Status:</span>
-              <button type="button" class="payment-btn paid" data-status="paid">✓ Paid</button>
-              <button type="button" class="payment-btn unpaid active" data-status="unpaid">✗ Unpaid</button>
-              <button type="button" class="payment-btn partial" data-status="partial">⚡ Partial</button>
-            </div>
-
-            <!-- WhatsApp Notification Options (ADDED) -->
-            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 16px;margin-top:14px">
-              <div style="font-size:12px;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">📲 Send WhatsApp After Dispatch</div>
-              <div style="display:flex;gap:12px;flex-wrap:wrap">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600;color:#166534">
-                  <input type="checkbox" id="d-wa-vendor" checked style="width:16px;height:16px;cursor:pointer">
-                  📱 To Transporter
-                </label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600;color:#166534">
-                  <input type="checkbox" id="d-wa-team" checked style="width:16px;height:16px;cursor:pointer">
-                  👥 To Field Team
-                </label>
-              </div>
-              <div style="font-size:11px;color:#15803d;margin-top:8px;opacity:0.8">Auto-send dispatch details via WhatsApp after submission</div>
-            </div>
-
-            <div class="entry-submit">
-              <button type="button" class="btn ghost" onclick="resetForm()">🔄 Reset</button>
-              <button type="submit" class="btn primary disp" id="d-submit">🚚 Submit Dispatch + Generate PDF</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- VENDOR ADD MODAL (ADDED) -->
-      <div id="vendorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:20px">
-        <div style="background:#fff;border-radius:14px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
-          <div style="padding:18px 24px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
-            <h3 style="margin:0;font-size:17px;color:var(--p)">🚚 Add Transport Vendor</h3>
-            <button onclick="closeVendorModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999">×</button>
-          </div>
-          <form id="vendorForm" onsubmit="saveVendor(event)" style="padding:20px 24px">
-            <div style="display:grid;gap:14px">
-              <div>
-                <label style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.4px">Vendor Name *</label>
-                <input type="text" id="v-name" required placeholder="VRL Logistics" style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:7px;font-size:14px;margin-top:4px">
-              </div>
-              <div>
-                <label style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.4px">Company / Brand</label>
-                <input type="text" id="v-company" placeholder="VRL Logistics Ltd." style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:7px;font-size:14px;margin-top:4px">
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div>
-                  <label style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.4px">Phone *</label>
-                  <input type="tel" id="v-phone" required placeholder="+91 98XXXXXXXX" style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:7px;font-size:14px;margin-top:4px">
-                </div>
-                <div>
-                  <label style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.4px">Alt Phone</label>
-                  <input type="tel" id="v-phone-alt" placeholder="Optional" style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:7px;font-size:14px;margin-top:4px">
-                </div>
-              </div>
-              <div>
-                <label style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.4px">Service Areas</label>
-                <input type="text" id="v-areas" placeholder="Maharashtra, Gujarat, Karnataka (comma separated)" style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:7px;font-size:14px;margin-top:4px">
-              </div>
-              <div>
-                <label style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.4px">Notes</label>
-                <textarea id="v-notes" rows="2" placeholder="Optional notes (pricing, reliability, etc.)" style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:7px;font-size:14px;margin-top:4px;font-family:inherit;resize:vertical"></textarea>
-              </div>
-              <div style="display:flex;gap:10px;margin-top:6px">
-                <button type="button" onclick="closeVendorModal()" class="btn ghost" style="flex:1">Cancel</button>
-                <button type="submit" class="btn primary disp" style="flex:2">💾 Save Vendor</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- VIEW 2: MANAGER -->
-      <div class="view-section" data-view="dashboard">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title">All <em style="color:var(--dispatch)">Dispatches</em></div>
-            <button class="btn ghost" style="padding:6px 12px;font-size:11px" onclick="loadManager()">🔄 Refresh</button>
-          </div>
-          <div id="manager-list">
-            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- VIEW 3: PDF -->
-      <div class="view-section" data-view="pdf">
-        <div id="pdf-container"></div>
-        <div style="display:flex;gap:10px;margin-top:18px">
-          <button class="btn ghost" onclick="window.print()">🖨️ Print</button>
-          <button class="btn primary disp" onclick="goNew()">📝 New Dispatch</button>
-        </div>
-      </div>
-
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html">📊 Dashboard</a></li>
+        <li><a href="orders.html">📋 Orders</a></li>
+        <li><a href="leads.html">🎯 Leads</a></li>
+        <li><a href="quotations.html">📝 Quotations</a></li>
+        <li><a href="invoices.html">💰 Invoices</a></li>
+        <li><a href="customers.html">👥 Customers</a></li>
+        <li><a href="printing.html">🖨️ Printing</a></li>
+        <li><a href="stitching.html">✂️ Stitching</a></li>
+        <li><a href="#coming">🎬 Execution</a></li>
+        <li><a href="#dispatch" class="active">🚚 Dispatch</a></li>
+        <li><a href="team.html">👨‍💼 Team</a></li>
+        <li><a href="#coming">⚙️ Settings</a></li>
+      </ul>
     </div>
-  </main>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="lib-config.js"></script>
-<script src="lib-auth.js"></script>
-<script src="lib-ui.js"></script>
-<script>
-const session = AUTH.requireModule('dispatch');
-if (!session) throw new Error('Not logged in');
-
-document.getElementById('sidebar').innerHTML = UI.renderSidebar('dispatch');
-document.getElementById('topbar').innerHTML = UI.renderTopbar('Dispatch', { searchPlaceholder: 'Search dispatch, vendor...' });
-
-const todayStr = new Date().toISOString().slice(0, 10);
-document.getElementById('d-date').value = todayStr;
-document.getElementById('today-label').textContent = '📅 ' + new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
-
-// ─── ROLE-BASED VISIBILITY (ADDED) ───
-// Hide financial data for operations/dispatch/printing/stitching roles
-// Show only for admin/sales/hr_sales/director
-const ROLE_CAN_SEE_FINANCE = (function() {
-  const role = (session.role || '').toLowerCase();
-  const financeRoles = ['admin', 'sales', 'hr_sales', 'director'];
-  return financeRoles.includes(role);
-})();
-
-function hideFinanceElements() {
-  if (!ROLE_CAN_SEE_FINANCE) {
-    document.querySelectorAll('.finance-only').forEach(el => {
-      el.style.display = 'none';
-    });
-  }
-}
-
-// Apply on page load
-hideFinanceElements();
-
-// Also apply after dynamic content renders
-const _origHideFn = hideFinanceElements;
-window.hideFinanceElements = _origHideFn;
-
-console.log('[Role] Session role:', session.role, '| Can see finance:', ROLE_CAN_SEE_FINANCE);
-
-// Pre-fill team field with logged-in user as default
-document.getElementById('d-team').value = session.name || '';
-document.getElementById('d-team-id').value = session.staffId || '';
-document.getElementById('d-team-phone').value = session.phone || '';
-document.getElementById('d-team-type').value = 'staff';
-if (session.staffId) {
-  document.getElementById('d-team-badge').style.display = 'block';
-  document.getElementById('d-team-type-display').textContent = '✓ Team Member: ' + (session.designation || session.role || 'Staff');
-}
-
-let currentPaymentStatus = 'unpaid';
-let lastDispatchData = null;
-
-// ─── SEARCHABLE ORDER DROPDOWN (REPLACED) ───
-let allOrders = [];
-let allVendors = [];
-
-async function loadOrders() {
-  try {
-    // Fetch from view that combines quotes + PI + invoices
-    const { data, error } = await sb()
-      .from('v_dispatch_eligible_orders')
-      .select('*')
-      .order('milestone_date', { ascending: false })
-      .limit(200);
-    
-    if (error) {
-      console.error('loadOrders error:', error);
-      // Fallback: try work_orders if view not available
-      const fallback = await sb()
-        .from('prajapati_work_orders')
-        .select('id, wo_number, total_value')
-        .order('created_at', { ascending: false })
-        .limit(50);
-      allOrders = (fallback.data || []).map(o => ({
-        source_id: o.id,
-        source_type: 'work_order',
-        source_number: o.wo_number || 'WO-' + (o.id || '').slice(0, 6),
-        work_name: 'Work Order',
-        total_value: o.total_value,
-        source_label: 'Work Order'
-      }));
-    } else {
-      allOrders = data || [];
-    }
-    
-    console.log('Orders loaded:', allOrders.length);
-  } catch (err) {
-    console.error('Failed to load orders:', err);
-    allOrders = [];
-  }
-}
-
-function renderOrderResults(filtered) {
-  const resultsBox = document.getElementById('d-order-results');
-  
-  if (filtered.length === 0) {
-    resultsBox.innerHTML = '<div style="padding:14px;text-align:center;color:#999;font-size:13px">No matching orders found</div>';
-    resultsBox.style.display = 'block';
-    return;
-  }
-  
-  // Store filtered list globally so we can lookup by index
-  window._filteredOrders = filtered;
-  
-  // Helper: safely escape HTML (text only, no events)
-  function escHtml(s) {
-    if (s === null || s === undefined) return '';
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-  
-  // ROLE CHECK: Only admin + sales see amounts
-  const role = (session.role || '').toLowerCase();
-  const canSeeAmount = role === 'admin' || role === 'sales' || role === 'hr_sales' || role === 'director';
-  
-  // Smart service type detection from work_name
-  function detectServiceType(workName) {
-    const w = (workName || '').toLowerCase();
-    
-    // Auto Rickshaw branding (various keywords)
-    if (w.includes('auto') && (w.includes('rickshaw') || w.includes('hood') || w.includes('panel'))) {
-      return { label: 'AUTO BRANDING', color: '#8b5cf6' };
-    }
-    if (w.includes('rickshaw') || w.includes('hood')) {
-      return { label: 'AUTO BRANDING', color: '#8b5cf6' };
-    }
-    
-    // Hoardings
-    if (w.includes('hoarding') || w.includes('hoarder') || w.includes('billboard')) {
-      return { label: 'HOARDING', color: '#dc2626' };
-    }
-    
-    // Wall painting / branding
-    if (w.includes('wall') && (w.includes('paint') || w.includes('brand'))) {
-      return { label: 'WALL PAINTING', color: '#059669' };
-    }
-    if (w.includes('paint')) {
-      return { label: 'WALL PAINTING', color: '#059669' };
-    }
-    
-    // Bus / Cab
-    if (w.includes('bus') && w.includes('brand')) {
-      return { label: 'BUS BRANDING', color: '#0891b2' };
-    }
-    if (w.includes('cab') || w.includes('taxi')) {
-      return { label: 'CAB BRANDING', color: '#0891b2' };
-    }
-    
-    // Flex / Vinyl / Print
-    if (w.includes('flex') || w.includes('vinyl') || w.includes('print')) {
-      return { label: 'FLEX/PRINT', color: '#f59e0b' };
-    }
-    
-    // Standee
-    if (w.includes('standee') || w.includes('roll up') || w.includes('roll-up')) {
-      return { label: 'STANDEE', color: '#ec4899' };
-    }
-    
-    // Mobile van
-    if (w.includes('mobile') && w.includes('van')) {
-      return { label: 'MOBILE VAN', color: '#8b5cf6' };
-    }
-    if (w.includes('van') && (w.includes('advertis') || w.includes('brand'))) {
-      return { label: 'MOBILE VAN', color: '#8b5cf6' };
-    }
-    
-    // Banner
-    if (w.includes('banner')) {
-      return { label: 'BANNER', color: '#f59e0b' };
-    }
-    
-    // Signage
-    if (w.includes('signage') || w.includes('signboard')) {
-      return { label: 'SIGNAGE', color: '#06b6d4' };
-    }
-    
-    // Default fallback - use first 2 words capitalized
-    const firstWords = (workName || 'Service').split(/\s+/).slice(0, 2).join(' ').toUpperCase();
-    return { label: firstWords.substring(0, 20), color: '#64748b' };
-  }
-  
-  resultsBox.innerHTML = filtered.map((o, idx) => {
-    const serviceType = detectServiceType(o.work_name);
-    
-    return `
-      <div data-order-idx="${idx}" class="order-result-item"
-        style="padding:14px;border-bottom:1px solid #f0f0f0;cursor:pointer;transition:background 0.15s"
-        onmouseover="this.style.background='#f8f9fc'" onmouseout="this.style.background='#fff'">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
-          <span style="background:${serviceType.color};color:#fff;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;white-space:nowrap">${escHtml(serviceType.label)}</span>
-          <span style="font-family:monospace;font-weight:700;font-size:13px;color:#0f1c5e">${escHtml(o.source_number)}</span>
-          ${canSeeAmount && o.total_value ? `<span style="margin-left:auto;font-size:12px;color:#10b981;font-weight:700">₹${Number(o.total_value).toLocaleString('en-IN')}</span>` : ''}
-        </div>
-        ${o.client_label ? `<div style="background:#fef3c7;color:#854d0e;display:inline-block;padding:3px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:6px">🏢 ${escHtml(o.client_label)}</div>` : ''}
-        <div style="font-size:13px;color:#333;font-weight:500;line-height:1.4">${escHtml(o.work_name)}</div>
-        ${o.city ? `<div style="font-size:11px;color:#999;margin-top:4px">📍 ${escHtml(o.city)}${o.state ? ', ' + escHtml(o.state) : ''}</div>` : ''}
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title">Dispatch</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
       </div>
-    `;
-  }).join('');
-  
-  // Attach click handlers via event listener (safer than inline onclick)
-  resultsBox.querySelectorAll('.order-result-item').forEach(item => {
-    item.addEventListener('click', function() {
-      const idx = parseInt(this.getAttribute('data-order-idx'));
-      const order = window._filteredOrders[idx];
-      if (order) selectOrderByObject(order);
-    });
-  });
-  
-  resultsBox.style.display = 'block';
-}
 
-function selectOrderByObject(o) {
-  document.getElementById('d-order').value = o.source_id || '';
-  document.getElementById('d-order-source-type').value = o.source_type || '';
-  document.getElementById('d-order-source-number').value = o.source_number || '';
-  document.getElementById('d-order-work-name').value = o.work_name || '';
-  document.getElementById('d-order-search').value = '';
-  document.getElementById('d-order-results').style.display = 'none';
-  
-  // Store client label for form submit
-  let clientHidden = document.getElementById('d-client-label');
-  if (!clientHidden) {
-    clientHidden = document.createElement('input');
-    clientHidden.type = 'hidden';
-    clientHidden.id = 'd-client-label';
-    document.getElementById('d-order').parentNode.appendChild(clientHidden);
-  }
-  clientHidden.value = o.client_label || '';
-  
-  // Detect service type for badge
-  function detectServiceTypeForSelect(workName) {
-    const w = (workName || '').toLowerCase();
-    if ((w.includes('auto') && (w.includes('rickshaw') || w.includes('hood') || w.includes('panel'))) ||
-        w.includes('rickshaw') || w.includes('hood')) {
-      return { label: 'AUTO BRANDING', color: '#8b5cf6' };
-    }
-    if (w.includes('hoarding') || w.includes('hoarder') || w.includes('billboard')) {
-      return { label: 'HOARDING', color: '#dc2626' };
-    }
-    if ((w.includes('wall') && (w.includes('paint') || w.includes('brand'))) || w.includes('paint')) {
-      return { label: 'WALL PAINTING', color: '#059669' };
-    }
-    if ((w.includes('bus') && w.includes('brand')) || w.includes('cab') || w.includes('taxi')) {
-      return { label: 'BUS/CAB BRANDING', color: '#0891b2' };
-    }
-    if (w.includes('flex') || w.includes('vinyl') || w.includes('print')) {
-      return { label: 'FLEX/PRINT', color: '#f59e0b' };
-    }
-    if (w.includes('standee') || w.includes('roll up') || w.includes('roll-up')) {
-      return { label: 'STANDEE', color: '#ec4899' };
-    }
-    if (w.includes('mobile') && w.includes('van')) {
-      return { label: 'MOBILE VAN', color: '#8b5cf6' };
-    }
-    if (w.includes('van') && (w.includes('advertis') || w.includes('brand'))) {
-      return { label: 'MOBILE VAN', color: '#8b5cf6' };
-    }
-    if (w.includes('banner')) {
-      return { label: 'BANNER', color: '#f59e0b' };
-    }
-    if (w.includes('signage') || w.includes('signboard')) {
-      return { label: 'SIGNAGE', color: '#06b6d4' };
-    }
-    const firstWords = (workName || 'Service').split(/\s+/).slice(0, 2).join(' ').toUpperCase();
-    return { label: firstWords.substring(0, 20), color: '#64748b' };
-  }
-  
-  const serviceType = detectServiceTypeForSelect(o.work_name);
-  
-  // Show selected order display
-  document.getElementById('d-order-selected').style.display = 'block';
-  const labelEl = document.getElementById('sel-source-label');
-  labelEl.textContent = serviceType.label;
-  labelEl.style.background = serviceType.color;
-  labelEl.style.color = '#fff';
-  labelEl.style.padding = '3px 10px';
-  labelEl.style.borderRadius = '99px';
-  labelEl.style.fontSize = '10px';
-  labelEl.style.fontWeight = '700';
-  labelEl.style.letterSpacing = '0.3px';
-  
-  document.getElementById('sel-source-number').textContent = o.source_number || '';
-  document.getElementById('sel-work-name').textContent = o.work_name || '';
-  
-  // Show client label badge (only if available)
-  const clientEl = document.getElementById('sel-client-label');
-  if (clientEl) {
-    if (o.client_label) {
-      clientEl.textContent = '🏢 ' + o.client_label;
-      clientEl.style.display = 'inline-block';
-    } else {
-      clientEl.style.display = 'none';
-    }
-  }
-  
-  // Auto-fill destination + state from order data
-  if (o.city && !document.getElementById('d-dest').value) {
-    document.getElementById('d-dest').value = o.city;
-  }
-  if (o.state) {
-    const stateSelect = document.getElementById('d-state');
-    for (let opt of stateSelect.options) {
-      if (opt.value === o.state || opt.text === o.state) {
-        stateSelect.value = opt.value;
-        break;
+      <div class="content">
+        <div class="page-header">
+          <h1>🚚 Shipment Tracking</h1>
+          <button class="btn-primary" onclick="openModal()">+ New Shipment</button>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalShips">0</div>
+            <div class="stat-label">Total Shipments</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="pendingShips">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="transitShips">0</div>
+            <div class="stat-label">In Transit</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="deliveredShips">0</div>
+            <div class="stat-label">Delivered</div>
+          </div>
+        </div>
+
+        <!-- TIMELINE SAMPLE -->
+        <div class="timeline">
+          <h2 style="font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--dark);">Latest Shipment Timeline</h2>
+          <div class="timeline-item">
+            <div class="timeline-dot">1</div>
+            <div class="timeline-content">
+              <div class="timeline-title">Order Received</div>
+              <div class="timeline-time">May 19, 2026 - 10:00 AM</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot">2</div>
+            <div class="timeline-content">
+              <div class="timeline-title">Processing Started</div>
+              <div class="timeline-time">May 19, 2026 - 11:30 AM</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot">3</div>
+            <div class="timeline-content">
+              <div class="timeline-title">Ready for Dispatch</div>
+              <div class="timeline-time">May 19, 2026 - 2:00 PM</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot">4</div>
+            <div class="timeline-content">
+              <div class="timeline-title">Shipped with Courier</div>
+              <div class="timeline-time">May 19, 2026 - 4:30 PM</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="filters">
+          <div class="filter-group">
+            <label>Search:</label>
+            <input type="text" id="searchInput" placeholder="Shipment ID or customer" onkeyup="filterShipments()">
+          </div>
+          <div class="filter-group">
+            <label>Status:</label>
+            <select id="statusFilter" onchange="filterShipments()">
+              <option value="">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Shipped">Shipped</option>
+              <option value="In Transit">In Transit</option>
+              <option value="Delivered">Delivered</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Logistics:</label>
+            <select id="logisticsFilter" onchange="filterShipments()">
+              <option value="">All Logistics</option>
+              <option value="DHL">DHL</option>
+              <option value="FedEx">FedEx</option>
+              <option value="Local Courier">Local Courier</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Shipment ID</th>
+                <th>Customer</th>
+                <th>Tracking #</th>
+                <th>Logistics</th>
+                <th>Status</th>
+                <th>Delivery Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="shipsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal" id="shipModal">
+    <div class="modal-content">
+      <div class="modal-header">Create Shipment</div>
+      <form id="shipForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Customer Name *</label>
+            <input type="text" id="shipCustomer" required>
+          </div>
+          <div class="form-group">
+            <label>Tracking Number *</label>
+            <input type="text" id="shipTracking" required placeholder="AWB123456">
+          </div>
+          <div class="form-group">
+            <label>Logistics Partner *</label>
+            <select id="shipLogistics" required>
+              <option value="">Select Logistics</option>
+              <option value="DHL">DHL</option>
+              <option value="FedEx">FedEx</option>
+              <option value="Local Courier">Local Courier</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status *</label>
+            <select id="shipStatus" required>
+              <option value="Pending">Pending</option>
+              <option value="Shipped">Shipped</option>
+              <option value="In Transit">In Transit</option>
+              <option value="Delivered">Delivered</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Expected Delivery</label>
+            <input type="date" id="shipDelivery">
+          </div>
+          <div class="form-group">
+            <label>Customer Phone</label>
+            <input type="tel" id="shipPhone" placeholder="+91-9876543210">
+          </div>
+          <div class="form-group-full">
+            <label>Delivery Address</label>
+            <input type="text" id="shipAddress" placeholder="Full address">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Shipment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let shipments = [
+      { id: 'SHIP-001', customer: 'ABC Enterprises', tracking: 'AWB001234', logistics: 'DHL', status: 'Delivered', deliveryDate: '2026-05-18' },
+      { id: 'SHIP-002', customer: 'XYZ Corp', tracking: 'FDX567890', logistics: 'FedEx', status: 'In Transit', deliveryDate: '2026-05-22' },
+      { id: 'SHIP-003', customer: 'Tech Solutions', tracking: 'LOC112233', logistics: 'Local Courier', status: 'Shipped', deliveryDate: '2026-05-21' },
+      { id: 'SHIP-004', customer: 'Global Trade', tracking: 'DHL445566', logistics: 'DHL', status: 'Pending', deliveryDate: '2026-05-23' },
+      { id: 'SHIP-005', customer: 'Premium Goods', tracking: 'FDX778899', logistics: 'FedEx', status: 'In Transit', deliveryDate: '2026-05-24' },
+    ];
+
+    window.addEventListener('load', () => {
+      const session = localStorage.getItem('prajapati_erp_session');
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
       }
-    }
-  }
-}
-
-// Legacy function (kept for compatibility)
-function selectOrder(sourceId, sourceType, sourceNumber, workName, city, state, pincode, sourceLabel) {
-  selectOrderByObject({
-    source_id: sourceId,
-    source_type: sourceType,
-    source_number: sourceNumber,
-    work_name: workName,
-    city: city,
-    state: state,
-    pincode: pincode,
-    source_label: sourceLabel
-  });
-}
-
-function clearOrderSelection() {
-  document.getElementById('d-order').value = '';
-  document.getElementById('d-order-source-type').value = '';
-  document.getElementById('d-order-source-number').value = '';
-  document.getElementById('d-order-work-name').value = '';
-  document.getElementById('d-order-selected').style.display = 'none';
-  document.getElementById('d-order-search').value = '';
-  document.getElementById('d-order-search').focus();
-}
-
-// Setup search input listener
-function setupOrderSearch() {
-  const searchInput = document.getElementById('d-order-search');
-  if (!searchInput) return;
-  
-  searchInput.addEventListener('input', function() {
-    const q = this.value.trim().toLowerCase();
-    if (q.length < 1) {
-      document.getElementById('d-order-results').style.display = 'none';
-      return;
-    }
-    const filtered = allOrders.filter(o => 
-      (o.source_number || '').toLowerCase().includes(q) ||
-      (o.work_name || '').toLowerCase().includes(q) ||
-      (o.city || '').toLowerCase().includes(q)
-    ).slice(0, 20);
-    renderOrderResults(filtered);
-  });
-  
-  searchInput.addEventListener('focus', function() {
-    if (this.value.trim().length === 0) {
-      renderOrderResults(allOrders.slice(0, 20));
-    }
-  });
-  
-  // Click outside to close
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('#d-order-search') && !e.target.closest('#d-order-results')) {
-      document.getElementById('d-order-results').style.display = 'none';
-    }
-  });
-}
-
-// ─── VENDOR SEARCH (ADDED) ───
-async function loadVendors() {
-  try {
-    const { data, error } = await sb()
-      .from('prajapati_transport_vendors')
-      .select('*')
-      .eq('is_active', true)
-      .order('is_preferred', { ascending: false })
-      .order('name');
-    
-    if (error) {
-      console.error('loadVendors error:', error);
-      allVendors = [];
-    } else {
-      allVendors = data || [];
-    }
-    console.log('Vendors loaded:', allVendors.length);
-  } catch (err) {
-    console.error('Failed to load vendors:', err);
-    allVendors = [];
-  }
-}
-
-function renderVendorResults(filtered) {
-  const box = document.getElementById('d-vendor-results');
-  if (filtered.length === 0) {
-    box.innerHTML = `<div style="padding:14px;text-align:center;font-size:13px;color:#666">
-      No matching vendor. <a href="javascript:void(0)" onclick="openVendorModal()" style="color:var(--p);font-weight:600">+ Add new</a>
-    </div>`;
-    box.style.display = 'block';
-    return;
-  }
-  
-  // Helper: safely escape HTML
-  function escHtml(s) {
-    if (s === null || s === undefined) return '';
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-  
-  // Store for index-based lookup
-  window._filteredVendors = filtered;
-  
-  box.innerHTML = filtered.map((v, idx) => {
-    return `
-      <div data-vendor-idx="${idx}" class="vendor-result-item"
-        style="padding:11px 14px;border-bottom:1px solid #f0f0f0;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background 0.15s"
-        onmouseover="this.style.background='#f8f9fc'" onmouseout="this.style.background='#fff'">
-        ${v.is_preferred ? '<span style="color:#f59e0b;font-size:14px">⭐</span>' : '<span style="width:14px"></span>'}
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:700;font-size:13px;color:#0f1c5e">${escHtml(v.name)}</div>
-          <div style="font-size:11px;color:#666;margin-top:1px">📞 ${escHtml(v.phone)}${v.service_areas && v.service_areas.length ? ' · ' + escHtml(v.service_areas.slice(0,2).join(', ')) : ''}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-  
-  // Attach click handlers
-  box.querySelectorAll('.vendor-result-item').forEach(item => {
-    item.addEventListener('click', function() {
-      const idx = parseInt(this.getAttribute('data-vendor-idx'));
-      const vendor = window._filteredVendors[idx];
-      if (vendor) selectVendorByObject(vendor);
+      displayShipments(shipments);
+      updateStats();
     });
-  });
-  
-  box.style.display = 'block';
-}
 
-function selectVendorByObject(v) {
-  document.getElementById('d-vendor').value = v.name || '';
-  document.getElementById('d-vendor-id').value = v.id || '';
-  document.getElementById('d-vendor-phone').value = v.phone || '';
-  document.getElementById('d-vendor-results').style.display = 'none';
-}
-
-// Legacy function (kept for compatibility)
-function selectVendor(id, name, phone) {
-  selectVendorByObject({ id: id, name: name, phone: phone });
-}
-
-function setupVendorSearch() {
-  const input = document.getElementById('d-vendor');
-  if (!input) return;
-  
-  input.addEventListener('input', function() {
-    document.getElementById('d-vendor-id').value = ''; // Clear ID when typing manually
-    const q = this.value.trim().toLowerCase();
-    if (q.length < 1) {
-      document.getElementById('d-vendor-results').style.display = 'none';
-      return;
-    }
-    const filtered = allVendors.filter(v => 
-      (v.name || '').toLowerCase().includes(q) ||
-      (v.company || '').toLowerCase().includes(q) ||
-      (v.phone || '').includes(q)
-    ).slice(0, 15);
-    renderVendorResults(filtered);
-  });
-  
-  input.addEventListener('focus', function() {
-    if (this.value.trim().length === 0 && allVendors.length > 0) {
-      renderVendorResults(allVendors.slice(0, 10));
-    }
-  });
-  
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('#d-vendor') && !e.target.closest('#d-vendor-results')) {
-      document.getElementById('d-vendor-results').style.display = 'none';
-    }
-  });
-}
-
-// ─── VENDOR MODAL (ADDED) ───
-window.openVendorModal = function() {
-  document.getElementById('vendorModal').style.display = 'flex';
-  // Pre-fill name if typed in search
-  const typed = document.getElementById('d-vendor').value.trim();
-  if (typed) document.getElementById('v-name').value = typed;
-  document.getElementById('v-name').focus();
-};
-
-window.closeVendorModal = function() {
-  document.getElementById('vendorModal').style.display = 'none';
-  document.getElementById('vendorForm').reset();
-};
-
-window.saveVendor = async function(e) {
-  e.preventDefault();
-  const btn = e.target.querySelector('button[type=submit]');
-  btn.disabled = true;
-  btn.textContent = '💾 Saving...';
-  
-  try {
-    const areas = (document.getElementById('v-areas').value || '').split(',').map(s => s.trim()).filter(Boolean);
-    const payload = {
-      name: document.getElementById('v-name').value.trim(),
-      company: document.getElementById('v-company').value.trim() || null,
-      phone: document.getElementById('v-phone').value.trim(),
-      phone_alt: document.getElementById('v-phone-alt').value.trim() || null,
-      service_areas: areas.length ? areas : null,
-      notes: document.getElementById('v-notes').value.trim() || null,
-      created_by: session.staffId,
-      created_by_name: session.name
-    };
-    
-    const { data, error } = await sb().from('prajapati_transport_vendors').insert(payload).select().single();
-    if (error) throw error;
-    
-    alert('✅ Vendor added: ' + data.vendor_code);
-    
-    // Refresh and auto-select
-    await loadVendors();
-    selectVendor(data.id, data.name, data.phone);
-    closeVendorModal();
-  } catch (err) {
-    alert('❌ Failed: ' + (err.message || err));
-    btn.disabled = false;
-    btn.textContent = '💾 Save Vendor';
-  }
-};
-
-// ─── SHOW ALL VENDORS LIST (ADDED) ───
-window.showAllVendors = function() {
-  if (allVendors.length === 0) {
-    alert('No vendors found. Click "Add New Transporter" to add your first vendor.');
-    return;
-  }
-  
-  const box = document.getElementById('d-vendor-results');
-  renderVendorResults(allVendors);
-  document.getElementById('d-vendor').focus();
-};
-
-function updateBundleCalc() {
-  const qty = parseInt(document.getElementById('d-qty').value) || 0;
-  const perBundle = parseInt(document.getElementById('d-per-bundle').value) || 1;
-  const price = parseFloat(document.getElementById('d-price').value) || 0;
-  const bundles = Math.ceil(qty / perBundle);
-  const total = bundles * price;
-  document.getElementById('calc-pcs').textContent = qty;
-  document.getElementById('calc-bundles').textContent = bundles;
-  document.getElementById('calc-rate').textContent = '₹' + price;
-  document.getElementById('calc-total').textContent = '₹' + total.toLocaleString('en-IN');
-}
-['d-qty', 'd-per-bundle', 'd-price'].forEach(id => document.getElementById(id).addEventListener('input', updateBundleCalc));
-updateBundleCalc();
-
-document.querySelectorAll('.payment-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentPaymentStatus = btn.dataset.status;
-  });
-});
-
-document.getElementById('dispatch-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  // Validate order selected
-  const sourceId = document.getElementById('d-order').value;
-  if (!sourceId) {
-    UI.toast('❌ Please select an order/quotation first', 'error');
-    document.getElementById('d-order-search').focus();
-    return;
-  }
-  
-  const sourceType = document.getElementById('d-order-source-type').value;
-  const sourceNumber = document.getElementById('d-order-source-number').value;
-  const workName = document.getElementById('d-order-work-name').value;
-  const qty = parseInt(document.getElementById('d-qty').value);
-  const perBundle = parseInt(document.getElementById('d-per-bundle').value);
-  const price = parseFloat(document.getElementById('d-price').value);
-  const bundles = Math.ceil(qty / perBundle);
-  const total = bundles * price;
-
-  // Generate dispatch number
-  let dispatchNumber = '';
-  try {
-    const { data: numData } = await sb().rpc('next_dispatch_number');
-    dispatchNumber = numData;
-  } catch (err) {
-    dispatchNumber = 'DSP-' + new Date().getFullYear() + '-' + Date.now().toString().slice(-5);
-  }
-
-  const payload = {
-    dispatch_number: dispatchNumber,
-    dispatch_date: document.getElementById('d-date').value,
-    // NEW privacy-safe fields
-    source_type: sourceType || null,
-    source_id: sourceId || null,
-    source_number: sourceNumber || null,
-    work_name: workName || null,
-    client_label: (document.getElementById('d-client-label') ? document.getElementById('d-client-label').value : null) || null,
-    // Legacy fields kept for backward compat
-    wo_number: sourceNumber || null,
-    // client_name intentionally NULL for privacy
-    field_team_id: document.getElementById('d-team-id').value || null,
-    field_team_name: document.getElementById('d-team').value,
-    field_team_phone: document.getElementById('d-team-phone').value || null,
-    field_team_type: document.getElementById('d-team-type').value || 'manual',
-    destination: document.getElementById('d-dest').value,
-    city: document.getElementById('d-dest').value,
-    state: document.getElementById('d-state').value,
-    total_qty: qty,
-    pcs_per_bundle: perBundle,
-    price_per_bundle: price,
-    total_cost: total,
-    vendor_id: document.getElementById('d-vendor-id').value || null,
-    vendor_name: document.getElementById('d-vendor').value,
-    vendor_phone: document.getElementById('d-vendor-phone').value || null,
-    dispatched_by: session.staffId || null,
-    dispatched_by_name: session.name || null,
-    payment_status: currentPaymentStatus,
-    paid_amount: currentPaymentStatus === 'paid' ? total : (currentPaymentStatus === 'partial' ? total / 2 : 0),
-    notes: document.getElementById('d-notes').value || null,
-    whatsapp_sent_to_vendor: document.getElementById('d-wa-vendor').checked,
-    whatsapp_sent_to_team: document.getElementById('d-wa-team').checked
-  };
-
-  try {
-    const btn = document.getElementById('d-submit');
-    btn.disabled = true;
-    btn.textContent = '⏳ Saving...';
-
-    const { data, error } = await sb().from('prajapati_dispatch_bundles').insert(payload).select().single();
-    if (error) throw error;
-
-    UI.toast(`✅ Dispatch ${dispatchNumber} saved!`, 'success');
-    lastDispatchData = data;
-    
-    // Trigger WhatsApp sends (after save success)
-    if (payload.whatsapp_sent_to_vendor || payload.whatsapp_sent_to_team) {
-      setTimeout(() => triggerWhatsAppSends(data), 800);
-    }
-    
-    showPDF(data);
-    loadStats();
-  } catch (err) {
-    UI.toast('❌ Save failed: ' + err.message, 'error');
-  } finally {
-    document.getElementById('d-submit').disabled = false;
-    document.getElementById('d-submit').textContent = '🚚 Submit Dispatch + Generate PDF';
-  }
-});
-
-function showPDF(d) {
-  document.getElementById('pdf-tab').style.display = '';
-  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('pdf-tab').classList.add('active');
-  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-  document.querySelector('.view-section[data-view="pdf"]').classList.add('active');
-
-  const stamp = !ROLE_CAN_SEE_FINANCE ? '' : (d.payment_status === 'paid'
-    ? '<div class="pdf-pay-stamp">PAID ✓</div>'
-    : d.payment_status === 'partial'
-    ? '<div class="pdf-pay-stamp" style="border-color:#F59E0B;color:#F59E0B;background:#FEF3C7">PARTIAL ⚡</div>'
-    : '<div class="pdf-pay-stamp unpaid">UNPAID ✗</div>');
-
-  document.getElementById('pdf-container').innerHTML = `
-    <div class="pdf-paper">
-      <div class="pdf-head">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="pdf-brand-mark">PA</div>
-          <div>
-            <div class="pdf-brand-name">PRAJAPATI ADVERTISING</div>
-            <div class="pdf-brand-sub">Pan-India Outdoor Advertising · Warje, Pune</div>
-          </div>
-        </div>
-        <div class="pdf-doc-id" style="text-align:right">
-          <div class="lbl-id">Dispatch No.</div>
-          <div class="val-id">${d.dispatch_number}</div>
-          <div class="date-stamp">📅 ${UI.fmtDate(d.dispatch_date)}</div>
-        </div>
-      </div>
-
-      <div class="pdf-section">
-        <div class="pdf-section-title">📦 Dispatch Details</div>
-        <div class="pdf-meta-grid">
-          <div class="pdf-meta-item"><div class="lbl-meta">Order Number</div><div class="val-meta">${d.source_number || d.wo_number || '—'}</div></div>
-          <div class="pdf-meta-item"><div class="lbl-meta">Client</div><div class="val-meta">${d.client_label || '—'}</div></div>
-          <div class="pdf-meta-item"><div class="lbl-meta">Work / Service</div><div class="val-meta">${d.work_name || '—'}</div></div>
-          <div class="pdf-meta-item"><div class="lbl-meta">Destination</div><div class="val-meta">${d.destination}, ${d.state || ''}</div></div>
-          <div class="pdf-meta-item"><div class="lbl-meta">Recipient / Team</div><div class="val-meta">${d.field_team_name || '—'}${d.field_team_type === 'manual' ? ' <span style="font-size:10px;color:#92400e;background:#fef3c7;padding:1px 6px;border-radius:99px;margin-left:4px">External</span>' : ''}</div></div>
-          <div class="pdf-meta-item"><div class="lbl-meta">Transport Vendor</div><div class="val-meta">${d.vendor_name}</div></div>
-          <div class="pdf-meta-item"><div class="lbl-meta">Vendor Phone</div><div class="val-meta">${d.vendor_phone || '—'}</div></div>
-        </div>
-      </div>
-
-      <div class="pdf-section finance-only">
-        <div class="pdf-section-title">🚚 Bundle Breakdown</div>
-        <table class="pdf-table">
-          <thead><tr>
-            <th>#</th><th>Description</th><th class="right">Qty (PCS)</th><th class="right">Bundles</th><th class="right">₹/Bundle</th><th class="right">Total ₹</th>
-          </tr></thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>Auto Rickshaw Branding Bundle</td>
-              <td class="right">${d.total_qty}</td>
-              <td class="right">${Math.ceil(d.total_qty / d.pcs_per_bundle)}</td>
-              <td class="right">${UI.fmtINRfull(d.price_per_bundle)}</td>
-              <td class="right">${UI.fmtINRfull(d.total_cost)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="pdf-section" style="display:${ROLE_CAN_SEE_FINANCE ? 'none' : 'block'}">
-        <div class="pdf-section-title">📦 Quantity Summary</div>
-        <table class="pdf-table">
-          <thead><tr>
-            <th>#</th><th>Description</th><th class="right">Total PCS</th><th class="right">Bundles</th>
-          </tr></thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>${d.work_name || 'Dispatch Bundle'}</td>
-              <td class="right">${d.total_qty}</td>
-              <td class="right">${Math.ceil(d.total_qty / d.pcs_per_bundle)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="pdf-totals finance-only">
-        <div class="pdf-totals-box">
-          <div class="pdf-tot-row"><span>Sub Total</span><span style="font-family:'JetBrains Mono',monospace;font-weight:800">${UI.fmtINRfull(d.total_cost)}</span></div>
-          <div class="pdf-tot-row"><span>Paid So Far</span><span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--green-dk)">${UI.fmtINRfull(d.paid_amount || 0)}</span></div>
-          <div class="pdf-tot-row grand"><span>Total Amount</span><span class="val">${UI.fmtINRfull(d.total_cost)}</span></div>
-        </div>
-      </div>
-
-      ${stamp}
-
-      <div class="pdf-footer">
-        <div>📞 +91-9922138138 · 📧 info@prajapatiadvertising.com</div>
-        <div>Generated: ${new Date().toLocaleString('en-IN')}</div>
-      </div>
-    </div>
-  `;
-  // Apply role-based visibility to PDF
-  hideFinanceElements();
-}
-
-function goNew() {
-  document.getElementById('pdf-tab').style.display = 'none';
-  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector('.role-tab[data-view="new"]').classList.add('active');
-  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-  document.querySelector('.view-section[data-view="new"]').classList.add('active');
-  resetForm();
-}
-
-function resetForm() {
-  document.getElementById('dispatch-form').reset();
-  document.getElementById('d-date').value = todayStr;
-  // Restore default team to logged-in user
-  document.getElementById('d-team').value = session.name || '';
-  document.getElementById('d-team-id').value = session.staffId || '';
-  document.getElementById('d-team-phone').value = session.phone || '';
-  document.getElementById('d-team-type').value = 'staff';
-  if (session.staffId) {
-    document.getElementById('d-team-badge').style.display = 'block';
-    document.getElementById('d-team-type-display').textContent = '✓ Team Member: ' + (session.designation || session.role || 'Staff');
-    document.getElementById('d-team-type-display').style.background = '#dcfce7';
-    document.getElementById('d-team-type-display').style.color = '#15803d';
-  }
-  document.getElementById('d-qty').value = 50;
-  document.getElementById('d-per-bundle').value = 10;
-  document.getElementById('d-price').value = 250;
-  // Clear order selection
-  if (document.getElementById('d-order-selected')) {
-    document.getElementById('d-order-selected').style.display = 'none';
-  }
-  if (document.getElementById('d-order')) {
-    document.getElementById('d-order').value = '';
-  }
-  if (document.getElementById('d-vendor-id')) {
-    document.getElementById('d-vendor-id').value = '';
-  }
-  if (document.getElementById('d-client-label')) {
-    document.getElementById('d-client-label').value = '';
-  }
-  document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('.payment-btn.unpaid').classList.add('active');
-  currentPaymentStatus = 'unpaid';
-  if (document.getElementById('d-wa-vendor')) document.getElementById('d-wa-vendor').checked = true;
-  if (document.getElementById('d-wa-team')) document.getElementById('d-wa-team').checked = true;
-  updateBundleCalc();
-}
-
-async function loadStats() {
-  try {
-    const today = todayStr;
-    const [todayData, unpaidData] = await Promise.all([
-      sb().from('prajapati_dispatch_bundles').select('*').eq('dispatch_date', today),
-      sb().from('prajapati_dispatch_bundles').select('total_cost, paid_amount').neq('payment_status', 'paid')
-    ]);
-
-    const todayCount = (todayData.data || []).length;
-    const todayPcs = (todayData.data || []).reduce((s, x) => s + (x.total_qty || 0), 0);
-    const todayCost = (todayData.data || []).reduce((s, x) => s + (Number(x.total_cost) || 0), 0);
-    const vendors = new Set((todayData.data || []).map(x => x.vendor_name)).size;
-    const unpaidAmt = (unpaidData.data || []).reduce((s, x) => s + (Number(x.total_cost) - Number(x.paid_amount || 0)), 0);
-
-    document.getElementById('stat-today').textContent = todayCount;
-    document.getElementById('stat-pcs').textContent = todayPcs;
-    document.getElementById('stat-cost').textContent = UI.fmtINR(todayCost);
-    document.getElementById('stat-vendors').textContent = vendors;
-    document.getElementById('stat-unpaid').textContent = UI.fmtINR(unpaidAmt);
-  } catch (e) { console.error(e); }
-}
-
-async function loadManager() {
-  const list = document.getElementById('manager-list');
-  try {
-    const { data } = await sb()
-      .from('prajapati_dispatch_bundles')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
-    
-    if (!data || data.length === 0) {
-      UI.showEmpty(list, 'No dispatches yet');
-      return;
+    function displayShipments(data) {
+      const tbody = document.getElementById('shipsBody');
+      tbody.innerHTML = data.map((s, idx) => `
+        <tr>
+          <td><strong>${s.id}</strong></td>
+          <td>${s.customer}</td>
+          <td>${s.tracking}</td>
+          <td>${s.logistics}</td>
+          <td><span class="status-badge status-${s.status.toLowerCase().replace(' ', '')}">${s.status}</span></td>
+          <td>${new Date(s.deliveryDate).toLocaleDateString('en-IN')}</td>
+          <td>
+            <button class="btn-small btn-edit" onclick="editShipment(${idx})">Edit</button>
+          </td>
+        </tr>
+      `).join('');
     }
 
-    list.innerHTML = `
-      <table class="data-table">
-        <thead><tr>
-          <th>Date</th><th>DSP No.</th><th>Order</th><th>Client</th><th>Work</th><th>Destination</th><th>Vendor</th><th class="right">Qty</th><th class="right">Bundles</th><th class="right finance-only">Cost</th><th class="finance-only">Pay</th>
-        </tr></thead>
-        <tbody>
-          ${data.map(r => {
-            const bundles = Math.ceil((r.total_qty || 0) / (r.pcs_per_bundle || 1));
-            const payCls = r.payment_status === 'paid' ? 'pill-success' : r.payment_status === 'partial' ? 'pill-warning' : 'pill-danger';
-            return `<tr>
-              <td>${UI.fmtDate(r.dispatch_date)}</td>
-              <td><a href="#" onclick="viewPDF('${r.id}');return false" style="color:var(--dispatch);font-weight:800;font-family:'JetBrains Mono',monospace">${r.dispatch_number}</a></td>
-              <td><span class="ord">${r.source_number || r.wo_number || '—'}</span></td>
-              <td>${r.client_label ? `<span style="background:#fef3c7;color:#854d0e;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700">${r.client_label}</span>` : '—'}</td>
-              <td>${r.work_name || '—'}</td>
-              <td>${r.destination || '—'}</td>
-              <td>${r.vendor_name || '—'}</td>
-              <td class="right mono">${r.total_qty}</td>
-              <td class="right mono">${bundles}</td>
-              <td class="right mono finance-only">${UI.fmtINRfull(r.total_cost)}</td>
-              <td class="finance-only"><span class="pill ${payCls}">${r.payment_status}</span></td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-    `;
-    // Re-apply role-based visibility after dynamic content
-    hideFinanceElements();
-  } catch (e) { UI.showError(list, e.message); }
-}
-
-async function viewPDF(id) {
-  try {
-    const { data } = await sb().from('prajapati_dispatch_bundles').select('*').eq('id', id).single();
-    if (data) showPDF(data);
-  } catch (e) { UI.toast('Could not load: ' + e.message, 'error'); }
-}
-
-document.querySelectorAll('.role-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-    document.querySelector(`.view-section[data-view="${tab.dataset.view}"]`).classList.add('active');
-    if (tab.dataset.view === 'dashboard') loadManager();
-  });
-});
-
-// ─── FIELD TEAM SEARCH (Hybrid - Auto-suggest + Manual) ───
-let allStaff = [];
-
-async function loadStaff() {
-  try {
-    const { data, error } = await sb()
-      .from('prajapati_staff')
-      .select('id, emp_code, name, phone, role, department, designation, status')
-      .eq('status', 'active')
-      .order('name');
-    
-    if (error) {
-      console.error('loadStaff error:', error);
-      allStaff = [];
-    } else {
-      allStaff = data || [];
+    function updateStats() {
+      document.getElementById('totalShips').textContent = shipments.length;
+      document.getElementById('pendingShips').textContent = shipments.filter(s => s.status === 'Pending').length;
+      document.getElementById('transitShips').textContent = shipments.filter(s => s.status === 'In Transit').length;
+      document.getElementById('deliveredShips').textContent = shipments.filter(s => s.status === 'Delivered').length;
     }
-    console.log('Staff loaded:', allStaff.length);
-  } catch (err) {
-    console.error('Failed to load staff:', err);
-    allStaff = [];
-  }
-}
 
-function renderTeamResults(filtered, hasQuery) {
-  const box = document.getElementById('d-team-results');
-  const currentQuery = document.getElementById('d-team').value.trim();
-  
-  // Helper: safely escape HTML
-  function escHtml(s) {
-    if (s === null || s === undefined) return '';
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-  
-  // Store for index-based lookup
-  window._filteredStaff = filtered;
-  
-  let html = '';
-  
-  // Group by role for better organization
-  if (filtered.length > 0) {
-    html += filtered.map((s, idx) => {
-      const roleColor = s.role === 'admin' ? '#8b5cf6' :
-                        s.role === 'sales' || s.role === 'hr_sales' ? '#3b82f6' :
-                        s.role === 'execution' || s.role === 'execution_manager' ? '#10b981' :
-                        s.role === 'printing' || s.role === 'printing_manager' ? '#f59e0b' :
-                        s.role === 'stitching' || s.role === 'stitching_manager' ? '#ec4899' :
-                        '#64748b';
-      
-      const roleLabel = s.designation || (s.role || '').replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-      
-      return `
-        <div data-staff-idx="${idx}" class="team-result-item"
-          style="padding:11px 14px;border-bottom:1px solid #f0f0f0;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background 0.15s"
-          onmouseover="this.style.background='#f8f9fc'" onmouseout="this.style.background='#fff'">
-          <div style="width:36px;height:36px;background:linear-gradient(135deg,${roleColor},${roleColor}cc);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0">
-            ${escHtml((s.name || '?').charAt(0).toUpperCase())}
-          </div>
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:700;font-size:13px;color:#0f1c5e">${escHtml(s.name)}</div>
-            <div style="font-size:11px;color:#666;margin-top:1px">
-              <span style="color:${roleColor};font-weight:600">${escHtml(roleLabel)}</span>
-              ${s.phone ? ` · 📞 ${escHtml(s.phone)}` : ''}
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-  
-  // Add "Use as manual entry" option if user has typed something
-  if (currentQuery && currentQuery.length > 1) {
-    const matchExact = filtered.some(s => (s.name || '').toLowerCase() === currentQuery.toLowerCase());
-    if (!matchExact) {
-      html += `
-        <div data-manual-name="${escHtml(currentQuery)}" class="team-manual-item"
-          style="padding:11px 14px;background:#fffbeb;border-top:2px solid #fbbf24;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background 0.15s"
-          onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='#fffbeb'">
-          <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0">
-            ✏️
-          </div>
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:700;font-size:13px;color:#92400e">Use "${escHtml(currentQuery)}" as manual name</div>
-            <div style="font-size:11px;color:#a16207;margin-top:1px">For direct client / external delivery</div>
-          </div>
-        </div>
-      `;
-    }
-  }
-  
-  if (!html && hasQuery) {
-    html = '<div style="padding:14px;text-align:center;color:#999;font-size:13px">No matching team member</div>';
-  }
-  
-  if (html) {
-    box.innerHTML = html;
-    box.style.display = 'block';
-    
-    // Attach handlers
-    box.querySelectorAll('.team-result-item').forEach(item => {
-      item.addEventListener('click', function() {
-        const idx = parseInt(this.getAttribute('data-staff-idx'));
-        const staff = window._filteredStaff[idx];
-        if (staff) selectStaffMember(staff);
+    function filterShipments() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const logistics = document.getElementById('logisticsFilter').value;
+
+      const filtered = shipments.filter(s => {
+        const matchSearch = s.id.toLowerCase().includes(search) || s.customer.toLowerCase().includes(search);
+        const matchStatus = !status || s.status === status;
+        const matchLogistics = !logistics || s.logistics === logistics;
+        return matchSearch && matchStatus && matchLogistics;
       });
+
+      displayShipments(filtered);
+    }
+
+    function openModal() {
+      document.getElementById('shipForm').reset();
+      document.getElementById('shipForm').dataset.id = '';
+      document.getElementById('shipModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('shipModal').classList.remove('active');
+    }
+
+    function editShipment(idx) {
+      const s = shipments[idx];
+      document.getElementById('shipCustomer').value = s.customer;
+      document.getElementById('shipTracking').value = s.tracking;
+      document.getElementById('shipLogistics').value = s.logistics;
+      document.getElementById('shipStatus').value = s.status;
+      document.getElementById('shipDelivery').value = s.deliveryDate;
+      document.getElementById('shipForm').dataset.id = idx;
+      openModal();
+    }
+
+    document.getElementById('shipForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const idx = document.getElementById('shipForm').dataset.id;
+      const data = {
+        customer: document.getElementById('shipCustomer').value,
+        tracking: document.getElementById('shipTracking').value,
+        logistics: document.getElementById('shipLogistics').value,
+        status: document.getElementById('shipStatus').value,
+        deliveryDate: document.getElementById('shipDelivery').value,
+      };
+
+      if (idx !== '') {
+        Object.assign(shipments[parseInt(idx)], data);
+      } else {
+        const newId = 'SHIP-' + String(Math.max(...shipments.map(s => parseInt(s.id.split('-')[1]))) + 1).padStart(3, '0');
+        shipments.push({ id: newId, ...data });
+      }
+
+      displayShipments(shipments);
+      updateStats();
+      closeModal();
     });
-    
-    box.querySelectorAll('.team-manual-item').forEach(item => {
-      item.addEventListener('click', function() {
-        const name = this.getAttribute('data-manual-name');
-        useManualName(name);
-      });
+
+    function logout() {
+      localStorage.removeItem('prajapati_erp_session');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('shipModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('shipModal')) closeModal();
     });
-  } else {
-    box.style.display = 'none';
-  }
-}
-
-function selectStaffMember(s) {
-  document.getElementById('d-team').value = s.name || '';
-  document.getElementById('d-team-id').value = s.id || '';
-  document.getElementById('d-team-phone').value = s.phone || '';
-  document.getElementById('d-team-type').value = 'staff';
-  document.getElementById('d-team-results').style.display = 'none';
-  
-  // Show badge
-  document.getElementById('d-team-badge').style.display = 'block';
-  const badgeEl = document.getElementById('d-team-type-display');
-  badgeEl.textContent = '✓ Team Member: ' + (s.designation || s.role || 'Staff');
-  badgeEl.style.background = '#dcfce7';
-  badgeEl.style.color = '#15803d';
-}
-
-function useManualName(name) {
-  document.getElementById('d-team').value = name;
-  document.getElementById('d-team-id').value = '';
-  document.getElementById('d-team-phone').value = '';
-  document.getElementById('d-team-type').value = 'manual';
-  document.getElementById('d-team-results').style.display = 'none';
-  
-  // Show manual badge
-  document.getElementById('d-team-badge').style.display = 'block';
-  const badgeEl = document.getElementById('d-team-type-display');
-  badgeEl.textContent = '✏️ Manual / External Recipient';
-  badgeEl.style.background = '#fef3c7';
-  badgeEl.style.color = '#92400e';
-}
-
-function setupTeamSearch() {
-  const input = document.getElementById('d-team');
-  if (!input) return;
-  
-  input.addEventListener('input', function() {
-    // Clear staff link when typing
-    document.getElementById('d-team-id').value = '';
-    document.getElementById('d-team-type').value = 'manual';
-    document.getElementById('d-team-badge').style.display = 'none';
-    
-    const q = this.value.trim().toLowerCase();
-    if (q.length < 1) {
-      document.getElementById('d-team-results').style.display = 'none';
-      return;
-    }
-    const filtered = allStaff.filter(s => 
-      (s.name || '').toLowerCase().includes(q) ||
-      (s.emp_code || '').toLowerCase().includes(q) ||
-      (s.phone || '').includes(q) ||
-      (s.designation || '').toLowerCase().includes(q)
-    ).slice(0, 10);
-    renderTeamResults(filtered, true);
-  });
-  
-  input.addEventListener('focus', function() {
-    if (this.value.trim().length === 0 && allStaff.length > 0) {
-      renderTeamResults(allStaff.slice(0, 8), false);
-    }
-  });
-  
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('#d-team') && !e.target.closest('#d-team-results')) {
-      document.getElementById('d-team-results').style.display = 'none';
-    }
-  });
-}
-function buildVendorWhatsAppMessage(d) {
-  const lines = [
-    `🚚 *Dispatch Confirmation*`,
-    ``,
-    `Dispatch #: ${d.dispatch_number}`,
-    `Order Ref: ${d.source_number || d.wo_number || '—'}`,
-    d.client_label ? `Client: ${d.client_label}` : '',
-    `Work: ${d.work_name || '—'}`,
-    ``,
-    `📦 *Cargo Details:*`,
-    `Total PCS: ${d.total_qty}`,
-    `Bundles: ${Math.ceil(d.total_qty / d.pcs_per_bundle)}`,
-    `Per Bundle: ${d.pcs_per_bundle} pcs`,
-    ``,
-    `📍 *Delivery:*`,
-    `Destination: ${d.destination}`,
-    `State: ${d.state}`,
-    ``,
-    // Cost section only if role can see finance
-    ...(ROLE_CAN_SEE_FINANCE ? [
-      `💰 *Cost:*`,
-      `Rate: ₹${d.price_per_bundle} / bundle`,
-      `Total: ₹${Number(d.total_cost).toLocaleString('en-IN')}`,
-      `Status: ${d.payment_status?.toUpperCase()}`,
-      ``
-    ] : []),
-    d.notes ? `📝 Notes: ${d.notes}` : '',
-    ``,
-    `Please confirm pickup. Reply with ETA.`,
-    ``,
-    `— ${d.dispatched_by_name || session.name}`,
-    `Prajapati Advertising`,
-    `📞 +91 99 22 138 138`
-  ].filter(Boolean);
-  return lines.join('\n');
-}
-
-function buildTeamWhatsAppMessage(d) {
-  const isManual = d.field_team_type === 'manual';
-  const lines = [
-    `📦 *${isManual ? 'Dispatch Notification' : 'Dispatch Scheduled'}*`,
-    ``,
-    `Dispatch #: ${d.dispatch_number}`,
-    `Order Ref: ${d.source_number || '—'}`,
-    d.client_label ? `Client: ${d.client_label}` : '',
-    `Work: ${d.work_name || '—'}`,
-    ``,
-    `🚚 Transporter: ${d.vendor_name}`,
-    d.vendor_phone ? `📞 Vendor: ${d.vendor_phone}` : '',
-    ``,
-    `📍 Destination: ${d.destination}, ${d.state}`,
-    `📦 Quantity: ${d.total_qty} pcs (${Math.ceil(d.total_qty / d.pcs_per_bundle)} bundles)`,
-    // Cost only for finance roles
-    ...(ROLE_CAN_SEE_FINANCE ? [`💰 Cost: ₹${Number(d.total_cost).toLocaleString('en-IN')}`] : []),
-    ``,
-    d.notes ? `📝 ${d.notes}` : '',
-    ``,
-    isManual ? 'Your dispatch has been arranged. Please coordinate with transporter.' : 'Coordinate with transporter for pickup.',
-    ``,
-    `— Dispatch from ${d.dispatched_by_name || session.name}`,
-    `Prajapati Advertising`,
-    `📞 +91 99 22 138 138`
-  ].filter(Boolean);
-  return lines.join('\n');
-}
-
-function cleanPhone(phone) {
-  if (!phone) return '';
-  let p = String(phone).replace(/[^0-9]/g, '');
-  if (p.length === 10) p = '91' + p;
-  return p;
-}
-
-async function triggerWhatsAppSends(d) {
-  const sendToVendor = document.getElementById('d-wa-vendor').checked;
-  const sendToTeam = document.getElementById('d-wa-team').checked;
-  
-  if (sendToVendor && d.vendor_phone) {
-    const phone = cleanPhone(d.vendor_phone);
-    const message = encodeURIComponent(buildVendorWhatsAppMessage(d));
-    window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
-  }
-  
-  if (sendToTeam) {
-    // Use team member's phone (works for staff or manual entry with phone)
-    // Fallback to logged-in user's phone if no team phone set
-    const teamPhone = d.field_team_phone || session.phone || '';
-    if (teamPhone) {
-      const phone = cleanPhone(teamPhone);
-      const message = encodeURIComponent(buildTeamWhatsAppMessage(d));
-      setTimeout(() => {
-        window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
-      }, sendToVendor ? 1500 : 0);
-    } else {
-      // No team phone available - show alert
-      console.warn('No team phone available for WhatsApp send');
-    }
-  }
-}
-
-// ─── INIT (UPDATED) ───
-loadOrders().then(() => setupOrderSearch());
-loadVendors().then(() => setupVendorSearch());
-loadStaff().then(() => setupTeamSearch());
-loadStats();
-</script>
-
+  </script>
 </body>
 </html>

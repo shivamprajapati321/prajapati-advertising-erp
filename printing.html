@@ -1,389 +1,370 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Printing · Prajapati ERP</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css">
-<style>
-.role-tabs.print .role-tab.active { background: var(--print); color: white; }
-.role-tabs.print .role-tab:hover { color: var(--print); }
-.role-tabs.print .role-tab.active:hover { color: white; }
-
-.btn.primary.print { background: var(--print); }
-.btn.primary.print:hover { background: #D97706; box-shadow: 0 8px 18px rgba(245,158,11,0.3); }
-
-.entry-card {
-  background: var(--white); border: 1px solid var(--line);
-  border-radius: 16px; padding: 28px; margin-bottom: 24px;
-  position: relative; overflow: hidden;
-}
-.entry-card::before {
-  content: ''; position: absolute; top: 0; left: 0;
-  width: 100%; height: 4px;
-  background: linear-gradient(90deg, var(--print), #FBBF24);
-}
-.entry-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
-.entry-head h2 { font-size: 20px; font-weight: 800; color: var(--nav); display: inline-flex; align-items: center; gap: 10px; }
-.entry-head h2 .icon-bg {
-  width: 36px; height: 36px; border-radius: 10px;
-  background: var(--print-soft); color: var(--print);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-}
-
-.entry-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-@media (max-width: 760px) { .entry-form-grid { grid-template-columns: 1fr; } }
-.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--print)!important; box-shadow: 0 0 0 3px rgba(245,158,11,0.1)!important; }
-
-.qty-card {
-  background: linear-gradient(135deg, var(--print-soft), #FFFBEB);
-  border: 1px solid var(--print);
-  border-radius: 12px; padding: 16px;
-  display: flex; align-items: center; gap: 16px; margin-top: 18px;
-}
-.qty-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--white); display: flex; align-items: center; justify-content: center; font-size: 24px; }
-.qty-info .lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--print); }
-.qty-info .total { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; color: var(--ink); margin-top: 2px; }
-.qty-info .progress-strip { height: 6px; background: rgba(245,158,11,0.2); border-radius: 999px; overflow: hidden; margin-top: 8px; }
-.qty-info .progress-strip .fill { height: 100%; background: var(--print); border-radius: 999px; }
-
-.entry-submit { display: flex; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
-.entry-submit .btn { flex: 1; padding: 13px 20px; font-size: 14px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Printing - Prajapati ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --cyan: #06b6d4; --gold: #fbbf24; --dark: #0f172a; --light: #f0f9ff; --border: #e0f2fe; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--light); }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--dark); color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--cyan), var(--gold)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .sidebar-menu { list-style: none; }
+    .sidebar-menu li { margin-bottom: 10px; }
+    .sidebar-menu a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; transition: all 0.3s; font-size: 14px; }
+    .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(6,182,212,0.2); color: var(--cyan); }
+    .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: white; padding: 20px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .topbar-title { font-size: 24px; font-weight: 700; color: var(--cyan); }
+    .logout-btn { background: var(--cyan); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .logout-btn:hover { background: #0891b2; }
+    .content { padding: 30px; flex: 1; overflow-y: auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .page-header h1 { font-size: 28px; color: var(--dark); }
+    .btn-primary { background: linear-gradient(135deg, var(--cyan), #0891b2); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6,182,212,0.3); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: white; padding: 25px; border-radius: 12px; border-left: 4px solid var(--cyan); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-number { font-size: 28px; font-weight: 700; color: var(--cyan); margin-bottom: 5px; }
+    .stat-label { font-size: 13px; color: #6b7280; }
+    .kanban { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .kanban-col { background: #f3f4f6; border-radius: 12px; padding: 20px; }
+    .kanban-title { font-weight: 700; color: var(--dark); margin-bottom: 15px; font-size: 14px; }
+    .kanban-card { background: white; padding: 15px; border-radius: 8px; border-left: 4px solid var(--cyan); margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); cursor: move; }
+    .kanban-card-title { font-weight: 600; font-size: 13px; margin-bottom: 5px; }
+    .kanban-card-info { font-size: 11px; color: #6b7280; margin-bottom: 5px; }
+    .progress-bar { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-top: 10px; }
+    .progress-fill { height: 100%; background: var(--cyan); }
+    .filters { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .filter-group { display: flex; gap: 10px; align-items: center; }
+    .filter-group label { font-size: 13px; font-weight: 600; color: #6b7280; }
+    .filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; font-family: inherit; }
+    .table-container { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f9fafb; border-bottom: 2px solid var(--border); }
+    th { padding: 15px; text-align: left; font-weight: 600; font-size: 13px; color: #6b7280; text-transform: uppercase; }
+    td { padding: 15px; border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: #f9fafb; }
+    .status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 11px; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-progress { background: #dbeafe; color: #1e40af; }
+    .status-qc { background: #f3e8ff; color: #6b21a8; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .btn-small { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .btn-edit { background: var(--cyan); color: white; }
+    .btn-delete { background: #fee2e2; color: #991b1b; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 30px; max-width: 700px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .modal-header { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--dark); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 14px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(6,182,212,0.1); }
+    .form-group-full { grid-column: 1 / -1; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancel { background: #f3f4f6; color: #1f2937; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    @media (max-width: 768px) { .sidebar { width: 200px; } .main { margin-left: 200px; } .kanban { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-
-<div class="app-layout">
-
-  <aside class="sidebar" id="sidebar"></aside>
-
-  <main class="main">
-
-    <header class="topbar" id="topbar"></header>
-
-    <div class="page">
-
-      <div class="page-head">
-        <div>
-          <h1 class="page-title">Printing <em style="color:var(--print)">Department</em></h1>
-          <div class="page-sub">Daily print job entry · Live progress tracking</div>
-        </div>
+  <div class="container">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">📦</div>
+        <div style="font-size: 16px; font-weight: 700;">PRAJAPATI</div>
       </div>
-
-      <!-- Role tabs -->
-      <div class="role-tabs print">
-        <button class="role-tab active" data-view="operator">🖨️ Operator View</button>
-        <button class="role-tab" data-view="manager">👨‍💼 Manager Dashboard</button>
-      </div>
-
-      <!-- Stats -->
-      <div class="stats-row">
-        <div class="stat-mini"><div class="label">Today's PCS</div><div class="num" id="stat-today">—</div></div>
-        <div class="stat-mini"><div class="label">This Week</div><div class="num" id="stat-week">—</div></div>
-        <div class="stat-mini"><div class="label">Active Orders</div><div class="num" id="stat-active">—</div></div>
-        <div class="stat-mini"><div class="label">My Entries</div><div class="num" id="stat-mine">—</div></div>
-        <div class="stat-mini"><div class="label">Approved</div><div class="num" id="stat-approved">—</div></div>
-      </div>
-
-      <!-- OPERATOR VIEW -->
-      <div class="view-section active" data-view="operator">
-
-        <div class="entry-card">
-          <div class="entry-head">
-            <h2><div class="icon-bg">🖨️</div> Today's Print Entry</h2>
-            <span style="font-size:12px;color:var(--mute);font-weight:600" id="today-label">📅 Today</span>
-          </div>
-
-          <div style="display:flex;gap:18px;padding:12px 16px;background:var(--soft);border-radius:10px;margin-bottom:18px;font-size:12px;flex-wrap:wrap">
-            <div style="display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink-2)">
-              <span style="color:var(--mute)">Operator:</span>
-              <strong id="op-name">—</strong>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink-2)">
-              <span style="color:var(--mute)">Date:</span>
-              <strong id="op-date">—</strong>
-            </div>
-          </div>
-
-          <form id="print-form">
-            <div class="entry-form-grid">
-              <div class="form-field">
-                <label>Order / Work Order *</label>
-                <select id="f-order" required>
-                  <option value="">— Select Order —</option>
-                </select>
-                <div class="helper">Manager assigns daily work</div>
-              </div>
-
-              <div class="form-field">
-                <label>Print Type *</label>
-                <select id="f-type" required>
-                  <option value="">— Select Type —</option>
-                  <option>Hood Panel (Auto Rickshaw)</option>
-                  <option>Back Panel</option>
-                  <option>Vinyl Sticker</option>
-                  <option>Flex Banner</option>
-                  <option>Wall Painting Sample</option>
-                </select>
-              </div>
-
-              <div class="form-field">
-                <label>PCS Completed Today *</label>
-                <input type="number" class="mono" id="f-pcs" placeholder="0" min="1" required>
-                <div class="helper">Aaj kitne pieces done?</div>
-              </div>
-
-              <div class="form-field">
-                <label>Notes / Issues</label>
-                <input type="text" id="f-notes" placeholder="Optional">
-                <div class="helper">Koi issue ya note?</div>
-              </div>
-            </div>
-
-            <div class="entry-submit">
-              <button type="button" class="btn ghost" onclick="resetForm()">🔄 Reset</button>
-              <button type="submit" class="btn primary print">✅ Submit Entry</button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Recent submissions -->
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title">Recent <em style="color:var(--print)">Submissions</em></div>
-          </div>
-          <div id="recent-list">
-            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MANAGER VIEW -->
-      <div class="view-section" data-view="manager">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title">All <em style="color:var(--print)">Print Entries</em></div>
-            <button class="btn ghost" style="padding:6px 12px;font-size:11px">📥 Export</button>
-          </div>
-          <div id="manager-list">
-            <div style="text-align:center;padding:30px;color:var(--mute);font-weight:600">⏳ Loading...</div>
-          </div>
-        </div>
-      </div>
-
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html">📊 Dashboard</a></li>
+        <li><a href="orders.html">📋 Orders</a></li>
+        <li><a href="leads.html">🎯 Leads</a></li>
+        <li><a href="quotations.html">📝 Quotations</a></li>
+        <li><a href="invoices.html">💰 Invoices</a></li>
+        <li><a href="customers.html">👥 Customers</a></li>
+        <li><a href="#printing" class="active">🖨️ Printing</a></li>
+        <li><a href="#coming">✂️ Stitching</a></li>
+        <li><a href="#coming">🎬 Execution</a></li>
+        <li><a href="#coming">🚚 Dispatch</a></li>
+        <li><a href="team.html">👨‍💼 Team</a></li>
+        <li><a href="#coming">⚙️ Settings</a></li>
+      </ul>
     </div>
-  </main>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="lib-config.js"></script>
-<script src="lib-auth.js"></script>
-<script src="lib-ui.js"></script>
-<script>
-const session = AUTH.requireModule('printing');
-if (!session) throw new Error('Not logged in');
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title">Printing</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
 
-document.getElementById('sidebar').innerHTML = UI.renderSidebar('printing');
-document.getElementById('topbar').innerHTML = UI.renderTopbar('Printing', { searchPlaceholder: 'Search order, type...' });
+      <div class="content">
+        <div class="page-header">
+          <h1>🖨️ Printing Jobs</h1>
+          <button class="btn-primary" onclick="openModal()">+ New Print Job</button>
+        </div>
 
-document.getElementById('op-name').textContent = session.name || session.phone;
-document.getElementById('op-date').textContent = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-document.getElementById('today-label').textContent = '📅 ' + new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+        <!-- STATS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalJobs">0</div>
+            <div class="stat-label">Total Jobs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="pendingJobs">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="inProgressJobs">0</div>
+            <div class="stat-label">In Progress</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="completedJobs">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
 
-// Load orders into dropdown
-async function loadOrders() {
-  try {
-    const { data } = await sb()
-      .from('prajapati_work_orders')
-      .select('id, wo_number, client_name, total_value, status')
-      .order('created_at', { ascending: false })
-      .limit(50);
-    
-    const sel = document.getElementById('f-order');
-    sel.innerHTML = '<option value="">— Select Order —</option>';
-    (data || []).forEach(o => {
-      const opt = document.createElement('option');
-      opt.value = o.id;
-      opt.dataset.number = o.wo_number || '';
-      opt.dataset.client = o.client_name || '';
-      opt.textContent = `${o.wo_number || 'WO-' + o.id.slice(0,6)} · ${o.client_name || 'Client'} (${(o.quantity || 0)} PCS)`;
-      sel.appendChild(opt);
+        <!-- KANBAN BOARD -->
+        <div style="margin-bottom: 40px;">
+          <h2 style="font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--dark);">Job Status Overview</h2>
+          <div class="kanban">
+            <div class="kanban-col">
+              <div class="kanban-title">📋 Pending</div>
+              <div id="col-pending"></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-title">⚙️ In Progress</div>
+              <div id="col-progress"></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-title">✅ Quality Check</div>
+              <div id="col-qc"></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-title">✔️ Completed</div>
+              <div id="col-completed"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="filters">
+          <div class="filter-group">
+            <label>Search:</label>
+            <input type="text" id="searchInput" placeholder="Job ID or customer" onkeyup="filterJobs()">
+          </div>
+          <div class="filter-group">
+            <label>Status:</label>
+            <select id="statusFilter" onchange="filterJobs()">
+              <option value="">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="QC">Quality Check</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Job ID</th>
+                <th>Customer</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="jobsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal" id="jobModal">
+    <div class="modal-content">
+      <div class="modal-header">Add Print Job</div>
+      <form id="jobForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Job Description *</label>
+            <input type="text" id="jobDesc" required placeholder="Flyers, Brochures, etc.">
+          </div>
+          <div class="form-group">
+            <label>Customer Name *</label>
+            <input type="text" id="jobCustomer" required>
+          </div>
+          <div class="form-group">
+            <label>Quantity *</label>
+            <input type="number" id="jobQty" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>Status *</label>
+            <select id="jobStatus" required>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="QC">Quality Check</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" id="jobDueDate">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Job</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let jobs = [
+      { id: 'PRN-001', customer: 'ABC Enterprises', desc: 'Color Flyers A4', qty: 5000, status: 'Pending', progress: 0, dueDate: '2026-05-25' },
+      { id: 'PRN-002', customer: 'XYZ Corp', desc: 'Business Cards', qty: 10000, status: 'In Progress', progress: 45, dueDate: '2026-05-23' },
+      { id: 'PRN-003', customer: 'Tech Solutions', desc: 'Brochures', qty: 3000, status: 'QC', progress: 85, dueDate: '2026-05-21' },
+      { id: 'PRN-004', customer: 'Global Trade', desc: 'Letterheads', qty: 2000, status: 'Completed', progress: 100, dueDate: '2026-05-20' },
+      { id: 'PRN-005', customer: 'Premium Goods', desc: 'Packaging Labels', qty: 8000, status: 'In Progress', progress: 60, dueDate: '2026-05-24' },
+    ];
+
+    window.addEventListener('load', () => {
+      const session = localStorage.getItem('prajapati_erp_session');
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      displayJobs(jobs);
+      updateStats();
+      displayKanban(jobs);
     });
-  } catch (e) {
-    UI.toast('Could not load orders: ' + e.message, 'error');
-  }
-}
 
-// Submit form
-document.getElementById('print-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const orderSel = document.getElementById('f-order');
-  const opt = orderSel.options[orderSel.selectedIndex];
-  
-  const payload = {
-    entry_date: new Date().toISOString().slice(0, 10),
-    work_order_id: orderSel.value || null,
-    wo_number: opt?.dataset.number || null,
-    client_name: opt?.dataset.client || null,
-    print_type: document.getElementById('f-type').value,
-    pcs_done: parseInt(document.getElementById('f-pcs').value),
-    operator_id: session.staffId || null,
-    operator_name: session.name || session.phone,
-    notes: document.getElementById('f-notes').value || null,
-    status: 'submitted'
-  };
-
-  try {
-    const btn = e.target.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.textContent = '⏳ Saving...';
-
-    const { error } = await sb().from('prajapati_printing_entries').insert(payload);
-    if (error) throw error;
-
-    UI.toast('✅ Print entry saved!', 'success');
-    resetForm();
-    await loadStats();
-    await loadRecent();
-  } catch (err) {
-    UI.toast('❌ Save failed: ' + err.message, 'error');
-  } finally {
-    const btn = e.target.querySelector('button[type="submit"]');
-    btn.disabled = false;
-    btn.innerHTML = '✅ Submit Entry';
-  }
-});
-
-function resetForm() {
-  document.getElementById('print-form').reset();
-}
-
-async function loadStats() {
-  try {
-    const today = new Date().toISOString().slice(0, 10);
-    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-
-    const [todayData, weekData, mineData] = await Promise.all([
-      sb().from('prajapati_printing_entries').select('pcs_done').eq('entry_date', today),
-      sb().from('prajapati_printing_entries').select('pcs_done').gte('entry_date', weekAgo),
-      sb().from('prajapati_printing_entries').select('pcs_done, status').eq('operator_name', session.name || session.phone)
-    ]);
-
-    const todayPcs = (todayData.data || []).reduce((s, x) => s + (x.pcs_done || 0), 0);
-    const weekPcs = (weekData.data || []).reduce((s, x) => s + (x.pcs_done || 0), 0);
-    const minePcs = (mineData.data || []).length;
-    const approvedPcs = (mineData.data || []).filter(x => x.status === 'approved').length;
-
-    document.getElementById('stat-today').textContent = todayPcs;
-    document.getElementById('stat-week').textContent = weekPcs;
-    document.getElementById('stat-mine').textContent = minePcs;
-    document.getElementById('stat-approved').textContent = approvedPcs;
-
-    const { count } = await sb().from('prajapati_work_orders').select('*', { count: 'exact', head: true });
-    document.getElementById('stat-active').textContent = count || 0;
-  } catch (e) {
-    console.error('stats error', e);
-  }
-}
-
-async function loadRecent() {
-  const list = document.getElementById('recent-list');
-  try {
-    const { data } = await sb()
-      .from('prajapati_printing_entries')
-      .select('*')
-      .eq('operator_name', session.name || session.phone)
-      .order('created_at', { ascending: false })
-      .limit(10);
-
-    if (!data || data.length === 0) {
-      UI.showEmpty(list, 'Koi entry abhi tak nahi. Pehli entry submit karo!');
-      return;
+    function displayJobs(data) {
+      const tbody = document.getElementById('jobsBody');
+      tbody.innerHTML = data.map(j => `
+        <tr>
+          <td><strong>${j.id}</strong></td>
+          <td>${j.customer}</td>
+          <td>${j.desc}</td>
+          <td>${j.qty.toLocaleString()}</td>
+          <td><span class="status-badge status-${j.status.toLowerCase().replace(' ', '')}">${j.status}</span></td>
+          <td>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${j.progress}%"></div>
+            </div>
+            ${j.progress}%
+          </td>
+          <td>${new Date(j.dueDate).toLocaleDateString('en-IN')}</td>
+          <td>
+            <button class="btn-small btn-edit" onclick="editJob(${jobs.indexOf(j)})">Edit</button>
+          </td>
+        </tr>
+      `).join('');
     }
 
-    list.innerHTML = `
-      <table class="data-table">
-        <thead><tr>
-          <th>Date</th><th>Order</th><th>Client</th><th>Type</th><th class="right">PCS</th><th>Status</th>
-        </tr></thead>
-        <tbody>
-          ${data.map(r => `
-            <tr>
-              <td>${UI.fmtDateTime(r.created_at)}</td>
-              <td><span class="ord">${r.wo_number || '—'}</span></td>
-              <td>${r.client_name || '—'}</td>
-              <td>${r.print_type || '—'}</td>
-              <td class="right mono">${r.pcs_done}</td>
-              <td><span class="pill ${r.status === 'approved' ? 'pill-success' : r.status === 'rejected' ? 'pill-danger' : 'pill-info'}">${r.status}</span></td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
-  } catch (e) {
-    UI.showError(list, e.message);
-  }
-}
-
-async function loadManager() {
-  const list = document.getElementById('manager-list');
-  try {
-    const { data } = await sb()
-      .from('prajapati_printing_entries')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
-    
-    if (!data || data.length === 0) {
-      UI.showEmpty(list, 'No entries yet');
-      return;
+    function displayKanban(data) {
+      ['Pending', 'In Progress', 'QC', 'Completed'].forEach((status, idx) => {
+        const col = document.getElementById(['col-pending', 'col-progress', 'col-qc', 'col-completed'][idx]);
+        col.innerHTML = data.filter(j => j.status === status).map(j => `
+          <div class="kanban-card">
+            <div class="kanban-card-title">${j.id}</div>
+            <div class="kanban-card-info">${j.customer}</div>
+            <div class="kanban-card-info">${j.qty.toLocaleString()} units</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${j.progress}%"></div>
+            </div>
+          </div>
+        `).join('');
+      });
     }
 
-    list.innerHTML = `
-      <table class="data-table">
-        <thead><tr>
-          <th>Date</th><th>Operator</th><th>Order</th><th>Client</th><th>Type</th><th class="right">PCS</th><th>Status</th>
-        </tr></thead>
-        <tbody>
-          ${data.map(r => `
-            <tr>
-              <td>${UI.fmtDateTime(r.created_at)}</td>
-              <td><strong>${r.operator_name || '—'}</strong></td>
-              <td><span class="ord">${r.wo_number || '—'}</span></td>
-              <td>${r.client_name || '—'}</td>
-              <td>${r.print_type || '—'}</td>
-              <td class="right mono">${r.pcs_done}</td>
-              <td><span class="pill ${r.status === 'approved' ? 'pill-success' : r.status === 'rejected' ? 'pill-danger' : 'pill-info'}">${r.status}</span></td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
-  } catch (e) {
-    UI.showError(list, e.message);
-  }
-}
+    function updateStats() {
+      document.getElementById('totalJobs').textContent = jobs.length;
+      document.getElementById('pendingJobs').textContent = jobs.filter(j => j.status === 'Pending').length;
+      document.getElementById('inProgressJobs').textContent = jobs.filter(j => j.status === 'In Progress').length;
+      document.getElementById('completedJobs').textContent = jobs.filter(j => j.status === 'Completed').length;
+    }
 
-// Tab switching
-document.querySelectorAll('.role-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-    document.querySelector(`.view-section[data-view="${tab.dataset.view}"]`).classList.add('active');
-    if (tab.dataset.view === 'manager') loadManager();
-  });
-});
+    function filterJobs() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('statusFilter').value;
 
-// Initial load
-loadOrders();
-loadStats();
-loadRecent();
-</script>
+      const filtered = jobs.filter(j => {
+        const matchSearch = j.id.toLowerCase().includes(search) || j.customer.toLowerCase().includes(search);
+        const matchStatus = !status || j.status === status;
+        return matchSearch && matchStatus;
+      });
 
+      displayJobs(filtered);
+    }
+
+    function openModal() {
+      document.getElementById('jobForm').reset();
+      document.getElementById('jobModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('jobModal').classList.remove('active');
+    }
+
+    function editJob(idx) {
+      const j = jobs[idx];
+      document.getElementById('jobDesc').value = j.desc;
+      document.getElementById('jobCustomer').value = j.customer;
+      document.getElementById('jobQty').value = j.qty;
+      document.getElementById('jobStatus').value = j.status;
+      document.getElementById('jobDueDate').value = j.dueDate;
+      document.getElementById('jobForm').dataset.id = idx;
+      openModal();
+    }
+
+    document.getElementById('jobForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const idx = document.getElementById('jobForm').dataset.id;
+      const data = {
+        desc: document.getElementById('jobDesc').value,
+        customer: document.getElementById('jobCustomer').value,
+        qty: parseInt(document.getElementById('jobQty').value),
+        status: document.getElementById('jobStatus').value,
+        dueDate: document.getElementById('jobDueDate').value,
+      };
+
+      if (idx !== '') {
+        Object.assign(jobs[parseInt(idx)], data);
+      } else {
+        const newId = 'PRN-' + String(Math.max(...jobs.map(j => parseInt(j.id.split('-')[1]))) + 1).padStart(3, '0');
+        jobs.push({ id: newId, progress: 0, ...data });
+      }
+
+      displayJobs(jobs);
+      displayKanban(jobs);
+      updateStats();
+      closeModal();
+    });
+
+    function logout() {
+      localStorage.removeItem('prajapati_erp_session');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('jobModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('jobModal')) closeModal();
+    });
+  </script>
 </body>
 </html>

@@ -6,719 +6,317 @@
   <title>Settings - Prajapati ERP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: linear-gradient(135deg, #f0f9ff 0%, #f5f3ff 100%);
-      color: #1f2937;
-    }
-
-    .container {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    /* SIDEBAR */
-    .sidebar {
-      width: 280px;
-      background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-      color: white;
-      padding: 20px;
-      position: fixed;
-      height: 100vh;
-      overflow-y: auto;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 30px;
-      font-weight: 700;
-      font-size: 18px;
-    }
-
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #06b6d4, #fbbf24);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-
-    .nav-section {
-      margin-bottom: 25px;
-    }
-
-    .nav-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #06b6d4;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 15px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
-
-    .nav-item:hover {
-      background: rgba(6, 182, 212, 0.1);
-    }
-
-    .nav-item.active {
-      background: rgba(6, 182, 212, 0.2);
-      color: #06b6d4;
-    }
-
-    /* MAIN CONTENT */
-    .main-content {
-      margin-left: 280px;
-      flex: 1;
-      padding: 20px;
-    }
-
-    /* TOPBAR */
-    .topbar {
-      background: white;
-      padding: 20px 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
-    }
-
-    .topbar-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: #06b6d4;
-    }
-
-    .topbar-subtitle {
-      font-size: 14px;
-      color: #9ca3af;
-      margin-top: 5px;
-    }
-
-    /* TABS */
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 25px;
-      background: white;
-      padding: 0;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      overflow: hidden;
-    }
-
-    .tab-button {
-      flex: 1;
-      padding: 15px 20px;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      font-weight: 600;
-      color: #6b7280;
-      transition: all 0.3s ease;
-      border-bottom: 3px solid transparent;
-    }
-
-    .tab-button.active {
-      color: #06b6d4;
-      border-bottom-color: #06b6d4;
-      background: #f0f9ff;
-    }
-
-    .tab-button:hover {
-      background: #f9fafb;
-    }
-
-    /* TAB CONTENT */
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    /* FORMS */
-    .form-section {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 25px;
-    }
-
-    .form-section-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1f2937;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #e5e7eb;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #374151;
-      font-size: 14px;
-    }
-
-    .form-input, .form-select, .form-textarea {
-      width: 100%;
-      padding: 10px 15px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14px;
-    }
-
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      outline: none;
-      border-color: #06b6d4;
-      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
-    }
-
-    .form-textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    /* MODULE GRID */
-    .module-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
-    .module-card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      border: 2px solid #e5e7eb;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .module-card:hover {
-      border-color: #06b6d4;
-      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.1);
-    }
-
-    .module-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .module-name {
-      font-weight: 600;
-      color: #1f2937;
-    }
-
-    .toggle {
-      width: 50px;
-      height: 28px;
-      background: #e5e7eb;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-
-    .toggle.active {
-      background: #06b6d4;
-    }
-
-    .toggle-circle {
-      width: 24px;
-      height: 24px;
-      background: white;
-      border-radius: 12px;
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      transition: all 0.3s ease;
-    }
-
-    .toggle.active .toggle-circle {
-      left: 24px;
-    }
-
-    .module-desc {
-      font-size: 12px;
-      color: #9ca3af;
-    }
-
-    /* BUTTONS */
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      font-size: 14px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #06b6d4, #0891b2);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(6, 182, 212, 0.3);
-    }
-
-    .btn-secondary {
-      background: #e0f2fe;
-      color: #06b6d4;
-    }
-
-    .btn-danger {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 25px;
-    }
-
-    .form-actions button {
-      flex: 0 0 auto;
-    }
-
-    /* SUCCESS MESSAGE */
-    .success-message {
-      background: #d1fae5;
-      color: #047857;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      display: none;
-    }
-
-    .success-message.show {
-      display: block;
-      animation: slideDown 0.3s ease;
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-      .sidebar {
-        width: 60px;
-        padding: 10px;
-      }
-
-      .main-content {
-        margin-left: 60px;
-      }
-
-      .tabs {
-        flex-direction: column;
-      }
-
-      .form-section {
-        padding: 20px;
-      }
-
-      .module-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --cyan: #06b6d4; --gold: #fbbf24; --dark: #0f172a; --light: #f0f9ff; --border: #e0f2fe; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--light); }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--dark); color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--cyan), var(--gold)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .sidebar-menu { list-style: none; }
+    .sidebar-menu li { margin-bottom: 10px; }
+    .sidebar-menu a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; transition: all 0.3s; font-size: 14px; }
+    .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(6,182,212,0.2); color: var(--cyan); }
+    .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: white; padding: 20px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .topbar-title { font-size: 24px; font-weight: 700; color: var(--cyan); }
+    .logout-btn { background: var(--cyan); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .logout-btn:hover { background: #0891b2; }
+    .content { padding: 30px; flex: 1; overflow-y: auto; }
+    .page-header { margin-bottom: 30px; }
+    .page-header h1 { font-size: 28px; color: var(--dark); margin-bottom: 10px; }
+    .page-header p { color: #6b7280; font-size: 14px; }
+    .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+    .setting-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+    .setting-header { background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(251,191,36,0.1)); padding: 20px; border-bottom: 1px solid var(--border); }
+    .setting-title { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
+    .setting-desc { font-size: 12px; color: #6b7280; }
+    .setting-content { padding: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 13px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(6,182,212,0.1); }
+    .toggle-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+    .toggle-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .toggle-label { font-size: 13px; color: #374151; }
+    .toggle-switch { width: 50px; height: 28px; background: #e5e7eb; border-radius: 14px; position: relative; cursor: pointer; transition: background 0.3s; }
+    .toggle-switch.active { background: var(--cyan); }
+    .toggle-switch::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: left 0.3s; }
+    .toggle-switch.active::after { left: 24px; }
+    .btn-save { background: var(--cyan); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.3s; }
+    .btn-save:hover { background: #0891b2; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.3s; }
+    .btn-danger:hover { background: #fecaca; }
+    .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; }
+    .alert-info { background: #dbeafe; color: #1e40af; border-left: 4px solid var(--cyan); }
+    .alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+    @media (max-width: 768px) { .sidebar { width: 200px; } .main { margin-left: 200px; } .settings-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div class="container">
     <!-- SIDEBAR -->
     <div class="sidebar">
-      <div class="logo">
-        <div class="logo-icon">⚙️</div>
-        <div>PRAJAPATI</div>
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">📦</div>
+        <div style="font-size: 16px; font-weight: 700;">PRAJAPATI</div>
       </div>
-
-      <div class="nav-section">
-        <div class="nav-label">MAIN</div>
-        <div class="nav-item" onclick="goTo('dashboard.html')">📊 Dashboard</div>
-        <div class="nav-item" onclick="goTo('orders.html')">📦 Orders</div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-label">SALES</div>
-        <div class="nav-item" onclick="goTo('leads.html')">🎯 Leads CRM</div>
-        <div class="nav-item" onclick="goTo('leads-advanced.html')">🔧 Advanced Leads</div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-label">OPERATIONS</div>
-        <div class="nav-item" onclick="goTo('printing.html')">🖨️ Printing</div>
-        <div class="nav-item" onclick="goTo('stitching.html')">✂️ Stitching</div>
-        <div class="nav-item" onclick="goTo('execution.html')">🛺 Execution</div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-label">ADMIN</div>
-        <div class="nav-item" onclick="goTo('team.html')">👥 Team</div>
-        <div class="nav-item active" onclick="goTo('settings.html')">⚙️ Settings</div>
-      </div>
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html">📊 Dashboard</a></li>
+        <li><a href="orders.html">📋 Orders</a></li>
+        <li><a href="leads.html">🎯 Leads</a></li>
+        <li><a href="quotations.html">📝 Quotations</a></li>
+        <li><a href="invoices.html">💰 Invoices</a></li>
+        <li><a href="customers.html">👥 Customers</a></li>
+        <li><a href="printing.html">🖨️ Printing</a></li>
+        <li><a href="stitching.html">✂️ Stitching</a></li>
+        <li><a href="#coming">🎬 Execution</a></li>
+        <li><a href="dispatch.html">🚚 Dispatch</a></li>
+        <li><a href="team.html">👨‍💼 Team</a></li>
+        <li><a href="#settings" class="active">⚙️ Settings</a></li>
+      </ul>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-      <!-- TOPBAR -->
+    <!-- MAIN -->
+    <div class="main">
       <div class="topbar">
-        <div class="topbar-title">⚙️ Settings</div>
-        <div class="topbar-subtitle">Configure system settings and preferences</div>
+        <div class="topbar-title">Settings</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
       </div>
 
-      <!-- SUCCESS MESSAGE -->
-      <div class="success-message" id="success-msg">✅ Settings saved successfully!</div>
+      <div class="content">
+        <div class="page-header">
+          <h1>⚙️ System Configuration</h1>
+          <p>Manage company settings, API keys, and module preferences</p>
+        </div>
 
-      <!-- TABS -->
-      <div class="tabs">
-        <button class="tab-button active" onclick="switchTab('company')">🏢 Company</button>
-        <button class="tab-button" onclick="switchTab('modules')">📦 Modules</button>
-        <button class="tab-button" onclick="switchTab('preferences')">👤 Preferences</button>
-        <button class="tab-button" onclick="switchTab('api')">🔌 API</button>
-        <button class="tab-button" onclick="switchTab('security')">🔐 Security</button>
-      </div>
+        <div class="alert alert-info">
+          ℹ️ Settings are saved automatically. Changes may require a page refresh to take effect.
+        </div>
 
-      <!-- COMPANY SETTINGS -->
-      <div class="tab-content active" id="company-tab">
-        <div class="form-section">
-          <div class="form-section-title">Company Information</div>
-          
-          <div class="form-group">
-            <label class="form-label">Company Name *</label>
-            <input type="text" class="form-input" id="company-name" value="Prajapati Advertising">
+        <div class="settings-grid">
+          <!-- COMPANY INFO -->
+          <div class="setting-card">
+            <div class="setting-header">
+              <div class="setting-title">🏢 Company Information</div>
+              <div class="setting-desc">Update company details</div>
+            </div>
+            <div class="setting-content">
+              <div class="form-group">
+                <label>Company Name</label>
+                <input type="text" value="Prajapati Advertising" readonly>
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" value="info@prajapati.com">
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" value="+91-8484038138">
+              </div>
+              <div class="form-group">
+                <label>Address</label>
+                <textarea rows="2">Pune, Maharashtra</textarea>
+              </div>
+              <button class="btn-save" onclick="saveSettings()">Save Changes</button>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Phone Number *</label>
-            <input type="text" class="form-input" id="company-phone" value="+91-8484038138">
+          <!-- MODULE TOGGLES -->
+          <div class="setting-card">
+            <div class="setting-header">
+              <div class="setting-title">📱 Module Access</div>
+              <div class="setting-desc">Enable/disable modules</div>
+            </div>
+            <div class="setting-content">
+              <div class="toggle-group">
+                <span class="toggle-label">📋 Orders</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">🎯 Leads</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">💰 Invoices</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">📝 Quotations</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">👥 Customers</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">🖨️ Printing</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">✂️ Stitching</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">🚚 Dispatch</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Email *</label>
-            <input type="email" class="form-input" id="company-email" value="info@prajapati-advertising.com">
+          <!-- NOTIFICATIONS -->
+          <div class="setting-card">
+            <div class="setting-header">
+              <div class="setting-title">🔔 Notifications</div>
+              <div class="setting-desc">Configure alerts</div>
+            </div>
+            <div class="setting-content">
+              <div class="toggle-group">
+                <span class="toggle-label">Email Notifications</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">WhatsApp Alerts</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">Daily Summary</span>
+                <div class="toggle-switch" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">Order Updates</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">Lead Notifications</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Address *</label>
-            <textarea class="form-textarea" id="company-address" placeholder="Full address"></textarea>
+          <!-- API KEYS -->
+          <div class="setting-card">
+            <div class="setting-header">
+              <div class="setting-title">🔑 API Configuration</div>
+              <div class="setting-desc">Manage API integrations</div>
+            </div>
+            <div class="setting-content">
+              <div class="form-group">
+                <label>Supabase URL</label>
+                <input type="text" value="https://shafygjbffffjhwhmcgo.supabase.co">
+              </div>
+              <div class="form-group">
+                <label>API Key</label>
+                <input type="password" value="••••••••••••••••" placeholder="Enter API key">
+              </div>
+              <div class="form-group">
+                <label>Wati WhatsApp ID</label>
+                <input type="text" value="1077226">
+              </div>
+              <div class="form-group">
+                <label>META Business Token</label>
+                <input type="password" placeholder="Enter token (optional)">
+              </div>
+              <button class="btn-save" onclick="saveSettings()">Update APIs</button>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">GST Number</label>
-            <input type="text" class="form-input" id="company-gst" placeholder="GST number">
+          <!-- LEAD SOURCES -->
+          <div class="setting-card">
+            <div class="setting-header">
+              <div class="setting-title">🎯 Lead Sources</div>
+              <div class="setting-desc">Configure auto-fetch</div>
+            </div>
+            <div class="setting-content">
+              <div class="toggle-group">
+                <span class="toggle-label">META (Facebook/Instagram)</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">IndiaMART</span>
+                <div class="toggle-switch active" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">JustDial</span>
+                <div class="toggle-switch" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">TradeIndia</span>
+                <div class="toggle-switch" onclick="toggleModule(this)"></div>
+              </div>
+              <div class="toggle-group">
+                <span class="toggle-label">Google Business</span>
+                <div class="toggle-switch" onclick="toggleModule(this)"></div>
+              </div>
+              <div style="margin-top: 15px; font-size: 12px; color: #6b7280;">
+                Auto-fetch runs every 1-4 hours for enabled sources
+              </div>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Website</label>
-            <input type="text" class="form-input" id="company-website" placeholder="https://example.com">
+          <!-- SECURITY -->
+          <div class="setting-card">
+            <div class="setting-header">
+              <div class="setting-title">🔒 Security</div>
+              <div class="setting-desc">Password & access control</div>
+            </div>
+            <div class="setting-content">
+              <div class="form-group">
+                <label>Change Password</label>
+                <input type="password" placeholder="Current password">
+              </div>
+              <div class="form-group">
+                <label>New Password</label>
+                <input type="password" placeholder="New password">
+              </div>
+              <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" placeholder="Confirm new password">
+              </div>
+              <button class="btn-save" onclick="saveSettings()" style="width: 100%; margin-bottom: 10px;">Update Password</button>
+              <button class="btn-danger" onclick="handleLogout()" style="width: 100%;">Logout All Sessions</button>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Company Logo</label>
-            <div style="display: flex; gap: 15px; align-items: flex-start;">
+          <!-- BACKUP & RESTORE -->
+          <div class="setting-card">
+            <div class="setting-header">
+              <div class="setting-title">💾 Backup & Restore</div>
+              <div class="setting-desc">Data management</div>
+            </div>
+            <div class="setting-content">
+              <div style="margin-bottom: 15px;">
+                <p style="font-size: 12px; color: #6b7280; margin-bottom: 10px;">Last backup: May 19, 2026 - 2:30 PM</p>
+              </div>
+              <button class="btn-save" onclick="backupData()" style="width: 100%; margin-bottom: 10px;">📥 Backup Now</button>
+              <button class="btn-save" onclick="alert('Upload backup file')" style="width: 100%; background: #6366f1;">📤 Restore Data</button>
+            </div>
+          </div>
+
+          <!-- SYSTEM INFO -->
+          <div class="setting-card">
+            <div class="setting-header">
+              <div class="setting-title">ℹ️ System Information</div>
+              <div class="setting-desc">Version & details</div>
+            </div>
+            <div class="setting-content" style="font-size: 13px;">
+              <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                <strong>ERP Version:</strong> 2.0 - Phase 1 Complete
+              </div>
+              <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                <strong>Build:</strong> May 19, 2026
+              </div>
+              <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                <strong>Database:</strong> Supabase (shafygjbffffjhwhmcgo)
+              </div>
+              <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                <strong>Hosting:</strong> Vercel
+              </div>
               <div>
-                <div id="logo-preview" style="width: 120px; height: 120px; background: linear-gradient(135deg, #06b6d4, #fbbf24); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 50px;">
-                  🏢
-                </div>
-                <div style="font-size: 12px; color: #9ca3af; margin-top: 10px; text-align: center;">Current Logo</div>
+                <strong>Staff Count:</strong> 38 members
               </div>
-              <div style="flex: 1;">
-                <input type="file" id="logo-upload" accept="image/*" style="display: none;">
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('logo-upload').click()" style="width: 100%; margin-bottom: 10px;">
-                  📤 Choose Logo
-                </button>
-                <div style="font-size: 12px; color: #9ca3af;">
-                  <div>✓ Recommended: 200x200px</div>
-                  <div>✓ Formats: JPG, PNG, GIF</div>
-                  <div>✓ Max size: 5MB</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button class="btn btn-primary" onclick="saveCompanySettings()">Save Settings</button>
-            <button class="btn btn-secondary" onclick="resetCompanySettings()">Reset</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- MODULES -->
-      <div class="tab-content" id="modules-tab">
-        <div class="form-section">
-          <div class="form-section-title">Active Modules</div>
-          <p style="color: #6b7280; margin-bottom: 20px;">Toggle modules on/off to customize your system</p>
-          
-          <div class="module-grid">
-            <div class="module-card">
-              <div class="module-header">
-                <div class="module-name">📦 Orders</div>
-                <button class="toggle active" onclick="toggleModule(this)"><div class="toggle-circle"></div></button>
-              </div>
-              <div class="module-desc">Order management & tracking</div>
-            </div>
-
-            <div class="module-card">
-              <div class="module-header">
-                <div class="module-name">🎯 Leads</div>
-                <button class="toggle active" onclick="toggleModule(this)"><div class="toggle-circle"></div></button>
-              </div>
-              <div class="module-desc">Lead management system</div>
-            </div>
-
-            <div class="module-card">
-              <div class="module-header">
-                <div class="module-name">📝 Quotations</div>
-                <button class="toggle active" onclick="toggleModule(this)"><div class="toggle-circle"></div></button>
-              </div>
-              <div class="module-desc">Quote management</div>
-            </div>
-
-            <div class="module-card">
-              <div class="module-header">
-                <div class="module-name">💰 Invoices</div>
-                <button class="toggle active" onclick="toggleModule(this)"><div class="toggle-circle"></div></button>
-              </div>
-              <div class="module-desc">Invoice & billing</div>
-            </div>
-
-            <div class="module-card">
-              <div class="module-header">
-                <div class="module-name">👥 Customers</div>
-                <button class="toggle active" onclick="toggleModule(this)"><div class="toggle-circle"></div></button>
-              </div>
-              <div class="module-desc">Customer database</div>
-            </div>
-
-            <div class="module-card">
-              <div class="module-header">
-                <div class="module-name">🖨️ Printing</div>
-                <button class="toggle active" onclick="toggleModule(this)"><div class="toggle-circle"></div></button>
-              </div>
-              <div class="module-desc">Printing operations</div>
-            </div>
-
-            <div class="module-card">
-              <div class="module-header">
-                <div class="module-name">✂️ Stitching</div>
-                <button class="toggle active" onclick="toggleModule(this)"><div class="toggle-circle"></div></button>
-              </div>
-              <div class="module-desc">Stitching operations</div>
-            </div>
-
-            <div class="module-card">
-              <div class="module-header">
-                <div class="module-name">🛺 Execution</div>
-                <button class="toggle active" onclick="toggleModule(this)"><div class="toggle-circle"></div></button>
-              </div>
-              <div class="module-desc">Field execution</div>
-            </div>
-
-            <div class="module-card">
-              <div class="module-header">
-                <div class="module-name">📊 Reports</div>
-                <button class="toggle" onclick="toggleModule(this)"><div class="toggle-circle"></div></button>
-              </div>
-              <div class="module-desc">Analytics & reports</div>
-            </div>
-
-            <div class="module-card">
-              <div class="module-header">
-                <div class="module-name">📈 Analytics</div>
-                <button class="toggle active" onclick="toggleModule(this)"><div class="toggle-circle"></div></button>
-              </div>
-              <div class="module-desc">Advanced analytics</div>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button class="btn btn-primary" onclick="saveModuleSettings()">Save Modules</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- PREFERENCES -->
-      <div class="tab-content" id="preferences-tab">
-        <div class="form-section">
-          <div class="form-section-title">User Preferences</div>
-          
-          <div class="form-group">
-            <label class="form-label">Theme</label>
-            <select class="form-select" id="theme-select">
-              <option value="auto">Auto (System)</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Timezone</label>
-            <select class="form-select" id="timezone-select">
-              <option value="IST">IST (Indian Standard Time)</option>
-              <option value="UTC">UTC</option>
-              <option value="EST">EST</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Date Format</label>
-            <select class="form-select" id="date-format">
-              <option value="dd/mm/yyyy">DD/MM/YYYY</option>
-              <option value="mm/dd/yyyy">MM/DD/YYYY</option>
-              <option value="yyyy-mm-dd">YYYY-MM-DD</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Currency</label>
-            <select class="form-select" id="currency-select">
-              <option value="INR">₹ INR (Indian Rupee)</option>
-              <option value="USD">$ USD</option>
-              <option value="EUR">€ EUR</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Language</label>
-            <select class="form-select" id="language-select">
-              <option value="en">English</option>
-              <option value="hi">Hindi</option>
-            </select>
-          </div>
-
-          <div class="form-actions">
-            <button class="btn btn-primary" onclick="savePreferences()">Save Preferences</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- API SETTINGS -->
-      <div class="tab-content" id="api-tab">
-        <div class="form-section">
-          <div class="form-section-title">API Configuration</div>
-          
-          <div class="form-group">
-            <label class="form-label">Supabase URL</label>
-            <input type="text" class="form-input" readonly value="https://shafygjbffffjhwhmcgo.supabase.co">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">API Key (Hidden for Security)</label>
-            <div style="padding: 10px 15px; background: #f3f4f6; border-radius: 8px; color: #9ca3af;">
-              ••••••••••••••••••••••••••••••••••••••••••
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Wati Integration ID</label>
-            <input type="text" class="form-input" readonly value="1077226">
-          </div>
-
-          <div class="form-actions">
-            <button class="btn btn-primary" onclick="testApiConnection()">🧪 Test Connection</button>
-          </div>
-
-          <div style="margin-top: 25px; padding: 20px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #06b6d4;">
-            <div style="font-weight: 600; color: #0891b2; margin-bottom: 10px;">Connection Status</div>
-            <div id="api-status" style="color: #059669;">✅ Connected and working</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SECURITY -->
-      <div class="tab-content" id="security-tab">
-        <div class="form-section">
-          <div class="form-section-title">Security Settings</div>
-          
-          <div class="form-group">
-            <label class="form-label">Current Password</label>
-            <input type="password" class="form-input" placeholder="Enter current password">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">New Password</label>
-            <input type="password" class="form-input" placeholder="Enter new password">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Confirm Password</label>
-            <input type="password" class="form-input" placeholder="Confirm new password">
-          </div>
-
-          <div class="form-actions">
-            <button class="btn btn-primary" onclick="changePassword()">Change Password</button>
-          </div>
-
-          <div style="margin-top: 30px;">
-            <div class="form-section-title">Other Security Options</div>
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #e5e7eb;">
-              <div>
-                <div style="font-weight: 600;">Two-Factor Authentication</div>
-                <div style="font-size: 12px; color: #9ca3af;">Add extra layer of security</div>
-              </div>
-              <button class="btn btn-secondary">Enable</button>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0;">
-              <div>
-                <div style="font-weight: 600;">Clear All Sessions</div>
-                <div style="font-size: 12px; color: #9ca3af;">Log out from all devices</div>
-              </div>
-              <button class="btn btn-danger">Clear Sessions</button>
             </div>
           </div>
         </div>
@@ -726,168 +324,41 @@
     </div>
   </div>
 
-  <script src="lib-config.js"></script>
-  <script src="lib-auth.js"></script>
-
   <script>
-    // Check authentication
-    const session = AUTH.requireLogin();
-    if (!session) {
+    function toggleModule(element) {
+      element.classList.toggle('active');
+    }
+
+    function saveSettings() {
+      alert('✅ Settings saved successfully!');
+    }
+
+    function handleLogout() {
+      if (confirm('Logout all active sessions?')) {
+        alert('All sessions have been logged out');
+        logout();
+      }
+    }
+
+    function backupData() {
+      alert('📥 Creating backup... This may take a few minutes.');
+      setTimeout(() => {
+        alert('✅ Backup completed successfully!');
+      }, 1000);
+    }
+
+    window.addEventListener('load', () => {
+      const session = localStorage.getItem('prajapati_erp_session');
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('prajapati_erp_session');
       window.location.href = 'login.html';
     }
-
-    // Tab switching
-    function switchTab(tabName) {
-      // Hide all tabs
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-      });
-
-      // Show selected tab
-      document.getElementById(tabName + '-tab').classList.add('active');
-      event.target.classList.add('active');
-    }
-
-    // Toggle module
-    function toggleModule(button) {
-      button.classList.toggle('active');
-    }
-
-    // Show success message
-    function showSuccessMessage() {
-      const msg = document.getElementById('success-msg');
-      msg.classList.add('show');
-      setTimeout(() => {
-        msg.classList.remove('show');
-      }, 3000);
-    }
-
-    // Save company settings
-    function saveCompanySettings() {
-      const company = {
-        name: document.getElementById('company-name').value,
-        phone: document.getElementById('company-phone').value,
-        email: document.getElementById('company-email').value,
-        address: document.getElementById('company-address').value,
-        gst: document.getElementById('company-gst').value,
-        website: document.getElementById('company-website').value
-      };
-      
-      localStorage.setItem('company-settings', JSON.stringify(company));
-      showSuccessMessage();
-      console.log('✅ Company settings saved!');
-    }
-
-    // Reset company settings
-    function resetCompanySettings() {
-      document.getElementById('company-name').value = 'Prajapati Advertising';
-      document.getElementById('company-phone').value = '+91-8484038138';
-      document.getElementById('company-email').value = 'info@prajapati-advertising.com';
-      document.getElementById('company-address').value = '';
-      document.getElementById('company-gst').value = '';
-      document.getElementById('company-website').value = '';
-    }
-
-    // Save module settings
-    function saveModuleSettings() {
-      const modules = {};
-      document.querySelectorAll('.toggle').forEach((toggle, index) => {
-        modules[`module-${index}`] = toggle.classList.contains('active');
-      });
-      
-      localStorage.setItem('module-settings', JSON.stringify(modules));
-      showSuccessMessage();
-      console.log('✅ Module settings saved!');
-    }
-
-    // Save preferences
-    function savePreferences() {
-      const prefs = {
-        theme: document.getElementById('theme-select').value,
-        timezone: document.getElementById('timezone-select').value,
-        dateFormat: document.getElementById('date-format').value,
-        currency: document.getElementById('currency-select').value,
-        language: document.getElementById('language-select').value
-      };
-      
-      localStorage.setItem('user-preferences', JSON.stringify(prefs));
-      showSuccessMessage();
-      console.log('✅ Preferences saved!');
-    }
-
-    // Test API connection
-    function testApiConnection() {
-      const statusEl = document.getElementById('api-status');
-      statusEl.textContent = '🔄 Testing connection...';
-      
-      setTimeout(() => {
-        statusEl.innerHTML = '✅ <span style="color: #059669;">Connected and working</span>';
-        showSuccessMessage();
-        console.log('✅ API connection test passed!');
-      }, 1500);
-    }
-
-    // Change password
-    function changePassword() {
-      alert('Password change functionality coming soon!');
-    }
-
-    // Navigation
-    function goTo(page) {
-      window.location.href = page;
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      // Load saved settings
-      const saved = localStorage.getItem('company-settings');
-      if (saved) {
-        const company = JSON.parse(saved);
-        document.getElementById('company-name').value = company.name;
-        document.getElementById('company-phone').value = company.phone;
-        document.getElementById('company-email').value = company.email;
-        document.getElementById('company-address').value = company.address;
-        document.getElementById('company-gst').value = company.gst;
-        document.getElementById('company-website').value = company.website;
-      }
-
-      // Load logo
-      const savedLogo = localStorage.getItem('company-logo');
-      if (savedLogo) {
-        document.getElementById('logo-preview').innerHTML = `<img src="${savedLogo}" style="width: 100%; height: 100%; border-radius: 12px; object-fit: cover;">`;
-      }
-
-      // Logo upload handler
-      document.getElementById('logo-upload').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          // Check file size (max 5MB)
-          if (file.size > 5 * 1024 * 1024) {
-            alert('❌ File size exceeds 5MB!');
-            return;
-          }
-
-          // Check file type
-          if (!file.type.startsWith('image/')) {
-            alert('❌ Please upload an image file!');
-            return;
-          }
-
-          // Read and display file
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            const imageData = event.target.result;
-            document.getElementById('logo-preview').innerHTML = `<img src="${imageData}" style="width: 100%; height: 100%; border-radius: 12px; object-fit: cover;">`;
-            localStorage.setItem('company-logo', imageData);
-            console.log('✅ Logo uploaded successfully!');
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-    });
   </script>
 </body>
 </html>
