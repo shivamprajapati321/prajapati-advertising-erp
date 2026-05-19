@@ -6,478 +6,116 @@
   <title>Login - Prajapati ERP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .login-container {
-      background: white;
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      max-width: 450px;
-      width: 100%;
-    }
-
-    .logo-section {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .logo {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, #06b6d4, #fbbf24);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 30px;
-      margin: 0 auto 15px;
-      box-shadow: 0 8px 16px rgba(6, 182, 212, 0.3);
-    }
-
-    .brand {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1f2937;
-    }
-
-    .brand-highlight {
-      color: #06b6d4;
-    }
-
-    .brand-sub {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-top: 5px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .welcome {
-      font-size: 18px;
-      color: #1f2937;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-
-    .subtitle {
-      font-size: 14px;
-      color: #9ca3af;
-      margin-bottom: 25px;
-    }
-
-    .error-message {
-      background: #fee2e2;
-      color: #991b1b;
-      padding: 12px 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      display: none;
-      font-size: 13px;
-      border-left: 4px solid #dc2626;
-    }
-
-    .error-message.show {
-      display: block;
-      animation: slideDown 0.3s ease;
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #374151;
-      font-size: 14px;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 12px 15px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: #06b6d4;
-      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
-    }
-
-    .form-input::placeholder {
-      color: #d1d5db;
-    }
-
-    .btn-send {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn-send:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(30, 60, 114, 0.3);
-    }
-
-    .btn-send:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    .btn-send:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .btn-icon {
-      font-size: 16px;
-    }
-
-    .help-text {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 13px;
-      color: #9ca3af;
-    }
-
-    .help-link {
-      color: #06b6d4;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .help-link:hover {
-      text-decoration: underline;
-    }
-
-    .loading-spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .success-message {
-      background: #d1fae5;
-      color: #059669;
-      padding: 12px 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      display: none;
-      font-size: 13px;
-      border-left: 4px solid #10b981;
-    }
-
-    .success-message.show {
-      display: block;
-      animation: slideDown 0.3s ease;
-    }
-
-    @media (max-width: 480px) {
-      .login-container {
-        padding: 30px 20px;
-      }
-
-      .welcome {
-        font-size: 16px;
-      }
-
-      .btn-send {
-        font-size: 14px;
-      }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); max-width: 450px; width: 100%; }
+    .header { text-align: center; margin-bottom: 30px; }
+    .logo { width: 60px; height: 60px; background: linear-gradient(135deg, #06b6d4, #fbbf24); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 15px; box-shadow: 0 8px 16px rgba(6, 182, 212, 0.3); }
+    .brand { font-size: 24px; font-weight: 700; color: #1f2937; }
+    .brand-highlight { color: #06b6d4; }
+    .subtitle { font-size: 14px; color: #9ca3af; margin-top: 10px; }
+    .error-message { background: #fee2e2; color: #991b1b; padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; display: none; font-size: 13px; border-left: 4px solid #dc2626; }
+    .error-message.show { display: block; animation: slideDown 0.3s ease; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 14px; }
+    input { width: 100%; padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: inherit; transition: all 0.3s ease; }
+    input:focus { outline: none; border-color: #06b6d4; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1); }
+    input::placeholder { color: #d1d5db; }
+    button { width: 100%; padding: 12px; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 15px; }
+    button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(30, 60, 114, 0.3); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .demo-info { background: #ecfdf5; border: 1px solid #a7f3d0; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 12px; color: #047857; line-height: 1.6; }
+    .demo-info strong { display: block; margin-bottom: 5px; }
   </style>
 </head>
 <body>
   <div class="login-container">
-    <!-- LOGO & BRAND -->
-    <div class="logo-section">
-      <div class="logo">📦</div>
+    <div class="header">
+      <div class="logo">🔐</div>
       <div class="brand">PRAJAPATI<span class="brand-highlight">ERP</span></div>
-      <div class="brand-sub">Enterprise Operations Suite</div>
+      <div class="subtitle">Enterprise Operations Suite</div>
     </div>
 
-    <!-- WELCOME -->
-    <div class="welcome">Welcome back 👋</div>
-    <div class="subtitle">WhatsApp number डालो, OTP भेजेंगे</div>
+    <div class="error-message" id="error"></div>
 
-    <!-- ERROR MESSAGE -->
-    <div class="error-message" id="error-msg"></div>
-    <div class="success-message" id="success-msg">✅ OTP भेज दिया गया! Check WhatsApp</div>
+    <div class="demo-info">
+      <strong>📝 Demo Credentials:</strong>
+      Phone: +91-8484038138<br>
+      Password: admin@123
+    </div>
 
-    <!-- FORM -->
     <div class="form-group">
-      <label class="form-label">WhatsApp Number</label>
-      <input 
-        type="tel" 
-        class="form-input" 
-        id="phone-input" 
-        placeholder="+91-8484038138"
-        value="+91-8484038138"
-      >
+      <label>Phone or Username</label>
+      <input type="text" id="username" placeholder="+91-8484038138 या admin" value="+91-8484038138">
     </div>
 
-    <!-- SEND OTP BUTTON -->
-    <button class="btn-send" id="send-btn" onclick="sendOTP()">
-      <span class="btn-icon" id="btn-icon">📱</span>
-      <span id="btn-text">SEND OTP</span>
-    </button>
-
-    <!-- HELP -->
-    <div class="help-text">
-      समस्या? <span class="help-link" onclick="contactAdmin()">Contact admin</span>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" value="admin@123">
     </div>
+
+    <button id="loginBtn" onclick="login()">LOGIN</button>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script>
-    // ════════════════════════════════════════════════════════════════
-    // CONFIG - Supabase Configuration
-    // ════════════════════════════════════════════════════════════════
-    
-    const CONFIG = {
-      SUPABASE_URL: 'https://shafygjbffffjhwhmcgo.supabase.co',
-      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE',
-      WATI_ENDPOINT: 'https://live-mt-server.wati.io/1077226/api/send',
-      WATI_API_TOKEN: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImluZm9AcHJhamFwYXRpYWR2ZXJ0aXNpbmcuY29tIiwibmFtZWlkIjoiaW5mb0BwcmFqYXBhdGlhZHZlcnRpc2luZy5jb20iLCJlbWFpbCI6ImluZm9AcHJhamFwYXRpYWR2ZXJ0aXNpbmcuY29tIiwiYXV0aF90aW1lIjoiMDUvMTkvMjAyNiAwNDoyMDo0MyIsInRlbmFudF9pZCI6IjEwNzcyMjYiLCJkYl9uYW1lIjoibXQtcHJvZC1UZW5hbnRzIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQURNSU5JU1RSQVRPUiIsImV4cCI6MjUzNDAyMzAwODAwLCJpc3MiOiJDbGFyZV9BSSIsImF1ZCI6IkNsYXJlX0FJIn0.9a7XHrQvAb397S_0Kcvb-OBu6m9rUun-ru8e-XcXS3c',
-      SESSION_KEY: 'prajapati_erp_session'
+    const DEMO_USERS = {
+      '+91-8484038138': 'admin@123',
+      'admin': 'prajapati@123',
+      'info@prajapati.com': 'password123'
     };
 
-    // Initialize Supabase
-    const supabaseClient = window.supabase.createClient(
-      CONFIG.SUPABASE_URL,
-      CONFIG.SUPABASE_ANON_KEY
-    );
-
-    // ════════════════════════════════════════════════════════════════
-    // HELPER FUNCTIONS
-    // ════════════════════════════════════════════════════════════════
-
-    function showError(message) {
-      const errorEl = document.getElementById('error-msg');
-      errorEl.textContent = '❌ ' + message;
-      errorEl.classList.add('show');
-      setTimeout(() => errorEl.classList.remove('show'), 5000);
+    function showError(msg) {
+      const el = document.getElementById('error');
+      el.textContent = '❌ ' + msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 4000);
     }
 
-    function showSuccess(message) {
-      const successEl = document.getElementById('success-msg');
-      successEl.textContent = '✅ ' + message;
-      successEl.classList.add('show');
-      setTimeout(() => successEl.classList.remove('show'), 5000);
-    }
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('loginBtn');
 
-    function setLoading(loading) {
-      const btn = document.getElementById('send-btn');
-      const btnText = document.getElementById('btn-text');
-      const btnIcon = document.getElementById('btn-icon');
-      
-      if (loading) {
-        btn.disabled = true;
-        btnText.textContent = 'Sending...';
-        btnIcon.innerHTML = '<span class="loading-spinner"></span>';
-      } else {
-        btn.disabled = false;
-        btnText.textContent = 'SEND OTP';
-        btnIcon.textContent = '📱';
-      }
-    }
-
-    // ════════════════════════════════════════════════════════════════
-    // SEND OTP FUNCTION
-    // ════════════════════════════════════════════════════════════════
-
-    async function sendOTP() {
-      const phone = document.getElementById('phone-input').value.trim();
-
-      // Validation
-      if (!phone) {
-        showError('Phone number दर्ज करो!');
+      if (!username || !password) {
+        showError('Please enter both username and password');
         return;
       }
 
-      if (phone.length < 10) {
-        showError('Valid phone number दर्ज करो!');
-        return;
-      }
+      btn.disabled = true;
+      btn.textContent = 'Logging in...';
 
-      setLoading(true);
-
-      try {
-        console.log('📱 OTP भेज रहे हैं...', phone);
-
-        // Generate OTP
-        const otp = Math.floor(100000 + Math.random() * 900000);
-        
-        // Normalize phone number for Wati
-        const phoneForWati = phone.replace(/[^0-9]/g, '');
-        const fullPhone = phoneForWati.startsWith('91') ? phoneForWati : '91' + phoneForWati;
-
-        // Send OTP via Wati API
-        const watiResponse = await sendWhatsAppOTP(fullPhone, otp);
-
-        if (watiResponse.success) {
-          console.log('✅ OTP भेज दिया गया!', {
-            phone: phone,
-            otp: otp,
-            watiStatus: watiResponse.status
-          });
-
-          // Store OTP temporarily
-          sessionStorage.setItem('otp_phone', phone);
-          sessionStorage.setItem('otp_code', String(otp));
-          sessionStorage.setItem('otp_timestamp', Date.now());
-
-          showSuccess('✅ OTP भेज दिया गया! WhatsApp check करो');
-
-          // Redirect to OTP verification page after 2 seconds
-          setTimeout(() => {
-            window.location.href = 'verify-otp.html?phone=' + encodeURIComponent(phone);
-          }, 2000);
-        } else {
-          throw new Error(watiResponse.error || 'Failed to send OTP');
-        }
-
-      } catch (error) {
-        console.error('❌ Error:', error);
-        showError('OTP भेजने में error आया। फिर से कोशिश करो!');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    // Send WhatsApp OTP via Wati API (FIXED FORMAT)
-    async function sendWhatsAppOTP(phoneNumber, otp) {
-      try {
-        const WATI_ENDPOINT = 'https://live-mt-server.wati.io/1077226/api/send?token=' + CONFIG.WATI_API_TOKEN;
-        
-        const message = `आपका OTP है: ${otp}\n\n2 मिनट के लिए valid है।\n\nPrajapati ERP`;
-
-        console.log('📤 Wati API को भेज रहे हैं...', {
-          phone: phoneNumber,
-          otp: otp,
-          message: message
-        });
-
-        // CORRECT FORMAT for Wati API
-        const payload = {
-          phoneNumber: phoneNumber,
-          body: message
-        };
-
-        console.log('📝 Payload:', payload);
-
-        const response = await fetch(WATI_ENDPOINT, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        console.log('📊 Response Status:', response.status);
-        
-        const data = await response.json();
-        console.log('📥 Response Data:', data);
-
-        if (response.ok || data.result === true || data.result === 'true' || data.statusCode === 200) {
-          console.log('✅ Wati API Success - OTP sent to WhatsApp!', data);
-          return {
-            success: true,
-            status: 'sent',
-            data: data
+      setTimeout(() => {
+        if (DEMO_USERS[username] === password) {
+          const session = {
+            username: username,
+            role: 'admin',
+            loginTime: new Date().toISOString(),
+            verified: true
           };
+
+          localStorage.setItem('prajapati_erp_session', JSON.stringify(session));
+          console.log('✅ Login successful');
+          window.location.href = 'dashboard.html';
         } else {
-          console.warn('⚠️ Wati API Response:', data);
-          // Fallback to demo mode
-          console.log('📝 Falling back to demo mode for testing');
-          return {
-            success: true,
-            status: 'demo-fallback',
-            error: null
-          };
+          showError('Invalid username or password');
+          btn.disabled = false;
+          btn.textContent = 'LOGIN';
         }
-
-      } catch (error) {
-        console.error('❌ Wati API Exception:', error);
-        // Fallback: Still allow user to verify with demo OTP
-        console.log('📝 Demo mode fallback: OTP stored but not sent via API');
-        return {
-          success: true,
-          status: 'demo-fallback',
-          error: error.message
-        };
-      }
+      }, 500);
     }
 
-    function contactAdmin() {
-      const adminPhone = '+918484038138';
-      window.open(`https://wa.me/${adminPhone.replace(/[^0-9]/g, '')}?text=Hello%20Prajapati%20Admin`, '_blank');
-    }
-
-    // Allow Enter key to send OTP
-    document.getElementById('phone-input').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        sendOTP();
-      }
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') login();
     });
 
-    console.log('✅ Login Page Loaded');
-    console.log('✅ CONFIG Defined:', CONFIG);
-    console.log('✅ Supabase Ready');
+    window.addEventListener('load', () => {
+      if (localStorage.getItem('prajapati_erp_session')) {
+        window.location.href = 'dashboard.html';
+      }
+    });
   </script>
 </body>
 </html>
