@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prajapati Advertising ERP | Web Core Phase 4</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="web-erp-core.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><div class="logo">PA</div><div><h1>Prajapati ERP</h1><p>Web Core Phase 4</p></div></div>
+      <div class="nav" id="nav">
+        <button class="active" data-panel="dashboard">📊 CEO Dashboard</button>
+        <button data-panel="orders">🧾 Order Master</button>
+        <button data-panel="production">🖨️ Printing & Stitching</button>
+        <button data-panel="execution">🚕 Execution</button>
+        <button data-panel="expenses">💸 Expenses</button>
+        <button data-panel="accountant">🏦 Accountant</button>
+        <button data-panel="client">👤 Client Progress</button>
+        <button data-panel="permissions">🔐 Permissions</button>
+      </div>
+      <p class="footer-note">Finance data is hidden automatically for Operation, Printing, Stitching, Execution and Client roles.</p>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="title"><h2 id="pageTitle">CEO Dashboard</h2><p id="pageSub">Live order workflow, expenses, profitability and role-wise visibility.</p></div>
+        <div class="toolbar">
+          <select class="select" id="roleSelect">
+            <option>Admin</option><option>Sales</option><option>Operation</option><option>Printing</option><option>Stitching</option><option>Execution</option><option>Accountant</option><option>Client</option>
+          </select>
+          <button class="btn secondary" id="refreshBtn">Refresh</button>
+          <button class="btn" id="newOrderBtn">+ New Order</button>
+        </div>
+      </div>
+
+      <section class="grid cards">
+        <div class="card metric"><small>Total Orders</small><strong id="mOrders">0</strong><span>Active projects</span></div>
+        <div class="card metric finance-only"><small>Revenue</small><strong id="mRevenue">₹0</strong><span>Client order value</span></div>
+        <div class="card metric finance-only"><small>Total Cost</small><strong id="mCost">₹0</strong><span>Work + expenses</span></div>
+        <div class="card metric finance-only"><small>Est. Profit</small><strong id="mProfit">₹0</strong><span>Admin/accountant only</span></div>
+        <div class="card metric no-finance hidden"><small>Privacy Mode</small><strong>ON</strong><span>Finance hidden for this role</span></div>
+      </section>
+
+      <section id="dashboard" class="panel active">
+        <div class="split">
+          <div class="card">
+            <h3>Project Profitability Overview</h3>
+            <div class="privacy-note no-finance hidden">This role cannot see client amount, internal cost, profit, or payment details.</div>
+            <div class="table-wrap finance-only"><table><thead><tr><th>Project</th><th>Client</th><th>Revenue</th><th>Work Cost</th><th>Expenses</th><th>Received</th><th>Profit</th></tr></thead><tbody id="profitRows"></tbody></table></div>
+          </div>
+          <div class="card">
+            <h3>Activity Timeline</h3>
+            <div class="timeline" id="timeline"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="orders" class="panel">
+        <div class="card">
+          <h3>Order Master Control Center</h3>
+          <p class="footer-note">One project ID controls printing, stitching, execution, expense, invoice and payment.</p>
+          <div class="table-wrap"><table><thead><tr><th>Project</th><th>Client</th><th>City</th><th>Qty</th><th class="finance-only">Amount</th><th>Status</th><th>Progress</th><th>Action</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+        </div>
+      </section>
+
+      <section id="production" class="panel">
+        <div class="card">
+          <div class="toolbar" style="justify-content:space-between"><h3>Production Board</h3><button class="btn" id="addTaskBtn">+ Add Production Entry</button></div>
+          <div class="kanban" id="kanban"></div>
+        </div>
+      </section>
+
+      <section id="execution" class="panel">
+        <div class="split">
+          <div class="card"><h3>Execution Entries</h3><div class="table-wrap"><table><thead><tr><th>Project</th><th>Team</th><th>Location</th><th>Qty</th><th class="finance-only">Rate</th><th>Status</th></tr></thead><tbody id="executionRows"></tbody></table></div></div>
+          <div class="card"><h3>Add Execution Work</h3><form id="executionForm" class="form-grid"><select class="select full" name="order_id" required></select><input class="input" name="assigned_to" placeholder="Team name" required><input class="input" name="location" placeholder="Location" required><input class="input" name="quantity" type="number" placeholder="Quantity" required><input class="input finance-only" name="rate" type="number" placeholder="Rate / work"><select class="select" name="status"><option>pending</option><option>in_progress</option><option>completed</option></select><button class="btn full">Save Execution</button></form></div>
+        </div>
+      </section>
+
+      <section id="expenses" class="panel">
+        <div class="split">
+          <div class="card"><h3>Project Expenses</h3><div class="table-wrap"><table><thead><tr><th>Project</th><th>Date</th><th>Team</th><th>Category</th><th>Location</th><th>Amount</th><th>Status</th></tr></thead><tbody id="expenseRows"></tbody></table></div></div>
+          <div class="card"><h3>Add Expense</h3><form id="expenseForm" class="form-grid"><select class="select full" name="order_id" required></select><input class="input" name="team_name" placeholder="Team / person" required><input class="input" name="location" placeholder="Location"><select class="select" name="category"><option>Hotel</option><option>Food</option><option>Auto</option><option>Bus</option><option>Petrol</option><option>Labour</option><option>Material</option><option>Other</option></select><input class="input" name="amount" type="number" placeholder="Amount" required><input class="input full" name="description" placeholder="Details"><button class="btn full">Submit Expense</button></form></div>
+        </div>
+      </section>
+
+      <section id="accountant" class="panel">
+        <div class="card finance-only"><h3>Accountant Payment Desk</h3><form id="paymentForm" class="form-grid"><select class="select full" name="order_id" required></select><select class="select" name="payment_type"><option>client_receipt</option><option>expense_payment</option><option>team_payment</option><option>vendor_payment</option></select><input class="input" name="amount" type="number" placeholder="Amount" required><input class="input" name="mode" placeholder="UPI / Bank / Cash"><input class="input" name="reference_no" placeholder="Reference No"><input class="input full" name="paid_to_or_from" placeholder="Paid to / received from"><button class="btn full">Save Payment</button></form><br><div class="table-wrap"><table><thead><tr><th>Project</th><th>Type</th><th>Amount</th><th>Mode</th><th>Ref</th></tr></thead><tbody id="paymentRows"></tbody></table></div></div>
+        <div class="card no-finance hidden"><div class="privacy-note">Accountant page is restricted. This role cannot access payments.</div></div>
+      </section>
+
+      <section id="client" class="panel">
+        <div class="card"><h3>Client Live Progress View</h3><select class="select" id="clientOrderSelect"></select><br><br><div class="client-track" id="clientTrack"></div></div>
+      </section>
+
+      <section id="permissions" class="panel">
+        <div class="card"><h3>Role Permission Matrix</h3><div class="table-wrap"><table><thead><tr><th>Role</th><th>Can See Finance</th><th>Can Create Order</th><th>Can Add Expenses</th><th>Can Add Payments</th><th>Client/Internal Cost Hidden</th></tr></thead><tbody id="permissionRows"></tbody></table></div></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="orderModal"><div class="modal-box"><div class="modal-head"><h3>Create New Order</h3><button class="x" data-close="orderModal">×</button></div><form id="orderForm" class="form-grid"><input class="input" name="client_name" placeholder="Client / Company name" required><input class="input" name="client_phone" placeholder="Phone"><input class="input" name="city" placeholder="City" required><select class="select" name="service_type"><option>Auto Rickshaw Hood Branding</option><option>Back Panel Branding</option><option>No Parking Board</option><option>Bus Branding</option><option>Flex / Printing</option></select><input class="input" name="quantity" type="number" placeholder="Quantity" required><input class="input finance-only" name="order_amount" type="number" placeholder="Client Amount"><input class="input" name="assigned_operation" placeholder="Operation Manager" value="Ravi Kumar"><button class="btn full">Create Order</button></form></div></div>
+  <div class="modal" id="taskModal"><div class="modal-box"><div class="modal-head"><h3>Add Production Entry</h3><button class="x" data-close="taskModal">×</button></div><form id="taskForm" class="form-grid"><select class="select full" name="order_id" required></select><select class="select" name="task_type"><option>printing</option><option>stitching</option><option>dispatch</option><option>reporting</option></select><input class="input" name="assigned_to" placeholder="Operator / Master name" required><input class="input" name="quantity" type="number" placeholder="Quantity" required><input class="input finance-only" name="rate" type="number" placeholder="Rate per pc / work"><select class="select" name="status"><option>pending</option><option>in_progress</option><option>completed</option></select><input class="input" name="progress" type="number" placeholder="Progress %" value="0"><textarea class="input full" name="notes" placeholder="Notes"></textarea><button class="btn full">Save Entry</button></form></div></div>
+  <div class="toast" id="toast"></div>
+  <script type="module" src="web-erp-core.js"></script>
+</body>
+</html>
