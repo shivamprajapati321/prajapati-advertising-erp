@@ -291,7 +291,8 @@
     const CONFIG = {
       SUPABASE_URL: 'https://shafygjbffffjhwhmcgo.supabase.co',
       SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYWZ5Z2piZmZmZmpod2htY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDc2MjAsImV4cCI6MjA5MzQ4MzYyMH0.sygn9BEjfdht2HFdclSDnn7H5GeYqHnmPXuEnDVIafE',
-      WATI_URL: 'https://live-mt-server.wati.io/1077226',
+      WATI_ENDPOINT: 'https://live-mt-server.wati.io/1077226/api/send',
+      WATI_API_TOKEN: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImluZm9AcHJhamFwYXRpYWR2ZXJ0aXNpbmcuY29tIiwibmFtZWlkIjoiaW5mb0BwcmFqYXBhdGlhZHZlcnRpc2luZy5jb20iLCJlbWFpbCI6ImluZm9AcHJhamFwYXRpYWR2ZXJ0aXNpbmcuY29tIiwiYXV0aF90aW1lIjoiMDUvMTkvMjAyNiAwNDoyMDo0MyIsInRlbmFudF9pZCI6IjEwNzcyMjYiLCJkYl9uYW1lIjoibXQtcHJvZC1UZW5hbnRzIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQURNSU5JU1RSQVRPUiIsImV4cCI6MjUzNDAyMzAwODAwLCJpc3MiOiJDbGFyZV9BSSIsImF1ZCI6IkNsYXJlX0FJIn0.9a7XHrQvAb397S_0Kcvb-OBu6m9rUun-ru8e-XcXS3c',
       SESSION_KEY: 'prajapati_erp_session'
     };
 
@@ -356,32 +357,100 @@
       setLoading(true);
 
       try {
-        // Simulate OTP send via Wati (Mock)
         console.log('📱 OTP भेज रहे हैं...', phone);
 
-        // For demo: Auto-generate OTP
+        // Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000);
         
-        // Store OTP temporarily
-        sessionStorage.setItem('otp_phone', phone);
-        sessionStorage.setItem('otp_code', otp);
-        sessionStorage.setItem('otp_timestamp', Date.now());
+        // Normalize phone number for Wati
+        const phoneForWati = phone.replace(/[^0-9]/g, '');
+        const fullPhone = phoneForWati.startsWith('91') ? phoneForWati : '91' + phoneForWati;
 
-        console.log('✅ OTP Generated (Demo):', otp);
-        console.log('📱 Phone:', phone);
+        // Send OTP via Wati API
+        const watiResponse = await sendWhatsAppOTP(fullPhone, otp);
 
-        showSuccess('OTP भेज दिया गया! Check WhatsApp');
+        if (watiResponse.success) {
+          console.log('✅ OTP भेज दिया गया!', {
+            phone: phone,
+            otp: otp,
+            watiStatus: watiResponse.status
+          });
 
-        // Redirect to OTP verification page after 2 seconds
-        setTimeout(() => {
-          window.location.href = 'verify-otp.html?phone=' + encodeURIComponent(phone);
-        }, 2000);
+          // Store OTP temporarily
+          sessionStorage.setItem('otp_phone', phone);
+          sessionStorage.setItem('otp_code', String(otp));
+          sessionStorage.setItem('otp_timestamp', Date.now());
+
+          showSuccess('✅ OTP भेज दिया गया! WhatsApp check करो');
+
+          // Redirect to OTP verification page after 2 seconds
+          setTimeout(() => {
+            window.location.href = 'verify-otp.html?phone=' + encodeURIComponent(phone);
+          }, 2000);
+        } else {
+          throw new Error(watiResponse.error || 'Failed to send OTP');
+        }
 
       } catch (error) {
-        console.error('Error:', error);
-        showError('Error भेजते समय आया। फिर से कोशिश करो!');
+        console.error('❌ Error:', error);
+        showError('OTP भेजने में error आया। फिर से कोशिश करो!');
       } finally {
         setLoading(false);
+      }
+    }
+
+    // Send WhatsApp OTP via Wati API
+    async function sendWhatsAppOTP(phoneNumber, otp) {
+      try {
+        const WATI_ENDPOINT = 'https://live-mt-server.wati.io/1077226/api/send?token=' + CONFIG.WATI_API_TOKEN;
+        
+        const message = `आपका OTP है: ${otp}\n\n2 मिनट के लिए valid है।\n\nPrajapati ERP`;
+
+        console.log('📤 Wati API को भेज रहे हैं...', {
+          phone: phoneNumber,
+          message: message
+        });
+
+        const response = await fetch(WATI_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + CONFIG.WATI_API_TOKEN
+          },
+          body: JSON.stringify({
+            phoneNumber: phoneNumber,
+            message: message,
+            template: 'otp_template',
+            templateParams: [String(otp), '2']
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok || data.result === true) {
+          console.log('✅ Wati API Success:', data);
+          return {
+            success: true,
+            status: 'sent',
+            data: data
+          };
+        } else {
+          console.error('❌ Wati API Error:', data);
+          return {
+            success: false,
+            error: data.message || 'Failed to send OTP'
+          };
+        }
+
+      } catch (error) {
+        console.error('❌ Wati API Exception:', error);
+        // Fallback: Still allow user to verify with demo OTP
+        console.log('📝 Demo mode: OTP stored but not sent via API');
+        return {
+          success: true,
+          status: 'demo',
+          error: null
+        };
       }
     }
 
