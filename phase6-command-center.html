@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prajapati ERP Phase 6 Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="phase6-command-center.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">PA</div>
+        <div><strong>Prajapati ERP</strong><span>Command Center</span></div>
+      </div>
+      <nav>
+        <a class="active" href="#overview">Overview</a>
+        <a href="#approvals">Approvals</a>
+        <a href="#profitability">Profitability</a>
+        <a href="#documents">Documents</a>
+        <a href="#notifications">Notifications</a>
+        <a href="#audit">Audit Logs</a>
+        <a href="#client">Client View</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Phase 6 Web ERP</p>
+          <h1>Business Command Center</h1>
+        </div>
+        <div class="role-switcher">
+          <label>View as</label>
+          <select id="roleSelect">
+            <option value="admin">Admin</option>
+            <option value="sales">Sales</option>
+            <option value="operation">Operation</option>
+            <option value="printing">Printing</option>
+            <option value="stitching">Stitching</option>
+            <option value="execution">Execution</option>
+            <option value="accountant">Accountant</option>
+            <option value="client">Client</option>
+          </select>
+        </div>
+      </header>
+
+      <section id="overview" class="grid kpi-grid"></section>
+
+      <section class="panel split">
+        <div>
+          <div class="section-title"><span>Live Projects</span><button onclick="seedProject()">+ Demo Project</button></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Project</th><th>Client</th><th>Status</th><th>Progress</th><th class="finance">Value</th><th>Owner</th></tr></thead>
+              <tbody id="projectRows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="quick-card">
+          <h3>Workflow Health</h3>
+          <div id="workflowHealth"></div>
+        </div>
+      </section>
+
+      <section id="approvals" class="panel">
+        <div class="section-title"><span>Approval Center</span><button onclick="approveAllVisible()">Approve Visible</button></div>
+        <div id="approvalList" class="approval-list"></div>
+      </section>
+
+      <section id="profitability" class="panel finance-block">
+        <div class="section-title"><span>Project Profitability</span><button onclick="exportProfitCSV()">Export CSV</button></div>
+        <div class="profit-grid" id="profitGrid"></div>
+      </section>
+
+      <section id="documents" class="panel">
+        <div class="section-title"><span>Document Center</span><button onclick="generateDoc()">Generate Document</button></div>
+        <div class="doc-grid" id="docGrid"></div>
+      </section>
+
+      <section id="notifications" class="panel">
+        <div class="section-title"><span>Notification Rules</span><button onclick="triggerNotification()">Test Alert</button></div>
+        <div id="notificationRules" class="rules"></div>
+      </section>
+
+      <section id="audit" class="panel">
+        <div class="section-title"><span>Audit Logs</span><button onclick="clearAudit()">Clear Demo Logs</button></div>
+        <div id="auditLogs" class="audit-list"></div>
+      </section>
+
+      <section id="client" class="panel client-panel">
+        <div class="section-title"><span>Client Progress Preview</span><button onclick="copyClientLink()">Copy Client Link</button></div>
+        <div id="clientProgress"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="phase6-command-center.js"></script>
+</body>
+</html>
